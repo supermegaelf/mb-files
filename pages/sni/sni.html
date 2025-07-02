@@ -3,72 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All About Cats</title>
+    <title>Dashboard</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f0f0f0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             color: #333;
         }
-        header {
-            background-color: #ff6f61;
-            color: white;
-            text-align: center;
-            padding: 1em 0;
-        }
+
         .container {
-            padding: 20px;
-            max-width: 1200px;
-            margin: auto;
-        }
-        .cat {
-            background-color: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin: 20px 0;
-            padding: 20px;
-        }
-        .cat img {
-            max-width: 100px;
-            border-radius: 5px;
-            float: left;
-            margin-right: 20px;
-        }
-        .cat h2 {
-            color: #ff6f61;
-            clear: both;
-        }
-        footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-            position: fixed;
-            bottom: 0;
             width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            color: #dc3545;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .message {
+            color: #dc3545;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.9rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                max-width: 90%;
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .message {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-
-<header>
-    <h1>All About Cats</h1>
-</header>
-
-<div class="container">
-    <section class="cat" id="cats">
-        <h2>Cats</h2>
-        <p>Cats are independent and affectionate pets. They are known for their playful antics and comforting purrs. Cats come in various breeds, each with unique characteristics. Whether you prefer a fluffy Persian or a sleek Siamese, there is a cat for every preference.</p>
-        <p>Owning a cat can be a rewarding experience as they are relatively low-maintenance and provide great companionship. They are perfect for apartment living and can adapt well to various environments. Cats also offer several health benefits to their owners, including reduced stress and anxiety levels.</p>
-        <p>Understanding your cat's behavior and needs is crucial to developing a strong bond. Providing them with a balanced diet, regular veterinary check-ups, and plenty of playtime can ensure they live a happy and healthy life.</p>
-    </section>
-</div>
-
-<footer>
-    <p>&copy; 2024 All About Cats. All rights reserved.</p>
-</footer>
-
+    <div class="container">
+        <h2>Website Temporarily Unavailable</h2>
+        <p class="message">Please try again later.</p>
+        <form action="#" method="post">
+            <div class="form-group">
+                <label for="login">Login</label>
+                <input type="text" id="login" name="login" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Sign In</button>
+        </form>
+    </div>
 </body>
 </html>
