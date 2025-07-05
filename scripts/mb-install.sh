@@ -923,6 +923,28 @@ fi
 echo "Checking container status..."
 $COMPOSE ps
 
+echo "Configuring host via database..."
+
+# Wait for database to be fully ready
+sleep 15
+
+# Update existing host record
+docker exec marzban-mariadb-1 mariadb -u marzban -p"$MYSQL_PASSWORD" marzban << EOF
+UPDATE hosts SET
+    remark = 'Steal',
+    address = '$SELFSTEAL_DOMAIN',
+    port = 443,
+    sni = '$PANEL_DOMAIN',
+    fingerprint = 'chrome'
+WHERE id = 1;
+EOF
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}Host configured successfully via database${NC}"
+else
+    echo -e "${YELLOW}Warning: Failed to configure host via database${NC}"
+fi
+
 echo -e "${GREEN}------------------------------------------${NC}"
 echo -e "${GREEN}✓${NC} Docker containers started successfully!"
 echo -e "${GREEN}------------------------------------------${NC}"
