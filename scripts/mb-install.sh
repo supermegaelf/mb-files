@@ -360,9 +360,9 @@ echo
 
 # Nginx Installation and Configuration
 echo "Installing Nginx from official repository..."
-curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /etc/apt/keyrings/nginx-signing.gpg > /dev/null 2>&1
+curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor --yes -o /etc/apt/keyrings/nginx-signing.gpg > /dev/null 2>&1
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/nginx-signing.gpg] http://nginx.org/packages/ubuntu $(lsb_release -cs) nginx" > /etc/apt/sources.list.d/nginx.list
-apt update && apt install nginx -y > /dev/null 2>&1
+apt update > /dev/null 2>&1 && apt install nginx -y > /dev/null 2>&1
 
 echo "Creating SSL snippets..."
 # Create snippets directory if it doesn't exist
@@ -923,26 +923,99 @@ fi
 echo "Checking container status..."
 $COMPOSE ps
 
-echo "Configuring host via database..."
+echo -e "${GREEN}==============================${NC}"
+echo -e "${WHITE}8. Creating admin user${NC}"
+echo -e "${GREEN}==============================${NC}"
+echo
 
-# Wait for database to be fully ready
-sleep 15
+# Install python3-bcrypt if not available
+if ! python3 -c "import bcrypt" 2>/dev/null; then
+    echo "Installing python3-bcrypt..."
+    apt-get update > /dev/null 2>&1
+    apt-get -y install python3-bcrypt > /dev/null 2>&1
+fi
 
-# Update existing host record
-docker exec marzban-mariadb-1 mariadb -u marzban -p"$MYSQL_PASSWORD" marzban << EOF
-UPDATE hosts SET
-    remark = 'Steal',
-    address = '$SELFSTEAL_DOMAIN',
-    port = 443,
-    sni = '$PANEL_DOMAIN',
-    fingerprint = 'chrome'
-WHERE id = 1;
-EOF
+# Generate random password
+ADMIN_PASSWORD=$(tr -dc 'A-Za-z0-9!@#%^&*()' </dev/urandom | head -c 16)
 
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}Host configured successfully via database${NC}"
+echo "Creating admin user via database..."
+
+# Generate bcrypt password hash
+ADMIN_PASSWORD_HASH=$(python3 -c "import bcrypt; print(bcrypt.hashpw('$ADMIN_PASSWORD'.encode(), bcrypt.gensalt()).decode())")
+
+# Get MySQL password from .env file
+MYSQL_PASSWORD=$(grep "^MYSQL_PASSWORD=" "$APP_DIR/.env" | cut -d'=' -f2)
+
+# Find MariaDB container
+container_id=$(docker ps -q -f ancestor=mariadb:lts)
+
+if [ -n "$container_id" ]; then
+    # Create admin via SQL
+    docker exec $container_id mariadb -u marzban -p"$MYSQL_PASSWORD" marzban -e "
+    INSERT INTO admins (username, hashed_password, is_sudo, created_at) 
+    VALUES ('admin', '$ADMIN_PASSWORD_HASH', 1, NOW())
+    ON DUPLICATE KEY UPDATE 
+        hashed_password = '$ADMIN_PASSWORD_HASH',
+        is_sudo = 1;
+    " 2>/dev/null
+    
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✓ Admin user created successfully via database!${NC}"
+    else
+        echo -e "${YELLOW}⚠ Admin may already exist, trying to update password...${NC}"
+    fi
 else
-    echo -e "${YELLOW}Warning: Failed to configure host via database${NC}"
+    echo -e "${RED}❌ Cannot find MariaDB container${NC}"
+fi
+
+echo
+echo -e "${CYAN}Updating hosts configuration via API...${NC}"
+
+# Wait a bit to ensure admin is created
+sleep 5
+
+# Get authentication token
+echo "Getting authentication token..."
+TOKEN_RESPONSE=$(curl -s -X POST "https://dash.$PANEL_DOMAIN/api/admin/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=admin&password=$ADMIN_PASSWORD")
+
+TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.access_token')
+
+if [ "$TOKEN" != "null" ] && [ -n "$TOKEN" ]; then
+    echo "✓ Authentication successful"
+    
+    # Update hosts via API
+    echo "Updating hosts configuration..."
+    HOSTS_RESPONSE=$(curl -s -X PUT "https://dash.$PANEL_DOMAIN/api/hosts" \
+      -H "Authorization: Bearer $TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "VLESS Reality Steal Oneself": [{
+          "remark": "Steal",
+          "address": "'$SELFSTEAL_DOMAIN'",
+          "port": 443,
+          "sni": "'$PANEL_DOMAIN'",
+          "fingerprint": "chrome",
+          "security": "inbound_default",
+          "alpn": "",
+          "allowinsecure": null,
+          "is_disabled": false,
+          "mux_enable": false,
+          "fragment_setting": null,
+          "noise_setting": null,
+          "random_user_agent": false,
+          "use_sni_as_host": false
+        }]
+      }')
+    
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✓ Hosts configuration updated successfully via API!${NC}"
+    else
+        echo -e "${YELLOW}⚠ Could not update hosts via API${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠ Could not get authentication token. You can update hosts manually through the dashboard.${NC}"
 fi
 
 echo
@@ -958,8 +1031,9 @@ echo
 echo -e "${CYAN}Dashboard URL:${NC}"
 echo -e "${WHITE}https://dash.$PANEL_DOMAIN/dashboard${NC}"
 echo
-echo -e "${CYAN}Create admin user:${NC}"
-echo -e "${WHITE}marzban cli admin create --sudo -u admin${NC}"
+echo -e "${CYAN}Admin credentials:${NC}"
+echo -e "${WHITE}Username: admin${NC}"
+echo -e "${WHITE}Password: $ADMIN_PASSWORD${NC}"
 echo
 echo -e "${CYAN}Check logs with:${NC}"
 echo -e "${WHITE}marzban logs${NC}"
