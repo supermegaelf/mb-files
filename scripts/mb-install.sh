@@ -945,6 +945,7 @@ else
     echo -e "${YELLOW}Warning: Failed to configure host via database${NC}"
 fi
 
+echo
 echo -e "${GREEN}------------------------------------------${NC}"
 echo -e "${GREEN}✓${NC} Docker containers started successfully!"
 echo -e "${GREEN}------------------------------------------${NC}"
