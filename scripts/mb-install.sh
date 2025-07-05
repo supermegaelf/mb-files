@@ -154,6 +154,7 @@ echo "Configuring UFW firewall..."
 ufw --force reset > /dev/null 2>&1
 ufw allow 22/tcp comment 'SSH' > /dev/null 2>&1
 ufw allow 443/tcp comment 'Marzban Dashboard' > /dev/null 2>&1
+ufw allow 10000/tcp comment 'VLESS Reality' > /dev/null 2>&1
 
 # Adding Node UFW Rules
 echo "Configuring Marznode access for IP: $NODE_PUBLIC_IP"
