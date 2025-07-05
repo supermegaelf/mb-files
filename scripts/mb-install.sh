@@ -729,30 +729,11 @@ chmod 600 "$APP_DIR/.env"
 chown root:root "$APP_DIR/.env"
 
 echo "Creating custom xray config file"
-
-# Generate VLESS Reality parameters after containers are started
 echo "Generating VLESS Reality configuration..."
-cd "$APP_DIR"
 
-# Wait a bit more for containers to be fully ready
-sleep 10
-
-# Generate UUID with fallbacks
-if docker exec marzban-marzban-1 xray uuid &>/dev/null; then
-    VLESS_UUID=$(docker exec marzban-marzban-1 xray uuid)
-elif command -v uuidgen &> /dev/null; then
-    VLESS_UUID=$(uuidgen)
-else
-    # Install uuid-runtime and generate UUID
-    apt-get install -y uuid-runtime > /dev/null 2>&1
-    VLESS_UUID=$(uuidgen)
-fi
-
-# Generate x25519 keys
-KEYS_OUTPUT=$(docker exec marzban-marzban-1 xray x25519 2>/dev/null)
-PRIVATE_KEY=$(echo "$KEYS_OUTPUT" | grep "Private key:" | awk '{print $3}')
-
-# Generate short ID
+# Generate VLESS Reality parameters using system tools
+VLESS_UUID=$(cat /proc/sys/kernel/random/uuid)
+PRIVATE_KEY=$(openssl genpkey -algorithm X25519 2>/dev/null | openssl pkey -outform DER 2>/dev/null | tail -c +17 | head -c 32 | base64 | tr '/+' '_-' | tr -d '=')
 SHORT_ID=$(openssl rand -hex 4)
 
 cat > "$DATA_DIR/xray_config.json" << EOF
@@ -805,7 +786,7 @@ cat > "$DATA_DIR/xray_config.json" << EOF
           "show": false,
           "dest": "$SELFSTEAL_DOMAIN:443",
           "serverNames": [
-            "$SELFSTEAL_DOMAIN"
+            "$PANEL_DOMAIN"
           ],
           "privateKey": "$PRIVATE_KEY",
           "shortIds": [
