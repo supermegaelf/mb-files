@@ -968,7 +968,11 @@ else
     echo -e "${RED}❌ Cannot find MariaDB container${NC}"
 fi
 
+echo -e "${CYAN}Admin credentials:${NC}"
+echo -e "${WHITE}Username: admin${NC}"
+echo -e "${WHITE}Password: $ADMIN_PASSWORD${NC}"
 echo
+
 echo -e "${CYAN}Updating hosts configuration via API...${NC}"
 
 # Wait a bit to ensure admin is created
@@ -1011,6 +1015,8 @@ if [ "$TOKEN" != "null" ] && [ -n "$TOKEN" ]; then
     
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ Hosts configuration updated successfully via API!${NC}"
+        echo "Updated configuration:"
+        echo "$HOSTS_RESPONSE" | jq '."VLESS Reality Steal Oneself"[0] | {remark, address, port, sni, fingerprint}'
     else
         echo -e "${YELLOW}⚠ Could not update hosts via API${NC}"
     fi
