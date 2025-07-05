@@ -510,8 +510,6 @@ echo "Testing Nginx configuration and starting service..."
 nginx -t && systemctl restart nginx && systemctl enable nginx > /dev/null 2>&1
 
 echo -e "${GREEN}Nginx configured successfully!${NC}"
-echo -e "${GREEN}Dashboard URL: https://dash.$PANEL_DOMAIN${NC}"
-echo -e "${GREEN}Subscription URL: https://$SUB_DOMAIN${NC}"
 echo
 
 echo -e "${GREEN}---------------------------------------------${NC}"
@@ -891,9 +889,6 @@ echo -e "${GREEN}----------------------------------------${NC}"
 echo
 echo -e "${CYAN}Dashboard URL:${NC}"
 echo -e "${WHITE}https://dash.$PANEL_DOMAIN/dashboard${NC}"
-echo
-echo -e "${CYAN}Subscription URL:${NC}"
-echo -e "${WHITE}https://$SUB_DOMAIN${NC}"
 echo
 echo -e "${CYAN}Create admin user:${NC}"
 echo -e "${WHITE}marzban cli admin create --sudo -u admin${NC}"
