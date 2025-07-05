@@ -2,69 +2,120 @@
 
 set -e
 
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+WHITE='\033[1;37m'
+NC='\033[0m'
+
 # Checking root permissions
 if [ "$(id -u)" != "0" ]; then
-    echo "This command must be run as root."
+    echo -e "${RED}This command must be run as root.${NC}"
     exit 1
 fi
 
+# Domain validation
+validate_domain() {
+    local domain=$1
+    if [[ "$domain" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]] && [[ ! "$domain" =~ [[:space:]] ]]; then
+        return 0
+    fi
+    return 1
+}
+
+# IPv4 validation
+validate_ip() {
+    local ip=$1
+    if [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+        return 0
+    fi
+    return 1
+}
+
+# Command execution check
+check_command() {
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}❌ Error: $1${NC}"
+        exit 1
+    fi
+}
+
 echo
-echo "====================="
-echo "MARZBAN PANNEL SETUP"
-echo "====================="
+echo -e "${PURPLE}=====================${NC}"
+echo -e "${WHITE}MARZBAN PANNEL SETUP${NC}"
+echo -e "${PURPLE}=====================${NC}"
+echo
+
+echo -e "${GREEN}=========================${NC}"
+echo -e "${WHITE}1. Environment variables${NC}"
+echo -e "${GREEN}=========================${NC}"
 echo
 
 # Interactive input for variables
 
-echo -ne "Panel domain (e.g., example.com): "
+echo -ne "${CYAN}Panel domain (e.g., example.com): ${NC}"
 read PANEL_DOMAIN
-while [[ -z "$PANEL_DOMAIN" ]]; do
-    echo -e "Panel domain cannot be empty!"
-    echo -ne "Panel domain (e.g., example.com): "
+while [[ -z "$PANEL_DOMAIN" ]] || ! validate_domain "$PANEL_DOMAIN"; do
+    echo -e "${RED}Invalid domain! Please enter a valid domain (e.g., example.com)${NC}"
+    echo -ne "${CYAN}Panel domain: ${NC}"
     read PANEL_DOMAIN
 done
 
-echo -ne "Sub domain (e.g., example.com): "
+echo -ne "${CYAN}Sub domain (e.g., example.com): ${NC}"
 read SUB_DOMAIN
-while [[ -z "$SUB_DOMAIN" ]]; do
-    echo -e "Sub domain cannot be empty!"
-    echo -ne "Sub domain (e.g., example.com): "
+while [[ -z "$SUB_DOMAIN" ]] || ! validate_domain "$SUB_DOMAIN"; do
+    echo -e "${RED}Invalid domain! Please enter a valid domain${NC}"
+    echo -ne "${CYAN}Sub domain: ${NC}"
     read SUB_DOMAIN
 done
 
-echo -ne "Cloudflare Email: "
+echo -ne "${CYAN}Cloudflare Email: ${NC}"
 read CLOUDFLARE_EMAIL
 while [[ -z "$CLOUDFLARE_EMAIL" ]]; do
-    echo -e "Cloudflare Email cannot be empty!"
-    echo -ne "Cloudflare Email: "
+    echo -e "${RED}Cloudflare Email cannot be empty!${NC}"
+    echo -ne "${CYAN}Cloudflare Email: ${NC}"
     read CLOUDFLARE_EMAIL
 done
 
-echo -ne "Cloudflare API Key: "
+echo -ne "${CYAN}Cloudflare API Key: ${NC}"
 read CLOUDFLARE_API_KEY
 while [[ -z "$CLOUDFLARE_API_KEY" ]]; do
-    echo -e "Cloudflare API Key cannot be empty!"
-    echo -ne "Cloudflare API Key: "
+    echo -e "${RED}Cloudflare API Key cannot be empty!${NC}"
+    echo -ne "${CYAN}Cloudflare API Key: ${NC}"
     read CLOUDFLARE_API_KEY
 done
 
-echo -ne "Node public IP: "
+echo -ne "${CYAN}Node public IP: ${NC}"
 read NODE_PUBLIC_IP
-while [[ -z "$NODE_PUBLIC_IP" ]]; do
-    echo -e "Node public IP cannot be empty!"
-    echo -ne "Node public IP: "
+while [[ -z "$NODE_PUBLIC_IP" ]] || ! validate_ip "$NODE_PUBLIC_IP"; do
+    echo -e "${RED}Invalid IP! Please enter a valid IPv4 address (e.g., 1.2.3.4)${NC}"
+    echo -ne "${CYAN}Node public IP: ${NC}"
     read NODE_PUBLIC_IP
 done
 
 echo
-echo "Domains and Cloudflare credentials configured."
-echo "Node IP configured: $NODE_PUBLIC_IP"
+echo -e "${GREEN}Domains and Cloudflare credentials configured.${NC}"
+echo -e "${GREEN}Node IP configured: $NODE_PUBLIC_IP${NC}"
+echo
+
+echo -e "${GREEN}------------------------------------${NC}"
+echo -e "${GREEN}✓${NC} Environment variables configured!"
+echo -e "${GREEN}------------------------------------${NC}"
+echo
+
+echo -e "${GREEN}=======================${NC}"
+echo -e "${WHITE}2. Installing packages${NC}"
+echo -e "${GREEN}=======================${NC}"
 echo
 
 # System upgrade and package installation
-echo "Updating system and installing packages..."
-apt-get update
-apt-get -y install jq curl unzip wget python3-certbot-dns-cloudflare
+echo "Installing basic packages..."
+apt-get update > /dev/null 2>&1
+apt-get -y install jq curl unzip wget python3-certbot-dns-cloudflare > /dev/null 2>&1
 
 # Setting the locale
 echo "Configuring locales..."
@@ -84,7 +135,7 @@ sysctl -p > /dev/null 2>&1
 
 # Configuring automatic security updates
 echo "Configuring unattended upgrades..."
-apt-get -y install unattended-upgrades ufw
+apt-get -y install unattended-upgrades ufw > /dev/null 2>&1
 echo 'Unattended-Upgrade::Mail "root";' >> /etc/apt/apt.conf.d/50unattended-upgrades 2>/dev/null
 echo unattended-upgrades unattended-upgrades/enable_auto_updates boolean true | debconf-set-selections > /dev/null 2>&1
 dpkg-reconfigure -f noninteractive unattended-upgrades > /dev/null 2>&1
@@ -102,7 +153,7 @@ ufw allow from "$NODE_PUBLIC_IP" to any port 62050 proto tcp comment 'Marznode' 
 ufw allow from "$NODE_PUBLIC_IP" to any port 62051 proto tcp comment 'Marznode' > /dev/null 2>&1
 
 ufw --force enable > /dev/null 2>&1
-echo "UFW firewall configured successfully!"
+echo -e "${GREEN}UFW firewall configured successfully!${NC}"
 
 # Docker Installation
 if ! command -v docker >/dev/null 2>&1; then
@@ -113,9 +164,9 @@ if ! command -v docker >/dev/null 2>&1; then
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
     echo "Installing Docker..."
-    apt-get update
-    apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-    echo "Docker installed successfully"
+    apt-get update > /dev/null 2>&1
+    apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin > /dev/null 2>&1
+    echo -e "${GREEN}Docker installed successfully${NC}"
 fi
 
 # Defining docker compose command
@@ -124,7 +175,7 @@ if docker compose version >/dev/null 2>&1; then
 elif docker-compose version >/dev/null 2>&1; then
     COMPOSE='docker-compose'
 else
-    echo "docker compose not found"
+    echo -e "${RED}docker compose not found${NC}"
     exit 1
 fi
 
@@ -141,8 +192,8 @@ case "$(uname -m)" in
         yq_binary="yq_linux_arm64"
         ;;
     *)
-        echo "Unsupported architecture: $(uname -m)"
-        echo "Supported: x86_64, aarch64"
+        echo -e "${RED}Unsupported architecture: $(uname -m)${NC}"
+        echo -e "${RED}Supported: x86_64, aarch64${NC}"
         exit 1
         ;;
 esac
@@ -155,15 +206,21 @@ if ! command -v yq &>/dev/null; then
     yq_url="https://github.com/mikefarah/yq/releases/latest/download/${yq_binary}"
     echo "Downloading yq from ${yq_url}..."
     
-    curl -L "$yq_url" -o /usr/local/bin/yq
+    curl -L "$yq_url" -o /usr/local/bin/yq > /dev/null 2>&1
     chmod +x /usr/local/bin/yq
-    echo "yq installed successfully!"
+    echo -e "${GREEN}yq installed successfully!${NC}"
     
     export PATH="/usr/local/bin:$PATH"
     hash -r
 else
     echo "yq is already installed."
 fi
+
+echo
+echo -e "${GREEN}----------------------------------${NC}"
+echo -e "${GREEN}✓${NC} Package installation completed!"
+echo -e "${GREEN}----------------------------------${NC}"
+echo
 
 # Path variables
 INSTALL_DIR="/opt"
@@ -172,6 +229,11 @@ APP_DIR="$INSTALL_DIR/$APP_NAME"
 DATA_DIR="/var/lib/$APP_NAME"
 COMPOSE_FILE="$APP_DIR/docker-compose.yml"
 ENV_FILE="$APP_DIR/.env"
+
+echo -e "${GREEN}=======================================${NC}"
+echo -e "${WHITE}3. Creating structure and certificates${NC}"
+echo -e "${GREEN}=======================================${NC}"
+echo
 
 echo "Creating directory structure..."
 mkdir -p "$DATA_DIR"
@@ -206,7 +268,7 @@ dns_cloudflare_api_key = $CLOUDFLARE_API_KEY
 EOL
     fi
     chmod 600 ~/.secrets/certbot/cloudflare.ini
-    echo "Cloudflare credentials file created."
+    echo -e "${GREEN}Cloudflare credentials file created.${NC}"
 else
     echo "Cloudflare credentials file already exists, skipping creation..."
 fi
@@ -231,6 +293,11 @@ if [ ! -d "/etc/letsencrypt/live/$PANEL_BASE_DOMAIN" ]; then
         --non-interactive \
         --key-type ecdsa \
         --elliptic-curve secp384r1
+    
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}❌ Failed to generate SSL certificate for $PANEL_BASE_DOMAIN. Check Cloudflare credentials.${NC}"
+        exit 1
+    fi
 else
     echo "Certificate for $PANEL_BASE_DOMAIN already exists, skipping..."
 fi
@@ -250,6 +317,11 @@ if [ ! -d "/etc/letsencrypt/live/$SUB_BASE_DOMAIN" ]; then
         --non-interactive \
         --key-type ecdsa \
         --elliptic-curve secp384r1
+    
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}❌ Failed to generate SSL certificate for $SUB_BASE_DOMAIN. Check Cloudflare credentials.${NC}"
+        exit 1
+    fi
 else
     echo "Certificate for $SUB_BASE_DOMAIN already exists, skipping..."
 fi
@@ -264,14 +336,24 @@ if [ -f "/etc/letsencrypt/renewal/$SUB_BASE_DOMAIN.conf" ]; then
 fi
 (crontab -u root -l 2>/dev/null; echo "0 5 1 */2 * /usr/bin/certbot renew --quiet") | crontab -u root -
 
-echo "SSL certificates configured successfully!"
+echo -e "${GREEN}SSL certificates configured successfully!${NC}"
+echo
+
+echo -e "${GREEN}----------------------------------------------${NC}"
+echo -e "${GREEN}✓${NC} Structure and certificates setup completed!"
+echo -e "${GREEN}----------------------------------------------${NC}"
+echo
+
+echo -e "${GREEN}====================================${NC}"
+echo -e "${WHITE}4. Installing and configuring Nginx${NC}"
+echo -e "${GREEN}====================================${NC}"
 echo
 
 # Nginx Installation and Configuration
 echo "Installing Nginx from official repository..."
 curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /etc/apt/keyrings/nginx-signing.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/nginx-signing.gpg] http://nginx.org/packages/ubuntu $(lsb_release -cs) nginx" > /etc/apt/sources.list.d/nginx.list
-apt update && apt install nginx -y
+apt update && apt install nginx -y > /dev/null 2>&1
 
 echo "Creating SSL snippets..."
 # Create snippets directory if it doesn't exist
@@ -425,11 +507,21 @@ http {
 EOF
 
 echo "Testing Nginx configuration and starting service..."
-nginx -t && systemctl restart nginx && systemctl enable nginx
+nginx -t && systemctl restart nginx && systemctl enable nginx > /dev/null 2>&1
 
-echo "Nginx configured successfully!"
-echo "Dashboard URL: https://dash.$PANEL_DOMAIN"
-echo "Subscription URL: https://$SUB_DOMAIN"
+echo -e "${GREEN}Nginx configured successfully!${NC}"
+echo -e "${GREEN}Dashboard URL: https://dash.$PANEL_DOMAIN${NC}"
+echo -e "${GREEN}Subscription URL: https://$SUB_DOMAIN${NC}"
+echo
+
+echo -e "${GREEN}---------------------------------------------${NC}"
+echo -e "${GREEN}✓${NC} Nginx configured and started successfully!"
+echo -e "${GREEN}---------------------------------------------${NC}"
+echo
+
+echo -e "${GREEN}================================${NC}"
+echo -e "${WHITE}5. Creating configuration files${NC}"
+echo -e "${GREEN}================================${NC}"
 echo
 
 echo "Setting up docker-compose.yml for MariaDB"
@@ -487,12 +579,13 @@ services:
       retries: 3
 EOF
 
-echo "Using MariaDB as database"
+echo -e "${GREEN}Using MariaDB as database${NC}"
 echo "File generated at $APP_DIR/docker-compose.yml"
 
 echo "Creating .env configuration file"
 
 # Data generation
+echo -e "${YELLOW}Generating secure random values...${NC}"
 MYSQL_ROOT_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
 MYSQL_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
 WEBHOOK_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)
@@ -622,26 +715,12 @@ MYSQL_PASSWORD=$MYSQL_PASSWORD
 SQLALCHEMY_DATABASE_URL="mysql+pymysql://marzban:${MYSQL_PASSWORD}@127.0.0.1:3306/marzban"
 EOF
 
-echo ".env file created with database configuration"
+echo -e "${GREEN}.env file created with database configuration${NC}"
 
-sleep 3
-
-echo "Adding database configuration to .env file..."
-
-# Adding the database configuration to the .env file
-cat >> "$ENV_FILE" << EOF
-
-# Database configuration
-MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
-MYSQL_DATABASE=marzban
-MYSQL_USER=marzban
-MYSQL_PASSWORD=$MYSQL_PASSWORD
-
-# SQLAlchemy Database URL
-SQLALCHEMY_DATABASE_URL="mysql+pymysql://marzban:${MYSQL_PASSWORD}@127.0.0.1:3306/marzban"
-EOF
-
-echo "File saved in $APP_DIR/.env"
+# Setting secure access rights
+echo "Setting secure permissions on configuration files..."
+chmod 600 "$APP_DIR/.env"
+chown root:root "$APP_DIR/.env"
 
 echo "Creating custom xray config file"
 cat > "$DATA_DIR/xray_config.json" << 'EOF'
@@ -703,7 +782,7 @@ cat > "$DATA_DIR/xray_config.json" << 'EOF'
   ]
 }
 EOF
-echo "Custom xray config created at $DATA_DIR/xray_config.json"
+echo -e "${GREEN}Custom xray config created at $DATA_DIR/xray_config.json${NC}"
 
 echo "Downloading custom subscription template..."
 mkdir -p /var/lib/marzban/templates/subscription
@@ -712,21 +791,30 @@ wget -q https://raw.githubusercontent.com/supermegaelf/mb-files/main/pages/sub/i
 # Replacing example.com with actual panel domain
 sed -i "s/example\.com/$PANEL_DOMAIN/g" /var/lib/marzban/templates/subscription/index.html
 
-echo "Custom subscription template configured at /var/lib/marzban/templates/subscription/index.html"
+echo -e "${GREEN}Custom subscription template configured at /var/lib/marzban/templates/subscription/index.html${NC}"
 
 echo "Downloading enhanced subscription router..."
 wget -O /var/lib/marzban/subscription.py "https://raw.githubusercontent.com/hydraponique/roscomvpn-happ-routing/main/Auto-routing%20for%20Non-json%20Marzban/subscription.py" > /dev/null 2>&1
-echo "Enhanced subscription router downloaded to /var/lib/marzban/subscription.py"
+echo -e "${GREEN}Enhanced subscription router downloaded to /var/lib/marzban/subscription.py${NC}"
 
-echo "Marzban's files downloaded successfully"
+echo -e "${GREEN}Marzban's files downloaded successfully${NC}"
 
 echo "Installing marzban script"
 FETCH_REPO="Gozargah/Marzban-scripts"
 SCRIPT_URL="https://github.com/$FETCH_REPO/raw/master/marzban.sh"
 curl -sSL $SCRIPT_URL | install -m 755 /dev/stdin /usr/local/bin/marzban
-echo "marzban script installed successfully"
+echo -e "${GREEN}marzban script installed successfully${NC}"
 
-echo "Downloading and installing Xray-core..."
+echo
+echo -e "${GREEN}--------------------------------------------${NC}"
+echo -e "${GREEN}✓${NC} Configuration files created successfully!"
+echo -e "${GREEN}--------------------------------------------${NC}"
+echo
+
+echo -e "${GREEN}========================================${NC}"
+echo -e "${WHITE}6. Downloading and installing Xray-core${NC}"
+echo -e "${GREEN}========================================${NC}"
+echo
 
 # Creating and navigating to a directory
 mkdir -p /tmp/xray-install
@@ -758,7 +846,18 @@ chmod +x /usr/local/bin/xray
 cd /
 rm -rf /tmp/xray-install
 
-echo "Xray-core installed successfully to /usr/local/bin/xray"
+echo -e "${GREEN}Xray-core installed successfully to /usr/local/bin/xray${NC}"
+
+echo
+echo -e "${GREEN}------------------------------------${NC}"
+echo -e "${GREEN}✓${NC} Xray-core installation completed!"
+echo -e "${GREEN}------------------------------------${NC}"
+echo
+
+echo -e "${GREEN}==============================${NC}"
+echo -e "${WHITE}7. Starting Docker containers${NC}"
+echo -e "${GREEN}==============================${NC}"
+echo
 
 # Adding the path to Xray to the .env file
 echo "Starting Docker containers..."
@@ -766,27 +865,39 @@ cd "$APP_DIR"
 
 # Launching containers
 $COMPOSE up -d --remove-orphans
+if [ $? -ne 0 ]; then
+    echo -e "${RED}❌ Failed to start containers. Check: $COMPOSE logs${NC}"
+    exit 1
+fi
 
 echo "Containers started. Waiting for services to be ready..."
 sleep 30
+if ! curl -s "http://localhost:8000" > /dev/null; then
+    echo -e "${RED}❌ Marzban not responding. Check: $COMPOSE logs marzban${NC}"
+    exit 1
+fi
 
 echo "Checking container status..."
 $COMPOSE ps
 
-# Functionality check
-if curl -s "http://localhost:8000" > /dev/null; then
-    echo "✅ Marzban installation completed successfully!"
-    echo
-    echo "🌐 Dashboard URL: https://dash.$PANEL_DOMAIN/dashboard"
-    echo
-    echo "🔒 Create admin: marzban cli admin create --sudo -u admin"
-    echo
-    echo "🔍 Check logs with: marzban logs"
-    echo
-else
-    echo
-    echo "❌ There might be an issue with Marzban startup."
-    echo
-    echo "🔍 Check logs with: marzban logs"
-    echo
-fi
+echo -e "${GREEN}------------------------------------------${NC}"
+echo -e "${GREEN}✓${NC} Docker containers started successfully!"
+echo -e "${GREEN}------------------------------------------${NC}"
+echo
+
+echo -e "${GREEN}----------------------------------------${NC}"
+echo -e "${GREEN}✓${NC} Marzban setup completed successfully!"
+echo -e "${GREEN}----------------------------------------${NC}"
+echo
+echo -e "${CYAN}Dashboard URL:${NC}"
+echo -e "${WHITE}https://dash.$PANEL_DOMAIN/dashboard${NC}"
+echo
+echo -e "${CYAN}Subscription URL:${NC}"
+echo -e "${WHITE}https://$SUB_DOMAIN${NC}"
+echo
+echo -e "${CYAN}Create admin user:${NC}"
+echo -e "${WHITE}marzban cli admin create --sudo -u admin${NC}"
+echo
+echo -e "${CYAN}Check logs with:${NC}"
+echo -e "${WHITE}marzban logs${NC}"
+echo
