@@ -359,7 +359,7 @@ echo
 
 # Nginx Installation and Configuration
 echo "Installing Nginx from official repository..."
-curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /etc/apt/keyrings/nginx-signing.gpg
+curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /etc/apt/keyrings/nginx-signing.gpg > /dev/null 2>&1
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/nginx-signing.gpg] http://nginx.org/packages/ubuntu $(lsb_release -cs) nginx" > /etc/apt/sources.list.d/nginx.list
 apt update && apt install nginx -y > /dev/null 2>&1
 
