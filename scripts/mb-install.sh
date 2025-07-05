@@ -24,11 +24,11 @@ while [[ -z "$PANEL_DOMAIN" ]]; do
     read PANEL_DOMAIN
 done
 
-echo -ne "Subscription domain (e.g., example.com): "
+echo -ne "Sub domain (e.g., example.com): "
 read SUB_DOMAIN
 while [[ -z "$SUB_DOMAIN" ]]; do
-    echo -e "Subscription domain cannot be empty!"
-    echo -ne "Subscription domain (e.g., example.com): "
+    echo -e "Sub domain cannot be empty!"
+    echo -ne "Sub domain (e.g., example.com): "
     read SUB_DOMAIN
 done
 
