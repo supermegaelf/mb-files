@@ -1031,9 +1031,9 @@ echo
 echo -e "${CYAN}Dashboard URL:${NC}"
 echo -e "${WHITE}https://dash.$PANEL_DOMAIN/dashboard${NC}"
 echo
-echo -e "${CYAN}Admin credentials:${NC}"
-echo -e "${WHITE}Username: admin${NC}"
-echo -e "${WHITE}Password: $ADMIN_PASSWORD${NC}"
+echo -e "${CYAN}Credentials:${NC}"
+echo -e "${WHITE}admin${NC}"
+echo -e "${WHITE}$ADMIN_PASSWORD${NC}"
 echo
 echo -e "${CYAN}Check logs with:${NC}"
 echo -e "${WHITE}marzban logs${NC}"
