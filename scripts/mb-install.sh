@@ -46,7 +46,7 @@ check_command() {
 
 echo
 echo -e "${PURPLE}=====================${NC}"
-echo -e "${WHITE}MARZBAN PANNEL SETUP${NC}"
+echo -e "${WHITE}MARZBAN PANEL SETUP${NC}"
 echo -e "${PURPLE}=====================${NC}"
 echo
 
@@ -71,6 +71,14 @@ while [[ -z "$SUB_DOMAIN" ]] || ! validate_domain "$SUB_DOMAIN"; do
     echo -e "${RED}Invalid domain! Please enter a valid domain${NC}"
     echo -ne "${CYAN}Sub domain: ${NC}"
     read SUB_DOMAIN
+done
+
+echo -ne "${CYAN}Self-steal domain (e.g., example.com): ${NC}"
+read SELFSTEAL_DOMAIN
+while [[ -z "$SELFSTEAL_DOMAIN" ]] || ! validate_domain "$SELFSTEAL_DOMAIN"; do
+    echo -e "${RED}Invalid domain! Please enter a valid domain${NC}"
+    echo -ne "${CYAN}Self-steal domain: ${NC}"
+    read SELFSTEAL_DOMAIN
 done
 
 echo -ne "${CYAN}Cloudflare Email: ${NC}"
@@ -721,7 +729,25 @@ chmod 600 "$APP_DIR/.env"
 chown root:root "$APP_DIR/.env"
 
 echo "Creating custom xray config file"
-cat > "$DATA_DIR/xray_config.json" << 'EOF'
+
+# Generate VLESS Reality parameters after containers are started
+echo "Generating VLESS Reality configuration..."
+cd "$APP_DIR"
+
+# Wait a bit more for containers to be fully ready
+sleep 10
+
+# Generate UUID
+VLESS_UUID=$(docker exec marzban-marzban-1 xray uuid 2>/dev/null || uuidgen)
+
+# Generate x25519 keys
+KEYS_OUTPUT=$(docker exec marzban-marzban-1 xray x25519 2>/dev/null)
+PRIVATE_KEY=$(echo "$KEYS_OUTPUT" | grep "Private key:" | awk '{print $3}')
+
+# Generate short ID
+SHORT_ID=$(openssl rand -hex 4)
+
+cat > "$DATA_DIR/xray_config.json" << EOF
 {
   "log": {
     "access": "/var/lib/marzban-node/access.log",
@@ -751,13 +777,42 @@ cat > "$DATA_DIR/xray_config.json" << 'EOF'
   },
   "inbounds": [
     {
-      "tag": "Shadowsocks TCP",
+      "tag": "VLESS Reality Steal Oneself",
       "listen": "0.0.0.0",
-      "port": 1080,
-      "protocol": "shadowsocks",
+      "port": 10000,
+      "protocol": "vless",
       "settings": {
-        "clients": [],
-        "network": "tcp,udp"
+        "clients": [
+          {
+            "id": "$VLESS_UUID",
+            "flow": "xtls-rprx-vision"
+          }
+        ],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "reality",
+        "realitySettings": {
+          "show": false,
+          "dest": "$SELFSTEAL_DOMAIN:443",
+          "serverNames": [
+            "$SELFSTEAL_DOMAIN"
+          ],
+          "privateKey": "$PRIVATE_KEY",
+          "shortIds": [
+            "$SHORT_ID"
+          ],
+          "fingerprint": "chrome"
+        }
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ]
       }
     }
   ],
