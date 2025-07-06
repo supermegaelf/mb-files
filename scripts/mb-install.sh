@@ -1528,7 +1528,7 @@ echo 'net/ipv4/ip_forward=1' >> /etc/ufw/sysctl.conf
 
 # Configure NAT rules for traffic forwarding
 echo "Configuring NAT rules..."
-cat >> /etc/ufw/before.rules << 'EOF'
+cat >> /etc/ufw/before.rules << EOF
 *nat
 :PREROUTING ACCEPT [0:0]
 -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port $NODE_PORT
