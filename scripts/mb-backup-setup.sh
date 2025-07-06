@@ -10,11 +10,11 @@ CYAN='\033[0;36m'
 WHITE='\033[1;37m'
 NC='\033[0m'
 
-# Marzban backup setup script
+# Telegram backup setup script
 echo
-echo -e "${PURPLE}=====================${NC}"
-echo -e "${NC}MARZBAN BACKUP SETUP${NC}"
-echo -e "${PURPLE}=====================${NC}"
+echo -e "${PURPLE}=======================${NC}"
+echo -e "${NC}TELEGRAM BACKUP SETUP${NC}"
+echo -e "${PURPLE}=======================${NC}"
 echo
 
 set -e
@@ -24,7 +24,7 @@ echo -e "${NC}1. Preparing backup environment${NC}"
 echo -e "${GREEN}================================${NC}"
 echo
 
-SCRIPT_URL="https://raw.githubusercontent.com/supermegaelf/mb-scripts/main/mb-backup.sh"
+SCRIPT_URL="https://raw.githubusercontent.com/supermegaelf/mb-files/main/scripts/mb-backup.sh"
 SCRIPT_DIR="/root/scripts"
 SCRIPT_PATH="$SCRIPT_DIR/mb-backup.sh"
 
