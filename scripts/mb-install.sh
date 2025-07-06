@@ -1090,10 +1090,10 @@ echo -e "${CYAN}Check logs with:${NC}"
 echo -e "${WHITE}marzban logs${NC}"
 echo
 echo -e "${CYAN}To prepare the node installation:${NC}"
-echo -e "${WHITE}1. Go to "Node settings" in the Marzban panel.${NC}"
-echo -e "${WHITE}2. Click "Add New Marzban Node".${NC}"
-echo -e "${WHITE}3. Click "Show Certificate" and copy it to the clipboard.${NC}"
-echo -e "${WHITE}4. Run the script on the node server and select "Install Node".${NC}"
+echo -e "${WHITE}1. Go to \"Node settings\" in the Marzban panel.${NC}"
+echo -e "${WHITE}2. Click \"Add New Marzban Node\".${NC}"
+echo -e "${WHITE}3. Click \"Show Certificate\" and copy it to the clipboard.${NC}"
+echo -e "${WHITE}4. Run the script on the node server and select \"Install Node\".${NC}"
 echo
 
 # Node Installation
@@ -1653,9 +1653,9 @@ echo -e "${CYAN}Check logs with:${NC}"
 echo -e "${WHITE}cd /opt/marzban-node && docker compose logs -f${NC}"
 echo
 echo -e "${CYAN}To complete the setup:${NC}"
-echo -e "${WHITE}1. Go to "Node settings" in the Marzban panel.${NC}"
-echo -e "${WHITE}2. Fill in the "Name" and "Address" fields.${NC}"
-echo -e "${WHITE}3. Click "Update Node".${NC}"
+echo -e "${WHITE}1. Go to \"Node settings\" in the Marzban panel.${NC}"
+echo -e "${WHITE}2. Fill in the \"Name\" and \"Address\" fields.${NC}"
+echo -e "${WHITE}3. Click \"Update Node\".${NC}"
 echo
 
 # Show port-specific instructions if non-default port was chosen
