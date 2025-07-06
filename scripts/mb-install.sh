@@ -1197,10 +1197,28 @@ while [[ -z "$MAIN_PUBLIC_IP" ]] || ! validate_ip "$MAIN_PUBLIC_IP"; do
     read MAIN_PUBLIC_IP
 done
 
+echo -ne "${CYAN}Node port (default 10000, press Enter to use it): ${NC}"
+read NODE_PORT
+if [[ -z "$NODE_PORT" ]]; then
+    NODE_PORT=10000
+fi
+# Validate port range
+while [[ ! "$NODE_PORT" =~ ^[0-9]+$ ]] || [ "$NODE_PORT" -lt 1 ] || [ "$NODE_PORT" -gt 65535 ]; do
+    echo -e "${RED}Invalid port! Please enter a valid port (1-65535)${NC}"
+    echo -ne "${CYAN}Node port (default 10000): ${NC}"
+    read NODE_PORT
+    if [[ -z "$NODE_PORT" ]]; then
+        NODE_PORT=10000
+        break
+    fi
+done
+
 echo
 echo -e "${GREEN}Domain and Cloudflare credentials configured.${NC}"
 echo -e "${GREEN}Main IP configured: $MAIN_PUBLIC_IP${NC}"
+echo -e "${GREEN}Node port configured: $NODE_PORT${NC}"
 echo
+
 
 echo -e "${GREEN}------------------------------------${NC}"
 echo -e "${GREEN}✓${NC} Environment variables configured!"
@@ -1246,7 +1264,7 @@ echo "Configuring UFW firewall..."
 ufw --force reset > /dev/null 2>&1
 ufw allow 22/tcp comment 'SSH' > /dev/null 2>&1
 ufw allow 443/tcp comment 'HTTPS (Reality)' > /dev/null 2>&1
-ufw allow 10000/tcp comment 'HTTPS (Reality)' > /dev/null 2>&1
+ufw allow $NODE_PORT/tcp comment 'HTTPS (Reality)' > /dev/null 2>&1
 
 # Adding Main server UFW Rules
 echo "Configuring main server access for IP: $MAIN_PUBLIC_IP"
@@ -1530,7 +1548,7 @@ echo "Configuring NAT rules..."
 cat >> /etc/ufw/before.rules << 'EOF'
 *nat
 :PREROUTING ACCEPT [0:0]
--A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 10000
+-A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port $NODE_PORT
 COMMIT
 EOF
 
@@ -1646,5 +1664,14 @@ echo -e "${WHITE}1. Go to "Node settings" in the Marzban panel.${NC}"
 echo -e "${WHITE}2. Fill in the "Name" and "Address" fields.${NC}"
 echo -e "${WHITE}3. Click "Update Node".${NC}"
 echo
+
+# Show port-specific instructions if non-default port was chosen
+if [ "$NODE_PORT" != "10000" ]; then
+    echo -e "${YELLOW}You selected a custom port ($NODE_PORT). On the panel server:${NC}"
+    echo -e "${CYAN}1. Add UFW rule with the new port:${NC}"
+    echo -e "${WHITE}ufw allow $NODE_PORT/tcp comment 'VLESS Reality'${NC}"
+    echo -e "${CYAN}2. Change the port of the new inbound to $NODE_PORT.${NC}"
+    echo
+fi
 
 fi
