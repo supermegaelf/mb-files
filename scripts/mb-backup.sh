@@ -55,8 +55,8 @@ if [ -z "$MYSQL_USER" ] || [ -z "$MYSQL_PASSWORD" ] || [ -z "$TG_BOT_TOKEN" ] ||
     sed -i "s/TG_BOT_TOKEN=\"\"/TG_BOT_TOKEN=\"$TG_BOT_TOKEN\"/" "$0"
     sed -i "s/TG_CHAT_ID=\"\"/TG_CHAT_ID=\"$TG_CHAT_ID\"/" "$0"
 
-    if ! grep -q "/root/scripts/tg-backup.sh" /etc/crontab; then
-        echo "0 */1 * * * root /bin/bash /root/scripts/tg-backup.sh >/dev/null 2>&1" | tee -a /etc/crontab
+    if ! grep -q "/root/scripts/mb-backup.sh" /etc/crontab; then
+        echo "0 */1 * * * root /bin/bash /root/scripts/mb-backup.sh >/dev/null 2>&1" | tee -a /etc/crontab
     fi
     
     echo
