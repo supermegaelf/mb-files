@@ -1082,7 +1082,7 @@ echo
 echo -e "${CYAN}Dashboard URL:${NC}"
 echo -e "${WHITE}https://dash.$PANEL_DOMAIN/dashboard${NC}"
 echo
-echo -e "${CYAN}Credentials:${NC}"
+echo -e "${CYAN}Credentials to ${YELLOW}SAVE${CYAN}:${NC}"
 echo -e "${WHITE}admin${NC}"
 echo -e "${WHITE}$ADMIN_PASSWORD${NC}"
 echo
