@@ -29,12 +29,10 @@ case $INSTALL_TYPE in
     1)
         echo
         echo -e "${GREEN}Starting Panel installation...${NC}"
-        echo
         ;;
     2)
         echo
         echo -e "${GREEN}Starting Node installation...${NC}"
-        echo
         ;;
     3)
         echo
