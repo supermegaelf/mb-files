@@ -157,10 +157,6 @@ while [[ -z "$NODE_PUBLIC_IP" ]] || ! validate_ip "$NODE_PUBLIC_IP"; do
 done
 
 echo
-echo -e "${GREEN}Domains and Cloudflare credentials configured.${NC}"
-echo -e "${GREEN}Node IP configured: $NODE_PUBLIC_IP${NC}"
-echo
-
 echo -e "${GREEN}------------------------------------${NC}"
 echo -e "${GREEN}✓${NC} Environment variables configured!"
 echo -e "${GREEN}------------------------------------${NC}"
@@ -1207,12 +1203,6 @@ while [[ ! "$NODE_PORT" =~ ^[0-9]+$ ]] || [ "$NODE_PORT" -lt 1 ] || [ "$NODE_POR
 done
 
 echo
-echo -e "${GREEN}Domain and Cloudflare credentials configured.${NC}"
-echo -e "${GREEN}Main IP configured: $MAIN_PUBLIC_IP${NC}"
-echo -e "${GREEN}Node port configured: $NODE_PORT${NC}"
-echo
-
-
 echo -e "${GREEN}------------------------------------${NC}"
 echo -e "${GREEN}✓${NC} Environment variables configured!"
 echo -e "${GREEN}------------------------------------${NC}"
