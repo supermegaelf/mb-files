@@ -1019,7 +1019,7 @@ echo
 echo -e "${CYAN}Updating hosts configuration via API...${NC}"
 
 # Wait a bit to ensure admin is created
-sleep 5
+sleep 10
 
 # Get authentication token
 echo "Getting authentication token..."
