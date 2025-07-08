@@ -40,7 +40,8 @@ case $INSTALL_TYPE in
         exit 0
         ;;
     *)
-        echo -e "${RED}Invalid choice. Please select 1, 2, or 3.${NC}"
+        echo
+        echo -e "${RED}✗${NC} Invalid choice. Please select 1, 2, or 3."
         exit 1
         ;;
 esac
@@ -49,7 +50,7 @@ esac
 
 if [ "$INSTALL_TYPE" = "1" ]; then
 
-# Marzban Panel setup
+# Marzban Panel Setup
 
 set -e
 
@@ -65,7 +66,7 @@ NC='\033[0m'
 
 # Checking root permissions
 if [ "$(id -u)" != "0" ]; then
-    echo -e "${RED}This command must be run as root.${NC}"
+    echo -e "${RED}✗${NC} This command must be run as root."
     exit 1
 fi
 
@@ -90,14 +91,14 @@ validate_ip() {
 # Command execution check
 check_command() {
     if [ $? -ne 0 ]; then
-        echo -e "${RED}❌ Error: $1${NC}"
+        echo -e "${RED}✗${NC} Error: $1"
         exit 1
     fi
 }
 
 echo
 echo -e "${PURPLE}====================${NC}"
-echo -e "${WHITE}MARZBAN PANEL SETUP${NC}"
+echo -e "${WHITE}Marzban Panel Setup${NC}"
 echo -e "${PURPLE}====================${NC}"
 echo
 
@@ -111,7 +112,8 @@ echo
 echo -ne "${CYAN}Panel domain (e.g., example.com): ${NC}"
 read PANEL_DOMAIN
 while [[ -z "$PANEL_DOMAIN" ]] || ! validate_domain "$PANEL_DOMAIN"; do
-    echo -e "${RED}Invalid domain! Please enter a valid domain (e.g., example.com)${NC}"
+    echo -e "${RED}✗${NC} Invalid domain! Please enter a valid domain (e.g., example.com)."
+    echo
     echo -ne "${CYAN}Panel domain: ${NC}"
     read PANEL_DOMAIN
 done
@@ -119,7 +121,8 @@ done
 echo -ne "${CYAN}Sub domain (e.g., example.com): ${NC}"
 read SUB_DOMAIN
 while [[ -z "$SUB_DOMAIN" ]] || ! validate_domain "$SUB_DOMAIN"; do
-    echo -e "${RED}Invalid domain! Please enter a valid domain${NC}"
+    echo -e "${RED}✗${NC} Invalid domain! Please enter a valid domain."
+    echo
     echo -ne "${CYAN}Sub domain: ${NC}"
     read SUB_DOMAIN
 done
@@ -127,7 +130,8 @@ done
 echo -ne "${CYAN}Self-steal domain (e.g., example.com): ${NC}"
 read SELFSTEAL_DOMAIN
 while [[ -z "$SELFSTEAL_DOMAIN" ]] || ! validate_domain "$SELFSTEAL_DOMAIN"; do
-    echo -e "${RED}Invalid domain! Please enter a valid domain${NC}"
+    echo -e "${RED}✗${NC} Invalid domain! Please enter a valid domain."
+    echo
     echo -ne "${CYAN}Self-steal domain: ${NC}"
     read SELFSTEAL_DOMAIN
 done
@@ -135,7 +139,8 @@ done
 echo -ne "${CYAN}Cloudflare Email: ${NC}"
 read CLOUDFLARE_EMAIL
 while [[ -z "$CLOUDFLARE_EMAIL" ]]; do
-    echo -e "${RED}Cloudflare Email cannot be empty!${NC}"
+    echo -e "${RED}✗${NC} Cloudflare Email cannot be empty!"
+    echo
     echo -ne "${CYAN}Cloudflare Email: ${NC}"
     read CLOUDFLARE_EMAIL
 done
@@ -143,7 +148,8 @@ done
 echo -ne "${CYAN}Cloudflare API Key: ${NC}"
 read CLOUDFLARE_API_KEY
 while [[ -z "$CLOUDFLARE_API_KEY" ]]; do
-    echo -e "${RED}Cloudflare API Key cannot be empty!${NC}"
+    echo -e "${RED}✗${NC} Cloudflare API Key cannot be empty!"
+    echo
     echo -ne "${CYAN}Cloudflare API Key: ${NC}"
     read CLOUDFLARE_API_KEY
 done
@@ -151,7 +157,8 @@ done
 echo -ne "${CYAN}Node public IP: ${NC}"
 read NODE_PUBLIC_IP
 while [[ -z "$NODE_PUBLIC_IP" ]] || ! validate_ip "$NODE_PUBLIC_IP"; do
-    echo -e "${RED}Invalid IP! Please enter a valid IPv4 address (e.g., 1.2.3.4)${NC}"
+    echo -e "${RED}✗${NC} Invalid IP! Please enter a valid IPv4 address (e.g., 1.2.3.4)."
+    echo
     echo -ne "${CYAN}Node public IP: ${NC}"
     read NODE_PUBLIC_IP
 done
@@ -204,7 +211,6 @@ ufw allow 443/tcp comment 'Marzban Dashboard' > /dev/null 2>&1
 ufw allow 10000/tcp comment 'VLESS Reality' > /dev/null 2>&1
 
 # Adding Node UFW Rules
-echo "Configuring Marznode access for IP: $NODE_PUBLIC_IP"
 ufw allow from "$NODE_PUBLIC_IP" to any port 62050 proto tcp comment 'Marznode' > /dev/null 2>&1
 ufw allow from "$NODE_PUBLIC_IP" to any port 62051 proto tcp comment 'Marznode' > /dev/null 2>&1
 
@@ -233,11 +239,10 @@ if docker compose version >/dev/null 2>&1; then
 elif docker-compose version >/dev/null 2>&1; then
     COMPOSE='docker-compose'
 else
-    echo -e "${RED}docker compose not found${NC}"
+    echo -e "${RED}✗${NC} Docker Compose not found."
+    echo
     exit 1
 fi
-
-echo "Using: $COMPOSE"
 
 # Architecture definition (Linux x86_64 and arm64 only)
 case "$(uname -m)" in
@@ -250,8 +255,9 @@ case "$(uname -m)" in
         yq_binary="yq_linux_arm64"
         ;;
     *)
-        echo -e "${RED}Unsupported architecture: $(uname -m)${NC}"
-        echo -e "${RED}Supported: x86_64, aarch64${NC}"
+        echo -e "${RED}✗${NC} Unsupported architecture: $(uname -m)."
+        echo
+        echo -e "${RED}✗${NC} Supported: x86_64, aarch64."
         exit 1
         ;;
 esac
@@ -353,7 +359,8 @@ if [ ! -d "/etc/letsencrypt/live/$PANEL_BASE_DOMAIN" ]; then
         --elliptic-curve secp384r1
     
     if [ $? -ne 0 ]; then
-        echo -e "${RED}❌ Failed to generate SSL certificate for $PANEL_BASE_DOMAIN. Check Cloudflare credentials.${NC}"
+        echo -e "${RED}✗${NC} Failed to generate SSL certificate for $PANEL_BASE_DOMAIN. Check Cloudflare credentials."
+        echo
         exit 1
     fi
 else
@@ -377,7 +384,8 @@ if [ ! -d "/etc/letsencrypt/live/$SUB_BASE_DOMAIN" ]; then
         --elliptic-curve secp384r1
     
     if [ $? -ne 0 ]; then
-        echo -e "${RED}❌ Failed to generate SSL certificate for $SUB_BASE_DOMAIN. Check Cloudflare credentials.${NC}"
+        echo -e "${RED}✗${NC} Failed to generate SSL certificate for $SUB_BASE_DOMAIN. Check Cloudflare credentials."
+        echo
         exit 1
     fi
 else
@@ -964,14 +972,16 @@ cd "$APP_DIR"
 # Launching containers
 $COMPOSE up -d --remove-orphans
 if [ $? -ne 0 ]; then
-    echo -e "${RED}❌ Failed to start containers. Check: $COMPOSE logs${NC}"
+    echo -e "${RED}✗${NC} Failed to start containers. Check: $COMPOSE logs."
+    echo
     exit 1
 fi
 
 echo "Containers started. Waiting for services to be ready..."
 sleep 30
 if ! curl -s "http://localhost:8000" > /dev/null; then
-    echo -e "${RED}❌ Marzban not responding. Check: $COMPOSE logs marzban${NC}"
+    echo -e "${RED}✗${NC} Marzban not responding. Check: $COMPOSE logs marzban."
+    echo
     exit 1
 fi
 
@@ -1022,7 +1032,7 @@ if [ -n "$container_id" ]; then
         echo
     fi
 else
-    echo -e "${RED}❌ Cannot find MariaDB container${NC}"
+    echo -e "${RED}✗${NC} Cannot find MariaDB container."
     echo
 fi
 
@@ -1041,7 +1051,7 @@ for i in {1..30}; do
         echo
         break
     elif [ $i -eq 30 ]; then
-        echo -e "${RED}❌ Marzban not responding after 30 attempts${NC}"
+        echo -e "${RED}✗${NC} Marzban not responding after 30 attempts."
         echo
         exit 1
     else
@@ -1077,7 +1087,7 @@ for attempt in {1..5}; do
     fi
     
     if [ $attempt -eq 5 ]; then
-        echo -e "${RED}❌ Failed to authenticate after 5 attempts${NC}"
+        echo -e "${RED}✗${NC} Failed to authenticate after 5 attempts."
         echo "You can update hosts manually through the dashboard"
         echo "Dashboard: https://dash.$PANEL_DOMAIN/dashboard"
         echo "Username: admin"
@@ -1164,7 +1174,7 @@ echo
 
 elif [ "$INSTALL_TYPE" = "2" ]; then
 
-# Marzban Node setup
+# Marzban Node Setup
 
 set -e
 
@@ -1180,7 +1190,8 @@ NC='\033[0m'
 
 # Checking root permissions
 if [ "$(id -u)" != "0" ]; then
-    echo -e "${RED}This command must be run as root.${NC}"
+    echo -e "${RED}✗${NC} This command must be run as root."
+    echo
     exit 1
 fi
 
@@ -1205,14 +1216,15 @@ validate_ip() {
 # Command execution check
 check_command() {
     if [ $? -ne 0 ]; then
-        echo -e "${RED}❌ Error: $1${NC}"
+        echo -e "${RED}✗${NC} Error: $1."
+        echo
         exit 1
     fi
 }
 
 echo
 echo -e "${PURPLE}===================${NC}"
-echo -e "${WHITE}MARZBAN NODE SETUP${NC}"
+echo -e "${WHITE}Marzban Node Setup${NC}"
 echo -e "${PURPLE}===================${NC}"
 echo
 
@@ -1225,7 +1237,8 @@ echo
 echo -ne "${CYAN}Selfsteal domain (e.g., example.com): ${NC}"
 read SELFSTEAL_DOMAIN
 while [[ -z "$SELFSTEAL_DOMAIN" ]] || ! validate_domain "$SELFSTEAL_DOMAIN"; do
-    echo -e "${RED}Invalid domain! Please enter a valid domain (e.g., example.com)${NC}"
+    echo -e "${RED}✗${NC} Invalid domain! Please enter a valid domain (e.g., example.com)."
+    echo
     echo -ne "${CYAN}Selfsteal domain: ${NC}"
     read SELFSTEAL_DOMAIN
 done
@@ -1233,7 +1246,8 @@ done
 echo -ne "${CYAN}Cloudflare Email: ${NC}"
 read CLOUDFLARE_EMAIL
 while [[ -z "$CLOUDFLARE_EMAIL" ]]; do
-    echo -e "${RED}Cloudflare Email cannot be empty!${NC}"
+    echo -e "${RED}✗${NC} Cloudflare Email cannot be empty!"
+    echo
     echo -ne "${CYAN}Cloudflare Email: ${NC}"
     read CLOUDFLARE_EMAIL
 done
@@ -1241,7 +1255,8 @@ done
 echo -ne "${CYAN}Cloudflare API Key: ${NC}"
 read CLOUDFLARE_API_KEY
 while [[ -z "$CLOUDFLARE_API_KEY" ]]; do
-    echo -e "${RED}Cloudflare API Key cannot be empty!${NC}"
+    echo -e "${RED}✗${NC} Cloudflare API Key cannot be empty!"
+    echo
     echo -ne "${CYAN}Cloudflare API Key: ${NC}"
     read CLOUDFLARE_API_KEY
 done
@@ -1249,7 +1264,8 @@ done
 echo -ne "${CYAN}Main public IP: ${NC}"
 read MAIN_PUBLIC_IP
 while [[ -z "$MAIN_PUBLIC_IP" ]] || ! validate_ip "$MAIN_PUBLIC_IP"; do
-    echo -e "${RED}Invalid IP! Please enter a valid IPv4 address (e.g., 1.2.3.4)${NC}"
+    echo -e "${RED}✗${NC} Invalid IP! Please enter a valid IPv4 address (e.g., 1.2.3.4)."
+    echo
     echo -ne "${CYAN}Main public IP: ${NC}"
     read MAIN_PUBLIC_IP
 done
@@ -1261,7 +1277,8 @@ if [[ -z "$NODE_PORT" ]]; then
 fi
 # Validate port range
 while [[ ! "$NODE_PORT" =~ ^[0-9]+$ ]] || [ "$NODE_PORT" -lt 1 ] || [ "$NODE_PORT" -gt 65535 ]; do
-    echo -e "${RED}Invalid port! Please enter a valid port (1-65535)${NC}"
+    echo -e "${RED}✗${NC} Invalid port! Please enter a valid port (1-65535)."
+    echo
     echo -ne "${CYAN}Node port (default 10000): ${NC}"
     read NODE_PORT
     if [[ -z "$NODE_PORT" ]]; then
@@ -1318,7 +1335,6 @@ ufw allow 443/tcp comment 'HTTPS (Reality)' > /dev/null 2>&1
 ufw allow $NODE_PORT/tcp comment 'HTTPS (Reality)' > /dev/null 2>&1
 
 # Adding Main server UFW Rules
-echo "Configuring main server access for IP: $MAIN_PUBLIC_IP"
 ufw allow from "$MAIN_PUBLIC_IP" to any port 62050 proto tcp comment 'Marzmain' > /dev/null 2>&1
 ufw allow from "$MAIN_PUBLIC_IP" to any port 62051 proto tcp comment 'Marzmain' > /dev/null 2>&1
 
@@ -1337,7 +1353,8 @@ if ! command -v docker >/dev/null 2>&1; then
     echo "Installing Docker..."
     apt-get update > /dev/null 2>&1
     apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin > /dev/null 2>&1
-    echo -e "${GREEN}✓${NC} Docker installed successfully${NC}"
+    echo -e "${GREEN}✓${NC} Docker installed successfully!"
+    echo
 fi
 
 # Defining docker compose command
@@ -1346,11 +1363,10 @@ if docker compose version >/dev/null 2>&1; then
 elif docker-compose version >/dev/null 2>&1; then
     COMPOSE='docker-compose'
 else
-    echo -e "${RED}docker compose not found${NC}"
+    echo -e "${RED}✗${NC} Docker Compose not found."
+    echo
     exit 1
 fi
-
-echo "Using: $COMPOSE"
 
 echo
 echo -e "${GREEN}----------------------------------${NC}"
@@ -1430,7 +1446,8 @@ if [ ! -d "/etc/letsencrypt/live/$BASE_DOMAIN" ]; then
         --elliptic-curve secp384r1
     
     if [ $? -ne 0 ]; then
-        echo -e "${RED}❌ Failed to generate SSL certificate for $BASE_DOMAIN. Check Cloudflare credentials.${NC}"
+        echo -e "${RED}✗${NC} Failed to generate SSL certificate for $BASE_DOMAIN. Check Cloudflare credentials."
+        echo
         exit 1
     fi
 else
@@ -1640,6 +1657,7 @@ services:
 EOF
 
 echo -e "${GREEN}✓${NC} docker-compose.yml created!"
+echo
 echo "File generated at $APP_DIR/docker-compose.yml"
 
 # Create Marzban-node SSL certificate file
@@ -1649,6 +1667,7 @@ touch "$DATA_DIR/ssl_client_cert.pem"
 # Open nano editor for SSL certificate
 nano "$DATA_DIR/ssl_client_cert.pem"
 echo -e "${GREEN}✓${NC} SSL certificate updated!"
+echo
 
 # Configure log rotation for Marzban Node
 echo "Configuring log rotation..."
@@ -1686,7 +1705,8 @@ cd "$APP_DIR"
 # Launching containers
 $COMPOSE up -d --remove-orphans
 if [ $? -ne 0 ]; then
-    echo -e "${RED}❌ Failed to start containers. Check: $COMPOSE logs${NC}"
+    echo -e "${RED}✗${NC} Failed to start containers. Check: $COMPOSE logs."
+    echo
     exit 1
 fi
 
