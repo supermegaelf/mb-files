@@ -1066,79 +1066,130 @@ sleep 10
 
 echo "Updating hosts configuration via API..."
 
-# Get authentication token
-echo "Getting authentication token..."
+# Get authentication token with debugging
+echo "Getting authentication token with debugging..."
+
+# First, test direct localhost connection
+echo "Testing direct localhost connection..."
+LOCALHOST_TEST=$(curl -s -X POST "http://localhost:8000/api/admin/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=admin&password=$ADMIN_PASSWORD")
+
+echo "Localhost response: $LOCALHOST_TEST"
+
+# Test if admin exists in database
+echo "Verifying admin in database..."
+ADMIN_CHECK=$(docker exec $container_id mariadb -u marzban -p"$MYSQL_PASSWORD" marzban -e "
+SELECT username, is_sudo FROM admins WHERE username = 'admin';
+" 2>/dev/null)
+echo "Database admin check: $ADMIN_CHECK"
+
+# Test Nginx proxy
+echo "Testing Nginx proxy status..."
+nginx -t
+systemctl status nginx --no-pager -l
+
+# Try multiple approaches
 TOKEN=""
 for attempt in {1..5}; do
-    TOKEN_RESPONSE=$(curl -s -X POST "https://dash.$PANEL_DOMAIN/api/admin/token" \
-      -H "Content-Type: application/x-www-form-urlencoded" \
-      -d "username=admin&password=$ADMIN_PASSWORD")
+    echo "Authentication attempt $attempt..."
     
-    TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.access_token' 2>/dev/null)
-    
-    if [ "$TOKEN" != "null" ] && [ -n "$TOKEN" ] && [ "$TOKEN" != "" ]; then
-        echo -e "${GREEN}✓${NC} Authentication successful!"
-        echo
-        break
-    else
-        echo "Authentication attempt $attempt failed, retrying..."
-        echo
-        sleep 3
+    # Method 1: Try localhost first
+    if [ -z "$TOKEN" ]; then
+        echo "Trying localhost (http)..."
+        TOKEN_RESPONSE=$(curl -s -X POST "http://localhost:8000/api/admin/token" \
+          -H "Content-Type: application/x-www-form-urlencoded" \
+          -d "username=admin&password=$ADMIN_PASSWORD")
+        
+        TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.access_token' 2>/dev/null)
+        
+        if [ "$TOKEN" != "null" ] && [ -n "$TOKEN" ] && [ "$TOKEN" != "" ]; then
+            echo "✓ Authentication successful via localhost!"
+            API_BASE="http://localhost:8000"
+            break
+        else
+            echo "Localhost failed: $TOKEN_RESPONSE"
+        fi
     fi
     
-    if [ $attempt -eq 5 ]; then
-        echo -e "${RED}✗${NC} Failed to authenticate after 5 attempts."
-        echo "You can update hosts manually through the dashboard"
-        echo "Dashboard: https://dash.$PANEL_DOMAIN/dashboard"
-        echo "Username: admin"
-        echo "Password: $ADMIN_PASSWORD"
-        echo
-        return 0
+    # Method 2: Try HTTPS proxy
+    if [ -z "$TOKEN" ]; then
+        echo "Trying HTTPS proxy..."
+        TOKEN_RESPONSE=$(curl -s -k -X POST "https://dash.$PANEL_DOMAIN/api/admin/token" \
+          -H "Content-Type: application/x-www-form-urlencoded" \
+          -d "username=admin&password=$ADMIN_PASSWORD")
+        
+        TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.access_token' 2>/dev/null)
+        
+        if [ "$TOKEN" != "null" ] && [ -n "$TOKEN" ] && [ "$TOKEN" != "" ]; then
+            echo "✓ Authentication successful via HTTPS!"
+            API_BASE="https://dash.$PANEL_DOMAIN"
+            break
+        else
+            echo "HTTPS failed: $TOKEN_RESPONSE"
+        fi
     fi
+    
+    # Method 3: Restart Marzban and try again
+    if [ $attempt -eq 3 ]; then
+        echo "Restarting Marzban for token refresh..."
+        $COMPOSE restart marzban > /dev/null 2>&1
+        sleep 15
+    fi
+    
+    sleep 3
 done
 
-# Update hosts configuration
-echo "Updating hosts configuration..."
-HOSTS_RESPONSE=$(curl -s -w "%{http_code}" -X PUT "https://dash.$PANEL_DOMAIN/api/hosts" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "VLESS Reality Steal Oneself": [{
-      "remark": "Steal",
-      "address": "'$SELFSTEAL_DOMAIN'",
-      "port": 443,
-      "sni": "'$PANEL_DOMAIN'",
-      "fingerprint": "chrome",
-      "security": "inbound_default",
-      "alpn": "",
-      "allowinsecure": null,
-      "is_disabled": false,
-      "mux_enable": false,
-      "fragment_setting": null,
-      "noise_setting": null,
-      "random_user_agent": false,
-      "use_sni_as_host": false
-    }]
-  }')
-
-# Check result
-HTTP_CODE="${HOSTS_RESPONSE: -3}"
-
-if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
-    echo -e "${GREEN}✓${NC} Hosts configuration updated successfully!"
-    echo
+if [ -n "$TOKEN" ] && [ "$TOKEN" != "null" ]; then
+    echo "✓ Authentication successful!"
+    echo "Using API base: $API_BASE"
     
-    # Verify update
-    sleep 2
-    UPDATED_HOSTS=$(curl -s -H "Authorization: Bearer $TOKEN" "https://dash.$PANEL_DOMAIN/api/hosts")
-    if echo "$UPDATED_HOSTS" | grep -q "Steal"; then
-        echo -e "${GREEN}✓${NC} Hosts update verified!"
-        echo
+    # Update hosts configuration using the working API base
+    echo "Updating hosts configuration..."
+    HOSTS_RESPONSE=$(curl -s -w "%{http_code}" -k -X PUT "$API_BASE/api/hosts" \
+      -H "Authorization: Bearer $TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "VLESS Reality Steal Oneself": [{
+          "remark": "Steal",
+          "address": "'$SELFSTEAL_DOMAIN'",
+          "port": 443,
+          "sni": "'$PANEL_DOMAIN'",
+          "fingerprint": "chrome",
+          "security": "inbound_default",
+          "alpn": "",
+          "allowinsecure": null,
+          "is_disabled": false,
+          "mux_enable": false,
+          "fragment_setting": null,
+          "noise_setting": null,
+          "random_user_agent": false,
+          "use_sni_as_host": false
+        }]
+      }')
+    
+    # Check result
+    HTTP_CODE="${HOSTS_RESPONSE: -3}"
+    
+    if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
+        echo "✓ Hosts configuration updated successfully!"
+        
+        # Verify update
+        sleep 2
+        UPDATED_HOSTS=$(curl -s -k -H "Authorization: Bearer $TOKEN" "$API_BASE/api/hosts")
+        if echo "$UPDATED_HOSTS" | grep -q "Steal"; then
+            echo "✓ Hosts update verified!"
+        fi
+    else
+        echo "⚠ Hosts update returned HTTP $HTTP_CODE"
+        echo "You can configure hosts manually through the dashboard"
     fi
 else
-    echo -e "${YELLOW}⚠ Hosts update returned HTTP $HTTP_CODE${NC}"
-    echo "You can configure hosts manually through the dashboard"
-    echo
+    echo "✗ All authentication methods failed"
+    echo "Manual configuration required:"
+    echo "Dashboard: https://dash.$PANEL_DOMAIN/dashboard"
+    echo "Username: admin"
+    echo "Password: $ADMIN_PASSWORD"
 fi
 
 echo -e "${GREEN}✓${NC} Hosts configuration process completed!"
