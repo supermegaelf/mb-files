@@ -1405,7 +1405,6 @@ if ! command -v docker >/dev/null 2>&1; then
     apt-get update > /dev/null 2>&1
     apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin > /dev/null 2>&1
     echo -e "${GREEN}✓${NC} Docker installed successfully!"
-    echo
 fi
 
 # Defining docker compose command
