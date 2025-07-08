@@ -209,7 +209,8 @@ ufw allow from "$NODE_PUBLIC_IP" to any port 62050 proto tcp comment 'Marznode' 
 ufw allow from "$NODE_PUBLIC_IP" to any port 62051 proto tcp comment 'Marznode' > /dev/null 2>&1
 
 ufw --force enable > /dev/null 2>&1
-echo -e "${GREEN}UFW firewall configured successfully!${NC}"
+echo -e "${GREEN}✓${NC} UFW firewall configured successfully!"
+echo
 
 # Docker Installation
 if ! command -v docker >/dev/null 2>&1; then
@@ -222,7 +223,8 @@ if ! command -v docker >/dev/null 2>&1; then
     echo "Installing Docker..."
     apt-get update > /dev/null 2>&1
     apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin > /dev/null 2>&1
-    echo -e "${GREEN}Docker installed successfully${NC}"
+    echo -e "${GREEN}✓${NC} Docker installed successfully!"
+    echo
 fi
 
 # Defining docker compose command
@@ -264,7 +266,7 @@ if ! command -v yq &>/dev/null; then
     
     curl -L "$yq_url" -o /usr/local/bin/yq > /dev/null 2>&1
     chmod +x /usr/local/bin/yq
-    echo -e "${GREEN}yq installed successfully!${NC}"
+    echo -e "${GREEN}✓${NC} YQ installed successfully!"
     
     export PATH="/usr/local/bin:$PATH"
     hash -r
@@ -324,7 +326,7 @@ dns_cloudflare_api_key = $CLOUDFLARE_API_KEY
 EOL
     fi
     chmod 600 ~/.secrets/certbot/cloudflare.ini
-    echo -e "${GREEN}Cloudflare credentials file created.${NC}"
+    echo -e "${GREEN}✓${NC} Cloudflare credentials file created!"
 else
     echo "Cloudflare credentials file already exists, skipping creation..."
 fi
@@ -392,7 +394,7 @@ if [ -f "/etc/letsencrypt/renewal/$SUB_BASE_DOMAIN.conf" ]; then
 fi
 (crontab -u root -l 2>/dev/null; echo "0 5 1 */2 * /usr/bin/certbot renew --quiet") | crontab -u root -
 
-echo -e "${GREEN}SSL certificates configured successfully!${NC}"
+echo -e "${GREEN}✓${NC} SSL certificates configured successfully!"
 echo
 
 echo -e "${GREEN}----------------------------------------------${NC}"
@@ -565,7 +567,7 @@ EOF
 echo "Testing Nginx configuration and starting service..."
 nginx -t && systemctl restart nginx && systemctl enable nginx > /dev/null 2>&1
 
-echo -e "${GREEN}Nginx configured successfully!${NC}"
+echo -e "${GREEN}✓${NC} Nginx configured successfully!"
 echo
 
 echo -e "${GREEN}---------------------------------------------${NC}"
@@ -633,13 +635,14 @@ services:
       retries: 3
 EOF
 
-echo -e "${GREEN}Using MariaDB as database${NC}"
+echo -e "${GREEN}✓${NC} Using MariaDB as database!"
+echo
 echo "File generated at $APP_DIR/docker-compose.yml"
 
 echo "Creating .env configuration file"
 
 # Data generation
-echo -e "${YELLOW}Generating secure random values...${NC}"
+echo "Generating secure random values..."
 MYSQL_ROOT_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
 MYSQL_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
 WEBHOOK_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)
@@ -769,7 +772,8 @@ MYSQL_PASSWORD=$MYSQL_PASSWORD
 SQLALCHEMY_DATABASE_URL="mysql+pymysql://marzban:${MYSQL_PASSWORD}@127.0.0.1:3306/marzban"
 EOF
 
-echo -e "${GREEN}.env file created with database configuration${NC}"
+echo -e "${GREEN}✓${NC} .env file created with database configuration!"
+echo
 
 # Setting secure access rights
 echo "Setting secure permissions on configuration files..."
@@ -872,7 +876,8 @@ cat > "$DATA_DIR/xray_config.json" << EOF
   ]
 }
 EOF
-echo -e "${GREEN}Custom xray config created at $DATA_DIR/xray_config.json${NC}"
+echo -e "${GREEN}✓${NC} Custom xray config created at $DATA_DIR/xray_config.json!"
+echo
 
 echo "Downloading custom subscription template..."
 mkdir -p /var/lib/marzban/templates/subscription
@@ -881,19 +886,22 @@ wget -q https://raw.githubusercontent.com/supermegaelf/mb-files/main/pages/sub/i
 # Replacing example.com with actual panel domain
 sed -i "s/example\.com/$PANEL_DOMAIN/g" /var/lib/marzban/templates/subscription/index.html
 
-echo -e "${GREEN}Custom subscription template configured at /var/lib/marzban/templates/subscription/index.html${NC}"
+echo -e "${GREEN}✓${NC} Custom subscription template configured at /var/lib/marzban/templates/subscription/index.html!"
+echo
 
 echo "Downloading enhanced subscription router..."
 wget -O /var/lib/marzban/subscription.py "https://raw.githubusercontent.com/hydraponique/roscomvpn-happ-routing/main/Auto-routing%20for%20Non-json%20Marzban/subscription.py" > /dev/null 2>&1
-echo -e "${GREEN}Enhanced subscription router downloaded to /var/lib/marzban/subscription.py${NC}"
+echo -e "${GREEN}✓${NC} Enhanced subscription router downloaded to /var/lib/marzban/subscription.py!"
+echo
 
-echo -e "${GREEN}Marzban's files downloaded successfully${NC}"
+echo -e "${GREEN}✓${NC} Marzban's files downloaded successfully!"
+echo
 
-echo "Installing marzban script"
+echo "Installing marzban script..."
 FETCH_REPO="Gozargah/Marzban-scripts"
 SCRIPT_URL="https://github.com/$FETCH_REPO/raw/master/marzban.sh"
 curl -sSL $SCRIPT_URL | install -m 755 /dev/stdin /usr/local/bin/marzban
-echo -e "${GREEN}marzban script installed successfully${NC}"
+echo -e "${GREEN}✓${NC} Marzban script installed successfully!"
 
 echo
 echo -e "${GREEN}--------------------------------------------${NC}"
@@ -936,7 +944,7 @@ chmod +x /usr/local/bin/xray
 cd /
 rm -rf /tmp/xray-install
 
-echo -e "${GREEN}Xray-core installed successfully to /usr/local/bin/xray${NC}"
+echo -e "${GREEN}✓${NC} Xray-core installed successfully to /usr/local/bin/xray!"
 
 echo
 echo -e "${GREEN}------------------------------------${NC}"
@@ -1007,63 +1015,123 @@ if [ -n "$container_id" ]; then
     " 2>/dev/null
     
     if [ $? -eq 0 ]; then
-        echo -e "${GREEN}✓ Admin user created successfully via database!${NC}"
+        echo -e "${GREEN}✓${NC} Admin user created successfully via database!"
+        echo
     else
         echo -e "${YELLOW}⚠ Admin may already exist, trying to update password...${NC}"
+        echo
     fi
 else
     echo -e "${RED}❌ Cannot find MariaDB container${NC}"
+    echo
 fi
 
-echo
-echo -e "${CYAN}Updating hosts configuration via API...${NC}"
+echo "Preparing system for hosts configuration..."
 
-# Wait a bit to ensure admin is created
+# Restart container for stable state
+echo "Restarting Marzban to ensure clean state..."
+cd "$APP_DIR"
+$COMPOSE restart marzban > /dev/null 2>&1
+
+# Wait for system readiness
+echo "Waiting for Marzban to be ready..."
+for i in {1..30}; do
+    if curl -s "http://localhost:8000/" > /dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC} Marzban API is ready!"
+        echo
+        break
+    elif [ $i -eq 30 ]; then
+        echo -e "${RED}❌ Marzban not responding after 30 attempts${NC}"
+        echo
+        exit 1
+    else
+        echo "Waiting for API... ($i/30)"
+        sleep 3
+    fi
+done
+
+# Allow system to stabilize
+echo "Allowing system to stabilize..."
 sleep 10
+
+echo "Updating hosts configuration via API..."
 
 # Get authentication token
 echo "Getting authentication token..."
-TOKEN_RESPONSE=$(curl -s -X POST "https://dash.$PANEL_DOMAIN/api/admin/token" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "username=admin&password=$ADMIN_PASSWORD")
-
-TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.access_token')
-
-if [ "$TOKEN" != "null" ] && [ -n "$TOKEN" ]; then
-    echo "✓ Authentication successful"
+TOKEN=""
+for attempt in {1..5}; do
+    TOKEN_RESPONSE=$(curl -s -X POST "https://dash.$PANEL_DOMAIN/api/admin/token" \
+      -H "Content-Type: application/x-www-form-urlencoded" \
+      -d "username=admin&password=$ADMIN_PASSWORD")
     
-    # Update hosts via API
-    echo "Updating hosts configuration..."
-    HOSTS_RESPONSE=$(curl -s -X PUT "https://dash.$PANEL_DOMAIN/api/hosts" \
-      -H "Authorization: Bearer $TOKEN" \
-      -H "Content-Type: application/json" \
-      -d '{
-        "VLESS Reality Steal Oneself": [{
-          "remark": "Steal",
-          "address": "'$SELFSTEAL_DOMAIN'",
-          "port": 443,
-          "sni": "'$PANEL_DOMAIN'",
-          "fingerprint": "chrome",
-          "security": "inbound_default",
-          "alpn": "",
-          "allowinsecure": null,
-          "is_disabled": false,
-          "mux_enable": false,
-          "fragment_setting": null,
-          "noise_setting": null,
-          "random_user_agent": false,
-          "use_sni_as_host": false
-        }]
-      }')
+    TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.access_token' 2>/dev/null)
     
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}✓ Hosts configuration updated successfully via API!${NC}"
+    if [ "$TOKEN" != "null" ] && [ -n "$TOKEN" ] && [ "$TOKEN" != "" ]; then
+        echo -e "${GREEN}✓${NC} Authentication successful!"
+        echo
+        break
     else
-        echo -e "${YELLOW}⚠ Could not update hosts via API${NC}"
+        echo "Authentication attempt $attempt failed, retrying..."
+        echo
+        sleep 3
+    fi
+    
+    if [ $attempt -eq 5 ]; then
+        echo -e "${RED}❌ Failed to authenticate after 5 attempts${NC}"
+        echo "You can update hosts manually through the dashboard"
+        echo "Dashboard: https://dash.$PANEL_DOMAIN/dashboard"
+        echo "Username: admin"
+        echo "Password: $ADMIN_PASSWORD"
+        echo
+        return 0
+    fi
+done
+
+# Update hosts configuration
+echo "Updating hosts configuration..."
+HOSTS_RESPONSE=$(curl -s -w "%{http_code}" -X PUT "https://dash.$PANEL_DOMAIN/api/hosts" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "VLESS Reality Steal Oneself": [{
+      "remark": "Steal",
+      "address": "'$SELFSTEAL_DOMAIN'",
+      "port": 443,
+      "sni": "'$PANEL_DOMAIN'",
+      "fingerprint": "chrome",
+      "security": "inbound_default",
+      "alpn": "",
+      "allowinsecure": null,
+      "is_disabled": false,
+      "mux_enable": false,
+      "fragment_setting": null,
+      "noise_setting": null,
+      "random_user_agent": false,
+      "use_sni_as_host": false
+    }]
+  }')
+
+# Check result
+HTTP_CODE="${HOSTS_RESPONSE: -3}"
+
+if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
+    echo -e "${GREEN}✓${NC} Hosts configuration updated successfully!"
+    echo
+    
+    # Verify update
+    sleep 2
+    UPDATED_HOSTS=$(curl -s -H "Authorization: Bearer $TOKEN" "https://dash.$PANEL_DOMAIN/api/hosts")
+    if echo "$UPDATED_HOSTS" | grep -q "Steal"; then
+        echo -e "${GREEN}✓${NC} Hosts update verified!"
+        echo
     fi
 else
-    echo -e "${YELLOW}⚠ Could not get authentication token. You can update hosts manually through the dashboard.${NC}"
+    echo -e "${YELLOW}⚠ Hosts update returned HTTP $HTTP_CODE${NC}"
+    echo "You can configure hosts manually through the dashboard"
+    echo
 fi
+
+echo -e "${GREEN}✓${NC} Hosts configuration process completed!"
 
 echo
 echo -e "${GREEN}------------------------------------------${NC}"
@@ -1078,7 +1146,7 @@ echo
 echo -e "${CYAN}Dashboard URL:${NC}"
 echo -e "${WHITE}https://dash.$PANEL_DOMAIN/dashboard${NC}"
 echo
-echo -e "${CYAN}Credentials to ${YELLOW}SAVE${CYAN}:${NC}"
+echo -e "${CYAN}Credentials to ${YELLOW}save${CYAN}:${NC}"
 echo -e "${WHITE}admin${NC}"
 echo -e "${WHITE}$ADMIN_PASSWORD${NC}"
 echo
@@ -1255,7 +1323,8 @@ ufw allow from "$MAIN_PUBLIC_IP" to any port 62050 proto tcp comment 'Marzmain' 
 ufw allow from "$MAIN_PUBLIC_IP" to any port 62051 proto tcp comment 'Marzmain' > /dev/null 2>&1
 
 ufw --force enable > /dev/null 2>&1
-echo -e "${GREEN}UFW firewall configured successfully!${NC}"
+echo -e "${GREEN}✓${NC} UFW firewall configured successfully!"
+echo
 
 # Docker Installation
 if ! command -v docker >/dev/null 2>&1; then
@@ -1268,7 +1337,7 @@ if ! command -v docker >/dev/null 2>&1; then
     echo "Installing Docker..."
     apt-get update > /dev/null 2>&1
     apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin > /dev/null 2>&1
-    echo -e "${GREEN}Docker installed successfully${NC}"
+    echo -e "${GREEN}✓${NC} Docker installed successfully${NC}"
 fi
 
 # Defining docker compose command
@@ -1335,7 +1404,7 @@ dns_cloudflare_api_key = $CLOUDFLARE_API_KEY
 EOL
     fi
     chmod 600 ~/.secrets/certbot/cloudflare.ini
-    echo -e "${GREEN}Cloudflare credentials file created.${NC}"
+    echo -e "${GREEN}✓${NC} Cloudflare credentials file created!"
 else
     echo "Cloudflare credentials file already exists, skipping creation..."
 fi
@@ -1375,7 +1444,7 @@ if [ -f "/etc/letsencrypt/renewal/$BASE_DOMAIN.conf" ]; then
 fi
 (crontab -u root -l 2>/dev/null; echo "0 5 1 */2 * /usr/bin/certbot renew --quiet") | crontab -u root -
 
-echo -e "${GREEN}SSL certificates configured successfully!${NC}"
+echo -e "${GREEN}✓${NC} SSL certificates configured successfully!"
 echo
 
 echo -e "${GREEN}----------------------------------------------${NC}"
@@ -1509,7 +1578,7 @@ EOF
 echo "Testing Nginx configuration and starting service..."
 nginx -t && systemctl restart nginx && systemctl enable nginx > /dev/null 2>&1
 
-echo -e "${GREEN}Nginx configured successfully!${NC}"
+echo -e "${GREEN}✓${NC} Nginx configured successfully!"
 echo
 
 echo -e "${GREEN}---------------------------------------------${NC}"
@@ -1538,7 +1607,7 @@ EOF
 echo "Reloading UFW with new NAT rules..."
 ufw --force reload
 
-echo -e "${GREEN}Traffic forwarding configured successfully!${NC}"
+echo -e "${GREEN}✓${NC} Traffic forwarding configured successfully!"
 echo
 
 echo -e "${GREEN}----------------------------------------------${NC}"
@@ -1570,7 +1639,7 @@ services:
       SERVICE_PROTOCOL: rest
 EOF
 
-echo -e "${GREEN}docker-compose.yml created${NC}"
+echo -e "${GREEN}✓${NC} docker-compose.yml created!"
 echo "File generated at $APP_DIR/docker-compose.yml"
 
 # Create Marzban-node SSL certificate file
@@ -1579,7 +1648,7 @@ touch "$DATA_DIR/ssl_client_cert.pem"
 
 # Open nano editor for SSL certificate
 nano "$DATA_DIR/ssl_client_cert.pem"
-echo -e "${GREEN}✓ SSL certificate updated!${NC}"
+echo -e "${GREEN}✓${NC} SSL certificate updated!"
 
 # Configure log rotation for Marzban Node
 echo "Configuring log rotation..."
@@ -1598,7 +1667,7 @@ EOF
 # Run logrotate
 logrotate -f /etc/logrotate.conf > /dev/null 2>&1
 
-echo -e "${GREEN}Log rotation configured!${NC}"
+echo -e "${GREEN}✓${NC} Log rotation configured!"
 
 echo
 echo -e "${GREEN}--------------------------------------------${NC}"
@@ -1627,7 +1696,7 @@ sleep 10
 echo "Checking container status..."
 $COMPOSE ps
 
-echo -e "${GREEN}✓ Marzban Node started successfully!${NC}"
+echo -e "${GREEN}✓${NC} Marzban Node started successfully!"
 echo
 
 echo -e "${GREEN}------------------------------------------${NC}"
