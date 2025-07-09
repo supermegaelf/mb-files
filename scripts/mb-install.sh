@@ -161,9 +161,9 @@ while [[ -z "$NODE_PUBLIC_IP" ]] || ! validate_ip "$NODE_PUBLIC_IP"; do
 done
 
 echo
-echo -e "${GREEN}─────────────────────────────────────${NC}"
+echo -e "${GREEN}────────────────────────────────────${NC}"
 echo -e "${GREEN}${CHECK}${NC} Environment variables configured!"
-echo -e "${GREEN}─────────────────────────────────────${NC}"
+echo -e "${GREEN}────────────────────────────────────${NC}"
 echo
 
 echo -e "${GREEN}Installing packages${NC}"
@@ -918,7 +918,6 @@ echo -e "${GREEN}${CHECK}${NC} Custom xray config created!"
 echo
 echo -e "${CYAN}${INFO}${NC} File location: ${WHITE}$DATA_DIR/xray_config.json${NC}"
 
-echo
 echo -e "${CYAN}${INFO}${NC} Downloading custom subscription template..."
 echo -e "${GRAY}  ${ARROW}${NC} Creating templates directory"
 mkdir -p /var/lib/marzban/templates/subscription
@@ -1099,7 +1098,8 @@ for i in {1..30}; do
     fi
 done
 
-echo -e "${GRAY}  ${ARROW}${NC} Allowing system to stabilize"
+echo
+echo -e "${CYAN}${INFO}${NC} Allowing system to stabilize..."
 # Allow system to stabilize
 sleep 10
 echo -e "${GREEN}${CHECK}${NC} System stabilized!"
@@ -1375,9 +1375,9 @@ while [[ ! "$NODE_PORT" =~ ^[0-9]+$ ]] || [ "$NODE_PORT" -lt 1 ] || [ "$NODE_POR
 done
 
 echo
-echo -e "${GREEN}─────────────────────────────────────${NC}"
+echo -e "${GREEN}────────────────────────────────────${NC}"
 echo -e "${GREEN}${CHECK}${NC} Environment variables configured!"
-echo -e "${GREEN}─────────────────────────────────────${NC}"
+echo -e "${GREEN}────────────────────────────────────${NC}"
 echo
 
 echo -e "${GREEN}Installing packages${NC}"
