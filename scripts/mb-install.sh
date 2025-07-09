@@ -1736,7 +1736,7 @@ COMMIT
 EOF
 
 echo -e "${GRAY}  ${ARROW}${NC} Reloading UFW with new NAT rules"
-ufw --force reload
+ufw --force reload > /dev/null 2>&1
 echo -e "${GREEN}${CHECK}${NC} Traffic forwarding configured successfully!"
 
 echo
@@ -1770,17 +1770,17 @@ services:
 EOF
 
 echo -e "${GREEN}${CHECK}${NC} docker-compose.yml created!"
+echo
 echo -e "${CYAN}${INFO}${NC} File generated at: ${WHITE}$APP_DIR/docker-compose.yml${NC}"
 
-echo
 # Create Marzban-node SSL certificate file
 echo -e "${CYAN}${INFO}${NC} Creating Marzban-node SSL certificate file..."
 echo -e "${GRAY}  ${ARROW}${NC} Creating SSL certificate file"
 touch "$DATA_DIR/ssl_client_cert.pem"
 
-echo -e "${YELLOW}${WARNING}${NC} Opening nano editor for SSL certificate paste..."
-echo -e "${CYAN}${INFO}${NC} Please paste the SSL certificate from the panel and save (Ctrl+O, Enter, Ctrl+X)"
-echo -e "${YELLOW}Press Enter to continue...${NC}"
+echo -e "${GRAY}  ${ARROW}${NC} Opening nano editor for SSL certificate paste..."
+echo -e "${CYAN}${INFO}${NC} Please paste the SSL certificate from the panel and save (Ctrl+X)"
+echo -ne "${YELLOW}Press Enter to continue...${NC}"
 read
 
 # Open nano editor for SSL certificate
