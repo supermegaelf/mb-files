@@ -289,9 +289,9 @@ else
 fi
 
 echo
-echo -e "${GREEN}───────────────────────────────────${NC}"
+echo -e "${GREEN}──────────────────────────────────${NC}"
 echo -e "${GREEN}${CHECK}${NC} Package installation completed!"
-echo -e "${GREEN}───────────────────────────────────${NC}"
+echo -e "${GREEN}──────────────────────────────────${NC}"
 echo
 
 # Path variables
@@ -426,13 +426,13 @@ echo -e "${GRAY}  ${ARROW}${NC} Setting up cron job"
 echo -e "${GREEN}${CHECK}${NC} SSL certificates configured successfully!"
 
 echo
-echo -e "${GREEN}───────────────────────────────────────────────${NC}"
+echo -e "${GREEN}──────────────────────────────────────────────${NC}"
 echo -e "${GREEN}${CHECK}${NC} Structure and certificates setup completed!"
-echo -e "${GREEN}───────────────────────────────────────────────${NC}"
+echo -e "${GREEN}──────────────────────────────────────────────${NC}"
 echo
 
 echo -e "${GREEN}Installing and configuring Nginx${NC}"
-echo -e "${GREEN}=================================${NC}"
+echo -e "${GREEN}================================${NC}"
 echo
 
 # Nginx Installation and Configuration
@@ -605,9 +605,9 @@ nginx -t > /dev/null 2>&1 && systemctl restart nginx > /dev/null 2>&1 && systemc
 echo -e "${GREEN}${CHECK}${NC} Nginx configured successfully!"
 
 echo
-echo -e "${GREEN}──────────────────────────────────────────────${NC}"
+echo -e "${GREEN}─────────────────────────────────────────────${NC}"
 echo -e "${GREEN}${CHECK}${NC} Nginx configured and started successfully!"
-echo -e "${GREEN}──────────────────────────────────────────────${NC}"
+echo -e "${GREEN}─────────────────────────────────────────────${NC}"
 echo
 
 echo -e "${GREEN}Creating configuration files${NC}"
@@ -943,9 +943,9 @@ curl -sSL $SCRIPT_URL | install -m 755 /dev/stdin /usr/local/bin/marzban
 echo -e "${GREEN}${CHECK}${NC} Marzban script installed successfully!"
 
 echo
-echo -e "${GREEN}─────────────────────────────────────────────${NC}"
+echo -e "${GREEN}────────────────────────────────────────────${NC}"
 echo -e "${GREEN}${CHECK}${NC} Configuration files created successfully!"
-echo -e "${GREEN}─────────────────────────────────────────────${NC}"
+echo -e "${GREEN}────────────────────────────────────────────${NC}"
 echo
 
 echo -e "${GREEN}Downloading and installing Xray-core${NC}"
@@ -988,9 +988,9 @@ rm -rf /tmp/xray-install
 echo -e "${GREEN}${CHECK}${NC} Xray-core installed successfully!"
 
 echo
-echo -e "${GREEN}─────────────────────────────────────────${NC}"
+echo -e "${GREEN}────────────────────────────────────${NC}"
 echo -e "${GREEN}${CHECK}${NC} Xray-core installation completed!"
-echo -e "${GREEN}─────────────────────────────────────────${NC}"
+echo -e "${GREEN}────────────────────────────────────${NC}"
 echo
 
 echo -e "${GREEN}Starting Docker containers${NC}"
@@ -1222,14 +1222,14 @@ else
 fi
 
 echo
-echo -e "${GREEN}───────────────────────────────────────────${NC}"
+echo -e "${GREEN}──────────────────────────────────────────${NC}"
 echo -e "${GREEN}${CHECK}${NC} Docker containers started successfully!"
-echo -e "${GREEN}───────────────────────────────────────────${NC}"
+echo -e "${GREEN}──────────────────────────────────────────${NC}"
 echo
 
-echo -e "${GREEN}==========================================${NC}"
+echo -e "${PURPLE}======================================${NC}"
 echo -e "${GREEN}${CHECK}${NC} Marzban setup completed successfully!"
-echo -e "${GREEN}==========================================${NC}"
+echo -e "${PURPLE}======================================${NC}"
 echo
 echo -e "${CYAN}Dashboard URL:${NC}"
 echo -e "${WHITE}https://dash.$PANEL_DOMAIN/dashboard${NC}"
@@ -1466,9 +1466,9 @@ else
 fi
 
 echo
-echo -e "${GREEN}───────────────────────────────────${NC}"
+echo -e "${GREEN}──────────────────────────────────${NC}"
 echo -e "${GREEN}${CHECK}${NC} Package installation completed!"
-echo -e "${GREEN}───────────────────────────────────${NC}"
+echo -e "${GREEN}──────────────────────────────────${NC}"
 echo
 
 # Path variables
@@ -1572,13 +1572,13 @@ echo -e "${GRAY}  ${ARROW}${NC} Setting up cron job"
 echo -e "${GREEN}${CHECK}${NC} SSL certificates configured successfully!"
 
 echo
-echo -e "${GREEN}───────────────────────────────────────────────${NC}"
+echo -e "${GREEN}──────────────────────────────────────────────${NC}"
 echo -e "${GREEN}${CHECK}${NC} Structure and certificates setup completed!"
-echo -e "${GREEN}───────────────────────────────────────────────${NC}"
+echo -e "${GREEN}──────────────────────────────────────────────${NC}"
 echo
 
 echo -e "${GREEN}Installing and configuring Nginx${NC}"
-echo -e "${GREEN}=================================${NC}"
+echo -e "${GREEN}================================${NC}"
 echo
 
 # Nginx Installation and Configuration
@@ -1712,9 +1712,9 @@ nginx -t > /dev/null 2>&1 && systemctl restart nginx > /dev/null 2>&1 && systemc
 echo -e "${GREEN}${CHECK}${NC} Nginx configured successfully!"
 
 echo
-echo -e "${GREEN}──────────────────────────────────────────────${NC}"
+echo -e "${GREEN}─────────────────────────────────────────────${NC}"
 echo -e "${GREEN}${CHECK}${NC} Nginx configured and started successfully!"
-echo -e "${GREEN}──────────────────────────────────────────────${NC}"
+echo -e "${GREEN}─────────────────────────────────────────────${NC}"
 echo
 
 echo -e "${GREEN}Configuring traffic forwarding and UFW${NC}"
@@ -1808,9 +1808,9 @@ logrotate -f /etc/logrotate.conf > /dev/null 2>&1
 echo -e "${GREEN}${CHECK}${NC} Log rotation configured!"
 
 echo
-echo -e "${GREEN}─────────────────────────────────────────────${NC}"
+echo -e "${GREEN}────────────────────────────────────────────${NC}"
 echo -e "${GREEN}${CHECK}${NC} Configuration files created successfully!"
-echo -e "${GREEN}─────────────────────────────────────────────${NC}"
+echo -e "${GREEN}────────────────────────────────────────────${NC}"
 echo
 
 echo -e "${GREEN}Starting Docker containers${NC}"
@@ -1838,9 +1838,9 @@ $COMPOSE ps
 echo -e "${GREEN}${CHECK}${NC} Marzban Node started successfully!"
 
 echo
-echo -e "${GREEN}───────────────────────────────────────────${NC}"
+echo -e "${GREEN}──────────────────────────────────────────${NC}"
 echo -e "${GREEN}${CHECK}${NC} Docker containers started successfully!"
-echo -e "${GREEN}───────────────────────────────────────────${NC}"
+echo -e "${GREEN}──────────────────────────────────────────${NC}"
 echo
 
 echo -e "${GREEN}==============================================${NC}"
