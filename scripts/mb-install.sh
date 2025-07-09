@@ -1227,9 +1227,9 @@ echo -e "${GREEN}${CHECK}${NC} Docker containers started successfully!"
 echo -e "${GREEN}──────────────────────────────────────────${NC}"
 echo
 
-echo -e "${PURPLE}======================================${NC}"
+echo -e "${PURPLE}========================================${NC}"
 echo -e "${GREEN}${CHECK}${NC} Marzban setup completed successfully!"
-echo -e "${PURPLE}======================================${NC}"
+echo -e "${PURPLE}========================================${NC}"
 echo
 echo -e "${CYAN}Dashboard URL:${NC}"
 echo -e "${WHITE}https://dash.$PANEL_DOMAIN/dashboard${NC}"
@@ -1740,9 +1740,9 @@ ufw --force reload > /dev/null 2>&1
 echo -e "${GREEN}${CHECK}${NC} Traffic forwarding configured successfully!"
 
 echo
-echo -e "${GREEN}───────────────────────────────────────────────${NC}"
+echo -e "${GREEN}──────────────────────────────────────────────${NC}"
 echo -e "${GREEN}${CHECK}${NC} Traffic forwarding and UFW setup completed!"
-echo -e "${GREEN}───────────────────────────────────────────────${NC}"
+echo -e "${GREEN}──────────────────────────────────────────────${NC}"
 echo
 
 echo -e "${GREEN}Creating configuration files${NC}"
@@ -1780,7 +1780,7 @@ touch "$DATA_DIR/ssl_client_cert.pem"
 
 echo -e "${GRAY}  ${ARROW}${NC} Opening nano editor for SSL certificate paste..."
 echo -e "${CYAN}${INFO}${NC} Please paste the SSL certificate from the panel and save (Ctrl+X)"
-echo -ne "${YELLOW}Press Enter to continue...${NC}"
+echo -ne "${YELLOW}  Press \"Enter\" to continue...${NC}"
 read
 
 # Open nano editor for SSL certificate
@@ -1843,9 +1843,9 @@ echo -e "${GREEN}${CHECK}${NC} Docker containers started successfully!"
 echo -e "${GREEN}──────────────────────────────────────────${NC}"
 echo
 
-echo -e "${GREEN}==============================================${NC}"
+echo -e "${GREEN}=============================================${NC}"
 echo -e "${GREEN}${CHECK}${NC} Marzban Node setup completed successfully!"
-echo -e "${GREEN}==============================================${NC}"
+echo -e "${GREEN}=============================================${NC}"
 echo
 echo -e "${CYAN}Useful Commands:${NC}"
 echo -e "${WHITE}• Check logs: cd /opt/marzban-node && docker compose logs -f${NC}"
