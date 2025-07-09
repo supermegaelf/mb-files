@@ -671,9 +671,9 @@ services:
 EOF
 
 echo -e "${GREEN}${CHECK}${NC} Using MariaDB as database!"
+echo
 echo -e "${CYAN}${INFO}${NC} File generated at: ${WHITE}$APP_DIR/docker-compose.yml${NC}"
 
-echo
 echo -e "${CYAN}${INFO}${NC} Creating .env configuration file..."
 echo -e "${GRAY}  ${ARROW}${NC} Generating secure random values"
 MYSQL_ROOT_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
@@ -915,6 +915,7 @@ cat > "$DATA_DIR/xray_config.json" << EOF
 }
 EOF
 echo -e "${GREEN}${CHECK}${NC} Custom xray config created!"
+echo
 echo -e "${CYAN}${INFO}${NC} File location: ${WHITE}$DATA_DIR/xray_config.json${NC}"
 
 echo
@@ -1035,6 +1036,7 @@ if ! python3 -c "import bcrypt" 2>/dev/null; then
     apt-get update > /dev/null 2>&1
     apt-get -y install python3-bcrypt > /dev/null 2>&1
     echo -e "${GREEN}${CHECK}${NC} python3-bcrypt installed!"
+    echo
 fi
 
 # Generate random password
@@ -1137,6 +1139,7 @@ for attempt in {1..5}; do
         
         if [ "$TOKEN" != "null" ] && [ -n "$TOKEN" ] && [ "$TOKEN" != "" ]; then
             echo -e "${GREEN}${CHECK}${NC} Authentication successful via localhost!"
+            echo
             API_BASE="http://localhost:8000"
             break
         fi
@@ -1169,6 +1172,7 @@ done
 
 if [ -n "$TOKEN" ] && [ "$TOKEN" != "null" ]; then
     echo -e "${GREEN}${CHECK}${NC} Authentication successful!"
+    echo
     echo -e "${CYAN}${INFO}${NC} Using API base: ${WHITE}$API_BASE${NC}"
     
     # Update hosts configuration using the working API base
@@ -1200,6 +1204,7 @@ if [ -n "$TOKEN" ] && [ "$TOKEN" != "null" ]; then
     
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
         echo -e "${GREEN}${CHECK}${NC} Hosts configuration updated successfully!"
+        echo
         
         # Verify update
         sleep 2
