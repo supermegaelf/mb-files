@@ -610,6 +610,53 @@ echo -e "${GREEN}${CHECK}${NC} Nginx configured and started successfully!"
 echo -e "${GREEN}─────────────────────────────────────────────${NC}"
 echo
 
+echo -e "${GREEN}Setting up redirect page${NC}"
+echo -e "${GREEN}========================${NC}"
+echo
+
+echo -e "${CYAN}${INFO}${NC} Creating redirect site configuration..."
+echo -e "${GRAY}  ${ARROW}${NC} Creating redirect site configuration"
+cat > /etc/nginx/conf.d/redirect.conf << EOF
+server {
+    listen 443 ssl;
+    server_name redirect.$PANEL_DOMAIN;
+
+    root /var/www/redirect;
+    index index.html;
+
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+
+    include /etc/nginx/snippets/ssl.conf;
+    include /etc/nginx/snippets/ssl-params.conf;
+}
+EOF
+
+echo -e "${GRAY}  ${ARROW}${NC} Creating redirect page directory"
+mkdir -p /var/www/redirect
+
+echo -e "${GRAY}  ${ARROW}${NC} Downloading redirect page"
+wget -q https://raw.githubusercontent.com/supermegaelf/mb-files/main/pages/redirect/index.html -O /var/www/redirect/index.html > /dev/null 2>&1
+
+echo -e "${GRAY}  ${ARROW}${NC} Customizing redirect page with panel domain"
+sed -i "s/example\.com/$PANEL_DOMAIN/g" /var/www/redirect/index.html
+
+echo -e "${GRAY}  ${ARROW}${NC} Setting proper permissions"
+chown -R www-data:www-data /var/www/redirect
+chmod -R 755 /var/www/redirect
+
+echo -e "${GRAY}  ${ARROW}${NC} Testing Nginx configuration"
+nginx -t > /dev/null 2>&1 && systemctl restart nginx > /dev/null 2>&1
+
+echo -e "${GREEN}${CHECK}${NC} Redirect page configured successfully!"
+
+echo
+echo -e "${GREEN}───────────────────────────────${NC}"
+echo -e "${GREEN}${CHECK}${NC} Redirect page setup completed!"
+echo -e "${GREEN}───────────────────────────────${NC}"
+echo
+
 echo -e "${GREEN}Creating configuration files${NC}"
 echo -e "${GREEN}============================${NC}"
 echo
