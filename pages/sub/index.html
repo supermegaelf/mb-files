@@ -204,17 +204,17 @@
 
         .guide-heading {
             margin-top: 1rem;
-            margin-bottom: 0rem;
+            margin-bottom: 0.5rem;
         }
 
         .tab-content {
-            margin-top: 2rem;
+            margin-top: 1.5rem;
             margin-bottom: 1rem;
         }
 
         .bottom-controls {
-            margin-top: 2rem;
-            margin-bottom: 2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         /* ========== КОМПОНЕНТЫ ========== */
@@ -265,8 +265,8 @@
         }
 
         .my-block-big {
-            padding: 1.5rem;
-            padding-top: .75rem;
+            padding: 1.25rem;
+            padding-top: 1rem;
         }
 
         /* ========== НАВИГАЦИЯ ========== */
@@ -453,6 +453,21 @@
         }
 
         /* ========== АДАПТИВНОСТЬ ========== */
+        @media (max-width: 576px) {
+            .tab-content {
+                margin-top: 1.25rem;
+            }
+            
+            .bottom-controls {
+                margin-top: 1.25rem;
+            }
+            
+            .my-block-big {
+                padding: 1rem;
+                padding-top: 0.75rem;
+            }
+        }
+
         @media (max-width: 320px) {
             .my-row-xs>* {
                 width: 100%;
@@ -678,7 +693,7 @@
         <div class="tab-content" role="tablist">
             <div id="tab-android" class="tab-pane my-tab-pane fade show active" aria-labelledby="btn-guide-android-tab"
                 role="tabpanel">
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 g-sm-2 g-lg-3">
                     <div class="col">
                         <div class="my-block-big h-100">
                             <span class="my-step-counter mb-1"></span>
@@ -738,7 +753,7 @@
                 </div>
             </div>
             <div id="tab-ios" class="tab-pane my-tab-pane fade" aria-labelledby="btn-guide-ios-tab" role="tabpanel">
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 g-sm-2 g-lg-3">
                     <div class="col">
                         <div class="my-block-big h-100">
                             <span class="my-step-counter mb-1"></span>
@@ -776,7 +791,7 @@
                 </div>
             </div>
             <div id="tab-pc" class="tab-pane my-tab-pane fade" aria-labelledby="btn-guide-pc-tab" role="tabpanel">
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 g-sm-2 g-lg-3">
                     <div class="col">
                         <div class="my-block-big h-100">
                             <span class="my-step-counter mb-1"></span>
@@ -812,7 +827,7 @@
             </div>
             <div id="tab-tv" class="tab-pane my-tab-pane fade" aria-labelledby="btn-guide-tv-tab"
                 role="tabpanel">
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 g-sm-2 g-lg-3">
                     <div class="col">
                         <div class="my-block-big h-100">
                             <span class="my-step-counter mb-1"></span>
@@ -856,7 +871,7 @@
                 </div>
             </div>
             <div id="tab-macos" class="tab-pane my-tab-pane fade" aria-labelledby="btn-guide-macos-tab" role="tabpanel">
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 g-sm-2 g-lg-3">
                     <div class="col">
                         <div class="my-block-big h-100">
                             <span class="my-step-counter mb-1"></span>
