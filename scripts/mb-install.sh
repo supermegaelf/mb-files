@@ -637,7 +637,7 @@ echo -e "${GRAY}  ${ARROW}${NC} Creating redirect page directory"
 mkdir -p /var/www/redirect
 
 echo -e "${GRAY}  ${ARROW}${NC} Downloading redirect page"
-wget -q https://raw.githubusercontent.com/supermegaelf/sub-redirect/main/index.html -O /var/www/redirect/index.html > /dev/null 2>&1
+wget -q https://raw.githubusercontent.com/supermegaelf/mb-files/main/pages/redirect/index.html -O /var/www/redirect/index.html > /dev/null 2>&1
 
 echo -e "${GRAY}  ${ARROW}${NC} Customizing redirect page with panel domain"
 sed -i "s/example\.com/$PANEL_DOMAIN/g" /var/www/redirect/index.html
