@@ -55,11 +55,9 @@ case $INSTALL_TYPE in
 esac
 
 # Panel Installation
-
 if [ "$INSTALL_TYPE" = "1" ]; then
 
 # Marzban Panel Setup
-
 set -e
 
 # Checking root permissions
@@ -105,7 +103,6 @@ echo -e "${GREEN}=====================${NC}"
 echo
 
 # Interactive input for variables
-
 echo -ne "${CYAN}Panel domain (e.g., example.com): ${NC}"
 read PANEL_DOMAIN
 while [[ -z "$PANEL_DOMAIN" ]] || ! validate_domain "$PANEL_DOMAIN"; do
@@ -1298,11 +1295,9 @@ echo -e "${WHITE}4. Run this script on node server and select \"Install Node\"${
 echo
 
 # Node Installation
-
 elif [ "$INSTALL_TYPE" = "2" ]; then
 
 # Marzban Node Setup
-
 set -e
 
 # Colors
