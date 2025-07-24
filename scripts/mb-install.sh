@@ -1654,7 +1654,7 @@ input_node_main_public_ip() {
 
 # Input node port
 input_node_port() {
-    echo -ne "${CYAN}Node port (default 10000, press Enter to use it): ${NC}"
+    echo -ne "${CYAN}Node VLESS Reality port (default 10000, press Enter to use it): ${NC}"
     read NODE_PORT
     if [[ -z "$NODE_PORT" ]]; then
         NODE_PORT=10000
