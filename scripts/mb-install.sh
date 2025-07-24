@@ -1497,10 +1497,10 @@ display_useful_commands() {
 # Display next steps
 display_next_steps() {
     echo -e "${CYAN}Next Steps:${NC}"
-    echo -e "${WHITE}1. Go to \"Node settings\" in the Marzban panel${NC}"
-    echo -e "${WHITE}2. Click \"Add New Marzban Node\"${NC}"
-    echo -e "${WHITE}3. Click \"Show Certificate\" and copy it${NC}"
-    echo -e "${WHITE}4. Run this script on node server and select \"Install Node\"${NC}"
+    echo -e "${WHITE}1. Go to \"Node settings\" in the Marzban panel.${NC}"
+    echo -e "${WHITE}2. Click \"Add New Marzban Node\".${NC}"
+    echo -e "${WHITE}3. Click \"Show Certificate\" and copy it.${NC}"
+    echo -e "${WHITE}4. Run this script on node server and select \"Install Node\".${NC}"
     echo
 }
 
@@ -2326,9 +2326,9 @@ display_node_useful_commands() {
 # Display node next steps
 display_node_next_steps() {
     echo -e "${CYAN}Next Steps:${NC}"
-    echo -e "${WHITE}1. Go to \"Node settings\" in the Marzban panel${NC}"
-    echo -e "${WHITE}2. Fill in the \"Name\" and \"Address\" fields${NC}"
-    echo -e "${WHITE}3. Click \"Update Node\"${NC}"
+    echo -e "${WHITE}1. Go to \"Node settings\" in the Marzban panel.${NC}"
+    echo -e "${WHITE}2. Fill in the \"Name\" and \"Address\" fields.${NC}"
+    echo -e "${WHITE}3. Click \"Update Node\".${NC}"
     echo
 }
 
