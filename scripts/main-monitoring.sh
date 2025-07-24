@@ -268,51 +268,6 @@ EOF
     fi
     git clone https://github.com/kutovoys/marzban-exporter.git
 
-    # Collect external nodes
-    echo
-    echo -ne "${YELLOW}Do you want to add external nodes to monitoring? (y/N): ${NC}"
-    read -r ADD_EXTERNAL_NODES
-    
-    EXTERNAL_NODES=()
-    if [[ ! "$ADD_EXTERNAL_NODES" =~ ^[Nn]$ ]]; then
-        while true; do
-            echo
-            echo -ne "${CYAN}Node IP (or press Enter to finish): ${NC}"
-            read NODE_IP
-            echo
-            if [[ -z "$NODE_IP" ]]; then
-                break
-            fi
-            
-            # Basic IP validation
-            if [[ $NODE_IP =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-                # Test connectivity
-                echo "Testing connectivity to $NODE_IP:9100..."
-                if curl -s --max-time 5 http://$NODE_IP:9100/metrics > /dev/null 2>&1; then
-                    EXTERNAL_NODES+=("$NODE_IP:9100")
-                else
-                    echo -e "${YELLOW}Warning: Cannot reach $NODE_IP:9100${NC}"
-                    echo
-                    echo -ne "${YELLOW}Add anyway? (y/N): ${NC}"
-                    read -r ADD_ANYWAY
-                    if [[ "$ADD_ANYWAY" =~ ^[Yy]$ ]]; then
-                        EXTERNAL_NODES+=("$NODE_IP:9100")
-                    fi
-                fi
-            else
-                echo -e "${RED}Invalid IP format: $NODE_IP${NC}"
-                echo
-            fi
-        done
-
-        if [ ${#EXTERNAL_NODES[@]} -gt 0 ]; then
-            echo -e "${CYAN}External nodes to be added:${NC}"
-            for node in "${EXTERNAL_NODES[@]}"; do
-                echo -e "${WHITE}$node${NC}"
-            done
-        fi
-    fi
-
     # Create Prometheus configuration
     echo
     echo "Creating Prometheus configuration..."
@@ -340,23 +295,6 @@ scrape_configs:
     scrape_interval: 30s
     scrape_timeout: 10s
 PROM_EOF
-
-    # Add external nodes section if any were provided
-    if [ ${#EXTERNAL_NODES[@]} -gt 0 ]; then
-        cat >> prometheus/prometheus.yml << NODES_EOF
-
-  - job_name: 'node-exporter-nodes'
-    static_configs:
-      - targets:
-NODES_EOF
-        for node in "${EXTERNAL_NODES[@]}"; do
-            echo "        - '$node'" >> prometheus/prometheus.yml
-        done
-        cat >> prometheus/prometheus.yml << NODES_EOF2
-    scrape_interval: 15s
-    scrape_timeout: 5s
-NODES_EOF2
-    fi
 
     # Create environment file for marzban-exporter
     echo "Creating environment configuration..."
@@ -711,6 +649,10 @@ PROMETHEUS_NGINX_EOF
     echo
     echo -e "${CYAN}Check logs:${NC}"
     echo -e "${WHITE}docker compose logs -f marzban-exporter${NC}"
+    echo
+    echo -e "${CYAN}Next Steps:${NC}"
+    echo -e "${WHITE}1. Set up monitoring on server with node.${NC}"
+    echo -e "${WHITE}2. Go back to panel server, run script again and choose \"Add Nodes\".${NC}"
     echo
 }
 
