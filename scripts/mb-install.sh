@@ -828,7 +828,7 @@ UVICORN_HOST = "0.0.0.0"
 UVICORN_PORT = 8000
 # ALLOWED_ORIGINS=http://localhost,http://localhost:8000,http://example.com
 
-## We highly recommend add admin using `marzban cli` tool and do not use
+## We highly recommend add admin using marzban cli tool and do not use
 ## the following variables which is somehow hard codded infrmation.
 # SUDO_USERNAME = "admin"
 # SUDO_PASSWORD = "admin"
@@ -1132,8 +1132,6 @@ download_xray_core() {
     local latest_releases=$(curl -s "https://api.github.com/repos/XTLS/Xray-core/releases?per_page=$LAST_XRAY_CORES")
     local latest_version=$(echo "$latest_releases" | grep -oP '"tag_name": "\K(.*?)(?=")' | head -n 1)
 
-    echo -e "${CYAN}${INFO}${NC} Latest Xray-core version: ${WHITE}$latest_version${NC}"
-
     local xray_filename="Xray-linux-$ARCH.zip"
     local xray_download_url="https://github.com/XTLS/Xray-core/releases/download/${latest_version}/${xray_filename}"
 
@@ -1289,7 +1287,7 @@ wait_for_marzban_api() {
             exit 1
         else
             echo -e "${GRAY}  ${ARROW}${NC} Waiting for API... ($i/30)"
-            sleep 3
+            sleep 5
         fi
     done
 }
@@ -1345,7 +1343,7 @@ authenticate_with_api() {
             restart_marzban_for_auth
         fi
         
-        sleep 3
+        sleep 5
     done
     return 1
 }
@@ -1432,10 +1430,9 @@ verify_hosts_update() {
     
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
         echo -e "${GREEN}${CHECK}${NC} Hosts configuration updated successfully!"
-        echo
         
         # Verify update
-        sleep 2
+        sleep 5
         local UPDATED_HOSTS=$(curl -s -k -H "Authorization: Bearer $token" "$api_base/api/hosts")
         if echo "$UPDATED_HOSTS" | grep -q "Steal"; then
             :
