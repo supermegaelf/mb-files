@@ -813,6 +813,7 @@ generate_secure_passwords() {
     MYSQL_ROOT_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
     MYSQL_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
     WEBHOOK_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)
+    ADMIN_USERNAME="admin"
     ADMIN_PASSWORD=$(tr -dc 'A-Za-z0-9!@#%^&*()' </dev/urandom | head -c 16)
 }
 
@@ -1297,7 +1298,7 @@ stabilize_system() {
     echo
     echo -e "${CYAN}${INFO}${NC} Allowing system to stabilize..."
     echo -e "${GRAY}  ${ARROW}${NC} Waiting for services to initialize"
-    sleep 10
+    sleep 15
     echo -e "${GREEN}${CHECK}${NC} System stabilized!"
 }
 
