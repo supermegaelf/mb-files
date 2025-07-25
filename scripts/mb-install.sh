@@ -371,6 +371,7 @@ check_cloudflare_api() {
         api_response=$(curl --silent --request GET --url https://api.cloudflare.com/client/v4/zones --header "X-Auth-Key: ${CLOUDFLARE_API_KEY}" --header "X-Auth-Email: ${CLOUDFLARE_EMAIL}" --header "Content-Type: application/json")
     fi
     echo -e "${GREEN}${CHECK}${NC} Cloudflare API credentials verified!"
+    echo
 }
 
 # Setup Cloudflare credentials
@@ -814,7 +815,6 @@ generate_secure_passwords() {
     MYSQL_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
     WEBHOOK_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)
     ADMIN_USERNAME="admin"
-    ADMIN_PASSWORD=$(tr -dc 'A-Za-z0-9!@#%^&*()' </dev/urandom | head -c 16)
 }
 
 # Create environment file
@@ -1217,11 +1217,10 @@ install_bcrypt() {
 create_admin_user() {
     install_bcrypt
     
-    ADMIN_PASSWORD=$(tr -dc 'A-Za-z0-9!@#%^&*()' </dev/urandom | head -c 16)
-
     echo -e "${CYAN}${INFO}${NC} Creating admin user via database..."
     echo -e "${GRAY}  ${ARROW}${NC} Generating password hash"
 
+    # Используем уже сгенерированный пароль из generate_secure_passwords()
     local ADMIN_PASSWORD_HASH=$(python3 -c "import bcrypt; print(bcrypt.hashpw('$ADMIN_PASSWORD'.encode(), bcrypt.gensalt()).decode())")
 
     echo -e "${GRAY}  ${ARROW}${NC} Retrieving database credentials"
