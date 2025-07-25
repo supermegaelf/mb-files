@@ -371,7 +371,6 @@ check_cloudflare_api() {
         api_response=$(curl --silent --request GET --url https://api.cloudflare.com/client/v4/zones --header "X-Auth-Key: ${CLOUDFLARE_API_KEY}" --header "X-Auth-Email: ${CLOUDFLARE_EMAIL}" --header "Content-Type: application/json")
     fi
     echo -e "${GREEN}${CHECK}${NC} Cloudflare API credentials verified!"
-    echo
 }
 
 # Setup Cloudflare credentials
@@ -1574,6 +1573,7 @@ install_panel() {
     create_directory_structure
     echo
     check_cloudflare_api
+    echo
     setup_cloudflare_credentials
     echo
     extract_base_domains
@@ -2417,6 +2417,7 @@ install_node() {
     create_node_directory_structure
     echo
     check_node_cloudflare_api
+    echo
     setup_node_cloudflare_credentials
     echo
     extract_node_base_domain
