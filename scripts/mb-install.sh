@@ -326,8 +326,6 @@ detect_architecture() {
             exit 1
             ;;
     esac
-    
-    echo -e "${CYAN}${INFO}${NC} Detected architecture: ${WHITE}$ARCH${NC}"
 }
 
 # Install YQ
@@ -372,6 +370,7 @@ check_cloudflare_api() {
         echo -e "${GRAY}  ${ARROW}${NC} Using Global API Key authentication"
         api_response=$(curl --silent --request GET --url https://api.cloudflare.com/client/v4/zones --header "X-Auth-Key: ${CLOUDFLARE_API_KEY}" --header "X-Auth-Email: ${CLOUDFLARE_EMAIL}" --header "Content-Type: application/json")
     fi
+    echo -e "${GREEN}${CHECK}${NC} Cloudflare API credentials verified!"
 }
 
 # Setup Cloudflare credentials
@@ -420,6 +419,7 @@ generate_certificate_for_domain() {
     local domain_type=$2
     
     echo -e "${CYAN}${INFO}${NC} Checking certificate for $domain_type domain..."
+    echo -e "${GRAY}  ${ARROW}${NC} Verifying certificate status for $domain"
     if [ ! -d "/etc/letsencrypt/live/$domain" ]; then
         echo -e "${GRAY}  ${ARROW}${NC} Generating certificate for $domain"
         certbot certonly \
@@ -432,7 +432,7 @@ generate_certificate_for_domain() {
             --agree-tos \
             --non-interactive \
             --key-type ecdsa \
-            --elliptic-curve secp384r1
+            --elliptic-curve secp384r1 > /dev/null 2>&1
         
         if [ $? -ne 0 ]; then
             echo -e "${RED}${CROSS}${NC} Failed to generate SSL certificate for $domain. Check Cloudflare credentials."
@@ -813,7 +813,6 @@ generate_secure_passwords() {
     MYSQL_ROOT_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
     MYSQL_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
     WEBHOOK_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)
-    ADMIN_USERNAME=$(tr -dc 'a-zA-Z' </dev/urandom | head -c 8)
     ADMIN_PASSWORD=$(tr -dc 'A-Za-z0-9!@#%^&*()' </dev/urandom | head -c 16)
 }
 
@@ -943,7 +942,7 @@ MYSQL_USER=marzban
 MYSQL_PASSWORD=$MYSQL_PASSWORD
 
 # SQLAlchemy Database URL
-SQLALCHEMY_DATABASE_URL="mysql+pymysql://marzban:\${MYSQL_PASSWORD}@127.0.0.1:3306/marzban"
+SQLALCHEMY_DATABASE_URL="mysql+pymysql://marzban:${MYSQL_PASSWORD}@127.0.0.1:3306/marzban"
 EOF
 
     echo -e "${GREEN}${CHECK}${NC} .env file created with database configuration!"
@@ -1170,7 +1169,7 @@ start_docker_containers() {
     cd "$APP_DIR"
 
     echo -e "${GRAY}  ${ARROW}${NC} Starting services with docker compose"
-    $COMPOSE up -d --remove-orphans
+    $COMPOSE up -d --remove-orphans > /dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo -e "${RED}${CROSS}${NC} Failed to start containers. Check: $COMPOSE logs."
         echo
@@ -1196,7 +1195,7 @@ wait_for_services() {
 # Verify container status
 verify_container_status() {
     echo -e "${GRAY}  ${ARROW}${NC} Verifying container status"
-    $COMPOSE ps
+    $COMPOSE ps > /dev/null 2>&1
 }
 
 #============================
@@ -1299,6 +1298,7 @@ wait_for_marzban_api() {
 stabilize_system() {
     echo
     echo -e "${CYAN}${INFO}${NC} Allowing system to stabilize..."
+    echo -e "${GRAY}  ${ARROW}${NC} Waiting for services to initialize"
     sleep 10
     echo -e "${GREEN}${CHECK}${NC} System stabilized!"
 }
@@ -1395,10 +1395,7 @@ update_hosts_via_api() {
     local token=$1
     local api_base=$2
     
-    echo -e "${GREEN}${CHECK}${NC} Authentication successful!"
-    echo
     echo -e "${CYAN}${INFO}${NC} Using API base: ${WHITE}$api_base${NC}"
-    
     echo -e "${GRAY}  ${ARROW}${NC} Updating hosts configuration"
     local HOSTS_RESPONSE=$(curl -s -w "%{http_code}" -k -X PUT "$api_base/api/hosts" \
       -H "Authorization: Bearer $token" \
@@ -1441,7 +1438,7 @@ verify_hosts_update() {
         sleep 2
         local UPDATED_HOSTS=$(curl -s -k -H "Authorization: Bearer $token" "$api_base/api/hosts")
         if echo "$UPDATED_HOSTS" | grep -q "Steal"; then
-            echo -e "${GREEN}${CHECK}${NC} Hosts update verified!"
+
         fi
     else
         echo -e "${YELLOW}${WARNING}${NC} Hosts update returned HTTP $HTTP_CODE"
@@ -1915,6 +1912,7 @@ check_node_cloudflare_api() {
         echo -e "${GRAY}  ${ARROW}${NC} Using Global API Key authentication"
         api_response=$(curl --silent --request GET --url https://api.cloudflare.com/client/v4/zones --header "X-Auth-Key: ${CLOUDFLARE_API_KEY}" --header "X-Auth-Email: ${CLOUDFLARE_EMAIL}" --header "Content-Type: application/json")
     fi
+    echo -e "${GREEN}${CHECK}${NC} Cloudflare API credentials verified!"
 }
 
 # Setup Cloudflare credentials for node
@@ -1958,6 +1956,7 @@ extract_node_base_domain() {
 # Generate wildcard certificate for node
 generate_node_wildcard_certificate() {
     echo -e "${CYAN}${INFO}${NC} Checking certificate for selfsteal domain..."
+    echo -e "${GRAY}  ${ARROW}${NC} Verifying certificate status for $BASE_DOMAIN"
     if [ ! -d "/etc/letsencrypt/live/$BASE_DOMAIN" ]; then
         echo -e "${GRAY}  ${ARROW}${NC} Generating wildcard certificate for $BASE_DOMAIN"
         certbot certonly \
@@ -1970,7 +1969,7 @@ generate_node_wildcard_certificate() {
             --agree-tos \
             --non-interactive \
             --key-type ecdsa \
-            --elliptic-curve secp384r1
+            --elliptic-curve secp384r1 > /dev/null 2>&1
         
         if [ $? -ne 0 ]; then
             echo -e "${RED}${CROSS}${NC} Failed to generate SSL certificate for $BASE_DOMAIN. Check Cloudflare credentials."
@@ -2271,7 +2270,7 @@ start_node_docker_containers() {
     cd "$APP_DIR"
 
     echo -e "${GRAY}  ${ARROW}${NC} Starting services with docker compose"
-    $COMPOSE up -d --remove-orphans
+    $COMPOSE up -d --remove-orphans > /dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo -e "${RED}${CROSS}${NC} Failed to start containers. Check: $COMPOSE logs."
         echo
@@ -2292,7 +2291,7 @@ wait_for_node_services() {
 # Check node container status
 check_node_container_status() {
     echo -e "${GRAY}  ${ARROW}${NC} Checking container status"
-    $COMPOSE ps
+    $COMPOSE ps > /dev/null 2>&1
 }
 
 #================================
