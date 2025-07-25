@@ -943,7 +943,7 @@ MYSQL_USER=marzban
 MYSQL_PASSWORD=$MYSQL_PASSWORD
 
 # SQLAlchemy Database URL
-SQLALCHEMY_DATABASE_URL="mysql+pymysql://marzban:${MYSQL_PASSWORD}@127.0.0.1:3306/marzban"
+SQLALCHEMY_DATABASE_URL="mysql+pymysql://marzban:\${MYSQL_PASSWORD}@127.0.0.1:3306/marzban"
 EOF
 
     echo -e "${GREEN}${CHECK}${NC} .env file created with database configuration!"
