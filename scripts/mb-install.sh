@@ -2229,8 +2229,7 @@ create_node_ssl_certificate_file() {
     touch "$DATA_DIR/ssl_client_cert.pem"
 
     echo -e "${GRAY}  ${ARROW}${NC} Opening nano editor for SSL certificate paste..."
-    echo -e "${CYAN}${INFO}${NC} Please paste the SSL certificate from the panel and save (Ctrl+X)"
-    echo -ne "${YELLOW}  Press \"Enter\" to continue...${NC}"
+    echo -ne "${YELLOW}  Press \"Enter\", paste Node SSL certificate, then save and exit (Ctrl+X)...${NC}"
     read
 
     nano "$DATA_DIR/ssl_client_cert.pem"
