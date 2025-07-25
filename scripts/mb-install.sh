@@ -1217,10 +1217,11 @@ install_bcrypt() {
 create_admin_user() {
     install_bcrypt
     
+    ADMIN_PASSWORD_DISPLAY=$ADMIN_PASSWORD
+    
     echo -e "${CYAN}${INFO}${NC} Creating admin user via database..."
     echo -e "${GRAY}  ${ARROW}${NC} Generating password hash"
 
-    # Используем уже сгенерированный пароль из generate_secure_passwords()
     local ADMIN_PASSWORD_HASH=$(python3 -c "import bcrypt; print(bcrypt.hashpw('$ADMIN_PASSWORD'.encode(), bcrypt.gensalt()).decode())")
 
     echo -e "${GRAY}  ${ARROW}${NC} Retrieving database credentials"
@@ -1475,7 +1476,7 @@ display_dashboard_info() {
 display_admin_credentials() {
     echo -e "${CYAN}Admin Credentials (${YELLOW}SAVE THESE${CYAN}):${NC}"
     echo -e "${WHITE}Username: $ADMIN_USERNAME${NC}"
-    echo -e "${WHITE}Password: $ADMIN_PASSWORD${NC}"
+    echo -e "${WHITE}Password: $ADMIN_PASSWORD_DISPLAY${NC}"
     echo
 }
 
