@@ -1243,7 +1243,7 @@ create_admin_in_database() {
         echo -e "${GRAY}  ${ARROW}${NC} Creating admin user in database"
         docker exec $container_id mariadb -u marzban -p"$mysql_password" marzban -e "
         INSERT INTO admins (username, hashed_password, is_sudo, created_at) 
-        VALUES ('admin', '$password_hash', 1, NOW())
+        VALUES ('$ADMIN_USERNAME', '$password_hash', 1, NOW())
         ON DUPLICATE KEY UPDATE 
             hashed_password = '$password_hash',
             is_sudo = 1;
@@ -1475,7 +1475,7 @@ display_dashboard_info() {
 # Display admin credentials
 display_admin_credentials() {
     echo -e "${CYAN}Admin Credentials (${YELLOW}SAVE THESE${CYAN}):${NC}"
-    echo -e "${WHITE}Username: admin${NC}"
+    echo -e "${WHITE}Username: $ADMIN_USERNAME${NC}"
     echo -e "${WHITE}Password: $ADMIN_PASSWORD${NC}"
     echo
 }
