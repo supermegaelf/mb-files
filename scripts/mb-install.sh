@@ -1438,7 +1438,7 @@ verify_hosts_update() {
         sleep 2
         local UPDATED_HOSTS=$(curl -s -k -H "Authorization: Bearer $token" "$api_base/api/hosts")
         if echo "$UPDATED_HOSTS" | grep -q "Steal"; then
-
+            :
         fi
     else
         echo -e "${YELLOW}${WARNING}${NC} Hosts update returned HTTP $HTTP_CODE"
