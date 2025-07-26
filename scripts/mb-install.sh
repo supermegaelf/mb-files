@@ -1451,13 +1451,9 @@ verify_hosts_update() {
 # Display completion info
 display_completion_info() {
     echo
-    echo -e "${GREEN}──────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Docker containers started successfully!"
-    echo -e "${GREEN}──────────────────────────────────────────${NC}"
-    echo
-    echo -e "${PURPLE}========================================${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Marzban setup completed successfully!"
-    echo -e "${PURPLE}========================================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
+    echo -e "${GREEN}${CHECK}${NC} Installation complete!"
+    echo -e "${PURPLE}=========================${NC}"
     echo
     display_dashboard_info
     display_admin_credentials
@@ -1528,10 +1524,6 @@ install_panel() {
     input_node_public_ip
 
     echo
-    echo -e "${GREEN}────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Environment variables configured!"
-    echo -e "${GREEN}────────────────────────────────────${NC}"
-    echo
     echo -e "${GREEN}Installing packages${NC}"
     echo -e "${GREEN}===================${NC}"
     echo
@@ -1550,11 +1542,6 @@ install_panel() {
     setup_docker_compose
     detect_architecture
     install_yq
-
-    echo
-    echo -e "${GREEN}──────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Package installation completed!"
-    echo -e "${GREEN}──────────────────────────────────${NC}"
 
     # Path variables
     INSTALL_DIR="/opt"
@@ -1585,10 +1572,6 @@ install_panel() {
     configure_certificate_renewal
 
     echo
-    echo -e "${GREEN}──────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Structure and certificates setup completed!"
-    echo -e "${GREEN}──────────────────────────────────────────────${NC}"
-    echo
     echo -e "${GREEN}Installing and configuring Nginx${NC}"
     echo -e "${GREEN}================================${NC}"
     echo
@@ -1601,10 +1584,6 @@ install_panel() {
     configure_nginx_sites
 
     echo
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Nginx configured and started successfully!"
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
-    echo
     echo -e "${GREEN}Setting up redirect page${NC}"
     echo -e "${GREEN}========================${NC}"
     echo
@@ -1612,10 +1591,6 @@ install_panel() {
     # Setup redirect page
     setup_redirect_page
 
-    echo
-    echo -e "${GREEN}───────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Redirect page setup completed!"
-    echo -e "${GREEN}───────────────────────────────${NC}"
     echo
     echo -e "${GREEN}Creating configuration files${NC}"
     echo -e "${GREEN}============================${NC}"
@@ -1637,10 +1612,6 @@ install_panel() {
     install_marzban_script
 
     echo
-    echo -e "${GREEN}────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Configuration files created successfully!"
-    echo -e "${GREEN}────────────────────────────────────────────${NC}"
-    echo
     echo -e "${GREEN}Downloading and installing Xray-core${NC}"
     echo -e "${GREEN}====================================${NC}"
     echo
@@ -1648,10 +1619,6 @@ install_panel() {
     # Install Xray-core
     install_xray_core
 
-    echo
-    echo -e "${GREEN}────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Xray-core installation completed!"
-    echo -e "${GREEN}────────────────────────────────────${NC}"
     echo
     echo -e "${GREEN}Starting Docker containers${NC}"
     echo -e "${GREEN}==========================${NC}"
@@ -2299,13 +2266,9 @@ check_node_container_status() {
 # Display node completion info
 display_node_completion_info() {
     echo
-    echo -e "${GREEN}──────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Docker containers started successfully!"
-    echo -e "${GREEN}──────────────────────────────────────────${NC}"
-    echo
-    echo -e "${GREEN}=============================================${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Marzban Node setup completed successfully!"
-    echo -e "${GREEN}=============================================${NC}"
+    echo -e "${GREEN}=========================${NC}"
+    echo -e "${GREEN}${CHECK}${NC} Installation complete!"
+    echo -e "${GREEN}=========================${NC}"
     echo
     display_node_useful_commands
     display_node_next_steps
@@ -2376,10 +2339,6 @@ install_node() {
     input_node_port
 
     echo
-    echo -e "${GREEN}────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Environment variables configured!"
-    echo -e "${GREEN}────────────────────────────────────${NC}"
-    echo
     echo -e "${GREEN}Installing packages${NC}"
     echo -e "${GREEN}===================${NC}"
     echo
@@ -2394,11 +2353,6 @@ install_node() {
     echo
     install_node_docker
     setup_node_docker_compose
-
-    echo
-    echo -e "${GREEN}──────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Package installation completed!"
-    echo -e "${GREEN}──────────────────────────────────${NC}"
 
     # Path variables
     INSTALL_DIR="/opt"
@@ -2426,10 +2380,6 @@ install_node() {
     configure_node_certificate_renewal
 
     echo
-    echo -e "${GREEN}──────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Structure and certificates setup completed!"
-    echo -e "${GREEN}──────────────────────────────────────────────${NC}"
-    echo
     echo -e "${GREEN}Installing and configuring Nginx${NC}"
     echo -e "${GREEN}================================${NC}"
     echo
@@ -2442,10 +2392,6 @@ install_node() {
     configure_node_nginx_sites
 
     echo
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Nginx configured and started successfully!"
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
-    echo
     echo -e "${GREEN}Configuring traffic forwarding and UFW${NC}"
     echo -e "${GREEN}======================================${NC}"
     echo
@@ -2453,10 +2399,6 @@ install_node() {
     # Configure traffic forwarding
     configure_node_traffic_forwarding
 
-    echo
-    echo -e "${GREEN}──────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Traffic forwarding and UFW setup completed!"
-    echo -e "${GREEN}──────────────────────────────────────────────${NC}"
     echo
     echo -e "${GREEN}Creating configuration files${NC}"
     echo -e "${GREEN}============================${NC}"
@@ -2468,10 +2410,6 @@ install_node() {
     echo
     configure_node_log_rotation
 
-    echo
-    echo -e "${GREEN}────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Configuration files created successfully!"
-    echo -e "${GREEN}────────────────────────────────────────────${NC}"
     echo
     echo -e "${GREEN}Starting Docker containers${NC}"
     echo -e "${GREEN}==========================${NC}"
