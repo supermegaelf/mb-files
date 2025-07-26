@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#==============================
+#=========================
 # MARZBAN NODE MONITORING
-#==============================
+#=========================
 
 # Color constants
 readonly RED='\033[0;31m'
@@ -26,9 +26,9 @@ readonly ARROW="→"
 ACTION=""
 PANEL_IP=""
 
-#=======================
+#======================
 # VALIDATION FUNCTIONS
-#=======================
+#======================
 
 # Check root privileges
 check_root_privileges() {
@@ -72,9 +72,9 @@ input_panel_ip() {
     validate_ip_format
 }
 
-#====================
+#================
 # MENU FUNCTIONS
-#====================
+#================
 
 # Show main menu
 show_main_menu() {
@@ -123,9 +123,9 @@ process_arguments() {
     fi
 }
 
-#===============================
+#==========================
 # UNINSTALLATION FUNCTIONS
-#===============================
+#==========================
 
 # Check if Node Exporter is installed
 check_node_exporter_installation() {
@@ -255,9 +255,9 @@ uninstall_node_exporter() {
     display_uninstall_completion
 }
 
-#=============================
+#========================
 # INSTALLATION FUNCTIONS
-#=============================
+#========================
 
 # Check for existing installation
 check_existing_installation() {
