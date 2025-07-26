@@ -59,6 +59,7 @@ validate_ip_format() {
 
 # Input panel IP
 input_panel_ip() {
+    echo
     echo -ne "${CYAN}Marzban Panel IP address: ${NC}"
     read PANEL_IP
 
