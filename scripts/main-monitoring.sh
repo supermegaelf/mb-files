@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#==============================
+#============================
 # MARZBAN MONITORING MANAGER
-#==============================
+#============================
 
 # Color constants
 readonly RED='\033[0;31m'
@@ -28,9 +28,9 @@ MARZBAN_USERNAME=""
 MARZBAN_PASSWORD=""
 EXTERNAL_NODES=()
 
-#=======================
+#======================
 # VALIDATION FUNCTIONS
-#=======================
+#======================
 
 # Check root privileges
 check_root_privileges() {
@@ -57,9 +57,9 @@ check_monitoring_status() {
     echo "$monitoring_installed,$node_exporter_installed"
 }
 
-#======================
+#==================
 # STATUS FUNCTIONS
-#======================
+#==================
 
 # Show current status
 show_status() {
@@ -198,9 +198,9 @@ input_admin_credentials() {
     done
 }
 
-#=============================
+#=========================
 # NODE EXPORTER FUNCTIONS
-#=============================
+#=========================
 
 # Install Node Exporter
 install_node_exporter() {
@@ -266,9 +266,9 @@ EOF
     echo -e "${GREEN}${CHECK}${NC} Node Exporter installation completed successfully!"
 }
 
-#==============================
+#============================
 # MONITORING SETUP FUNCTIONS
-#==============================
+#============================
 
 # Setup monitoring structure
 setup_monitoring_structure() {
@@ -479,9 +479,9 @@ DASHBOARD_EOF
     echo -e "${GREEN}${CHECK}${NC} Grafana provisioning setup completed!"
 }
 
-#==========================
+#========================
 # DOMAIN SETUP FUNCTIONS
-#==========================
+#========================
 
 # Configure domains
 configure_domains() {
@@ -730,9 +730,9 @@ display_installation_completion() {
     echo -e "${WHITE}• Return to panel server and choose \"Add Nodes\".${NC}"
 }
 
-#==============================
+#============================
 # MAIN INSTALLATION FUNCTION
-#==============================
+#============================
 
 # Install monitoring
 install_monitoring() {
@@ -798,9 +798,9 @@ install_monitoring() {
     display_installation_completion
 }
 
-#=======================
+#===========================
 # NODE MANAGEMENT FUNCTIONS
-#=======================
+#===========================
 
 # Add nodes to monitoring
 add_nodes() {
@@ -948,9 +948,9 @@ NODES_EOF2
     done
 }
 
-#===============================
+#==========================
 # UNINSTALLATION FUNCTIONS
-#===============================
+#==========================
 
 # Uninstall monitoring
 uninstall_monitoring() {
@@ -1089,9 +1089,9 @@ uninstall_monitoring() {
     echo -e "${CYAN}All monitoring components have been successfully removed.${NC}"
 }
 
-#====================
+#================
 # MENU FUNCTIONS
-#====================
+#================
 
 # Show main menu
 show_main_menu() {
