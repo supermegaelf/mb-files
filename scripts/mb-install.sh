@@ -326,8 +326,6 @@ detect_architecture() {
             exit 1
             ;;
     esac
-    
-    echo -e "${CYAN}${INFO}${NC} Detected architecture: ${WHITE}$ARCH${NC}"
 }
 
 # Install YQ
@@ -372,6 +370,7 @@ check_cloudflare_api() {
         echo -e "${GRAY}  ${ARROW}${NC} Using Global API Key authentication"
         api_response=$(curl --silent --request GET --url https://api.cloudflare.com/client/v4/zones --header "X-Auth-Key: ${CLOUDFLARE_API_KEY}" --header "X-Auth-Email: ${CLOUDFLARE_EMAIL}" --header "Content-Type: application/json")
     fi
+    echo -e "${GREEN}${CHECK}${NC} Cloudflare API credentials verified!"
 }
 
 # Setup Cloudflare credentials
@@ -420,6 +419,7 @@ generate_certificate_for_domain() {
     local domain_type=$2
     
     echo -e "${CYAN}${INFO}${NC} Checking certificate for $domain_type domain..."
+    echo -e "${GRAY}  ${ARROW}${NC} Verifying certificate status for $domain"
     if [ ! -d "/etc/letsencrypt/live/$domain" ]; then
         echo -e "${GRAY}  ${ARROW}${NC} Generating certificate for $domain"
         certbot certonly \
@@ -432,7 +432,7 @@ generate_certificate_for_domain() {
             --agree-tos \
             --non-interactive \
             --key-type ecdsa \
-            --elliptic-curve secp384r1
+            --elliptic-curve secp384r1 > /dev/null 2>&1
         
         if [ $? -ne 0 ]; then
             echo -e "${RED}${CROSS}${NC} Failed to generate SSL certificate for $domain. Check Cloudflare credentials."
@@ -813,7 +813,7 @@ generate_secure_passwords() {
     MYSQL_ROOT_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
     MYSQL_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
     WEBHOOK_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)
-    ADMIN_USERNAME=$(tr -dc 'a-zA-Z' </dev/urandom | head -c 8)
+    ADMIN_USERNAME="admin"
     ADMIN_PASSWORD=$(tr -dc 'A-Za-z0-9!@#%^&*()' </dev/urandom | head -c 16)
 }
 
@@ -829,7 +829,7 @@ UVICORN_HOST = "0.0.0.0"
 UVICORN_PORT = 8000
 # ALLOWED_ORIGINS=http://localhost,http://localhost:8000,http://example.com
 
-## We highly recommend add admin using `marzban cli` tool and do not use
+## We highly recommend add admin using \`marzban cli\` tool and do not use
 ## the following variables which is somehow hard codded infrmation.
 # SUDO_USERNAME = "admin"
 # SUDO_PASSWORD = "admin"
@@ -1133,8 +1133,6 @@ download_xray_core() {
     local latest_releases=$(curl -s "https://api.github.com/repos/XTLS/Xray-core/releases?per_page=$LAST_XRAY_CORES")
     local latest_version=$(echo "$latest_releases" | grep -oP '"tag_name": "\K(.*?)(?=")' | head -n 1)
 
-    echo -e "${CYAN}${INFO}${NC} Latest Xray-core version: ${WHITE}$latest_version${NC}"
-
     local xray_filename="Xray-linux-$ARCH.zip"
     local xray_download_url="https://github.com/XTLS/Xray-core/releases/download/${latest_version}/${xray_filename}"
 
@@ -1170,7 +1168,7 @@ start_docker_containers() {
     cd "$APP_DIR"
 
     echo -e "${GRAY}  ${ARROW}${NC} Starting services with docker compose"
-    $COMPOSE up -d --remove-orphans
+    $COMPOSE up -d --remove-orphans > /dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo -e "${RED}${CROSS}${NC} Failed to start containers. Check: $COMPOSE logs."
         echo
@@ -1196,7 +1194,7 @@ wait_for_services() {
 # Verify container status
 verify_container_status() {
     echo -e "${GRAY}  ${ARROW}${NC} Verifying container status"
-    $COMPOSE ps
+    $COMPOSE ps > /dev/null 2>&1
 }
 
 #============================
@@ -1219,8 +1217,8 @@ install_bcrypt() {
 create_admin_user() {
     install_bcrypt
     
-    ADMIN_PASSWORD=$(tr -dc 'A-Za-z0-9!@#%^&*()' </dev/urandom | head -c 16)
-
+    ADMIN_PASSWORD_DISPLAY=$ADMIN_PASSWORD
+    
     echo -e "${CYAN}${INFO}${NC} Creating admin user via database..."
     echo -e "${GRAY}  ${ARROW}${NC} Generating password hash"
 
@@ -1245,7 +1243,7 @@ create_admin_in_database() {
         echo -e "${GRAY}  ${ARROW}${NC} Creating admin user in database"
         docker exec $container_id mariadb -u marzban -p"$mysql_password" marzban -e "
         INSERT INTO admins (username, hashed_password, is_sudo, created_at) 
-        VALUES ('admin', '$password_hash', 1, NOW())
+        VALUES ('$ADMIN_USERNAME', '$password_hash', 1, NOW())
         ON DUPLICATE KEY UPDATE 
             hashed_password = '$password_hash',
             is_sudo = 1;
@@ -1290,7 +1288,7 @@ wait_for_marzban_api() {
             exit 1
         else
             echo -e "${GRAY}  ${ARROW}${NC} Waiting for API... ($i/30)"
-            sleep 3
+            sleep 5
         fi
     done
 }
@@ -1299,7 +1297,8 @@ wait_for_marzban_api() {
 stabilize_system() {
     echo
     echo -e "${CYAN}${INFO}${NC} Allowing system to stabilize..."
-    sleep 10
+    echo -e "${GRAY}  ${ARROW}${NC} Waiting for services to initialize"
+    sleep 15
     echo -e "${GREEN}${CHECK}${NC} System stabilized!"
 }
 
@@ -1345,7 +1344,7 @@ authenticate_with_api() {
             restart_marzban_for_auth
         fi
         
-        sleep 3
+        sleep 5
     done
     return 1
 }
@@ -1395,10 +1394,7 @@ update_hosts_via_api() {
     local token=$1
     local api_base=$2
     
-    echo -e "${GREEN}${CHECK}${NC} Authentication successful!"
-    echo
     echo -e "${CYAN}${INFO}${NC} Using API base: ${WHITE}$api_base${NC}"
-    
     echo -e "${GRAY}  ${ARROW}${NC} Updating hosts configuration"
     local HOSTS_RESPONSE=$(curl -s -w "%{http_code}" -k -X PUT "$api_base/api/hosts" \
       -H "Authorization: Bearer $token" \
@@ -1435,13 +1431,12 @@ verify_hosts_update() {
     
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
         echo -e "${GREEN}${CHECK}${NC} Hosts configuration updated successfully!"
-        echo
         
         # Verify update
-        sleep 2
+        sleep 5
         local UPDATED_HOSTS=$(curl -s -k -H "Authorization: Bearer $token" "$api_base/api/hosts")
         if echo "$UPDATED_HOSTS" | grep -q "Steal"; then
-            echo -e "${GREEN}${CHECK}${NC} Hosts update verified!"
+            :
         fi
     else
         echo -e "${YELLOW}${WARNING}${NC} Hosts update returned HTTP $HTTP_CODE"
@@ -1456,13 +1451,9 @@ verify_hosts_update() {
 # Display completion info
 display_completion_info() {
     echo
-    echo -e "${GREEN}──────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Docker containers started successfully!"
-    echo -e "${GREEN}──────────────────────────────────────────${NC}"
-    echo
-    echo -e "${PURPLE}========================================${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Marzban setup completed successfully!"
-    echo -e "${PURPLE}========================================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
+    echo -e "${GREEN}${CHECK}${NC} Installation complete!"
+    echo -e "${PURPLE}=========================${NC}"
     echo
     display_dashboard_info
     display_admin_credentials
@@ -1480,8 +1471,8 @@ display_dashboard_info() {
 # Display admin credentials
 display_admin_credentials() {
     echo -e "${CYAN}Admin Credentials (${YELLOW}SAVE THESE${CYAN}):${NC}"
-    echo -e "${WHITE}Username: admin${NC}"
-    echo -e "${WHITE}Password: $ADMIN_PASSWORD${NC}"
+    echo -e "${WHITE}Username: $ADMIN_USERNAME${NC}"
+    echo -e "${WHITE}Password: $ADMIN_PASSWORD_DISPLAY${NC}"
     echo
 }
 
@@ -1533,10 +1524,6 @@ install_panel() {
     input_node_public_ip
 
     echo
-    echo -e "${GREEN}────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Environment variables configured!"
-    echo -e "${GREEN}────────────────────────────────────${NC}"
-    echo
     echo -e "${GREEN}Installing packages${NC}"
     echo -e "${GREEN}===================${NC}"
     echo
@@ -1556,11 +1543,6 @@ install_panel() {
     detect_architecture
     install_yq
 
-    echo
-    echo -e "${GREEN}──────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Package installation completed!"
-    echo -e "${GREEN}──────────────────────────────────${NC}"
-
     # Path variables
     INSTALL_DIR="/opt"
     APP_NAME="marzban"
@@ -1578,6 +1560,7 @@ install_panel() {
     create_directory_structure
     echo
     check_cloudflare_api
+    echo
     setup_cloudflare_credentials
     echo
     extract_base_domains
@@ -1588,10 +1571,6 @@ install_panel() {
     echo
     configure_certificate_renewal
 
-    echo
-    echo -e "${GREEN}──────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Structure and certificates setup completed!"
-    echo -e "${GREEN}──────────────────────────────────────────────${NC}"
     echo
     echo -e "${GREEN}Installing and configuring Nginx${NC}"
     echo -e "${GREEN}================================${NC}"
@@ -1605,10 +1584,6 @@ install_panel() {
     configure_nginx_sites
 
     echo
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Nginx configured and started successfully!"
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
-    echo
     echo -e "${GREEN}Setting up redirect page${NC}"
     echo -e "${GREEN}========================${NC}"
     echo
@@ -1616,10 +1591,6 @@ install_panel() {
     # Setup redirect page
     setup_redirect_page
 
-    echo
-    echo -e "${GREEN}───────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Redirect page setup completed!"
-    echo -e "${GREEN}───────────────────────────────${NC}"
     echo
     echo -e "${GREEN}Creating configuration files${NC}"
     echo -e "${GREEN}============================${NC}"
@@ -1641,10 +1612,6 @@ install_panel() {
     install_marzban_script
 
     echo
-    echo -e "${GREEN}────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Configuration files created successfully!"
-    echo -e "${GREEN}────────────────────────────────────────────${NC}"
-    echo
     echo -e "${GREEN}Downloading and installing Xray-core${NC}"
     echo -e "${GREEN}====================================${NC}"
     echo
@@ -1652,10 +1619,6 @@ install_panel() {
     # Install Xray-core
     install_xray_core
 
-    echo
-    echo -e "${GREEN}────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Xray-core installation completed!"
-    echo -e "${GREEN}────────────────────────────────────${NC}"
     echo
     echo -e "${GREEN}Starting Docker containers${NC}"
     echo -e "${GREEN}==========================${NC}"
@@ -1915,6 +1878,7 @@ check_node_cloudflare_api() {
         echo -e "${GRAY}  ${ARROW}${NC} Using Global API Key authentication"
         api_response=$(curl --silent --request GET --url https://api.cloudflare.com/client/v4/zones --header "X-Auth-Key: ${CLOUDFLARE_API_KEY}" --header "X-Auth-Email: ${CLOUDFLARE_EMAIL}" --header "Content-Type: application/json")
     fi
+    echo -e "${GREEN}${CHECK}${NC} Cloudflare API credentials verified!"
 }
 
 # Setup Cloudflare credentials for node
@@ -1958,6 +1922,7 @@ extract_node_base_domain() {
 # Generate wildcard certificate for node
 generate_node_wildcard_certificate() {
     echo -e "${CYAN}${INFO}${NC} Checking certificate for selfsteal domain..."
+    echo -e "${GRAY}  ${ARROW}${NC} Verifying certificate status for $BASE_DOMAIN"
     if [ ! -d "/etc/letsencrypt/live/$BASE_DOMAIN" ]; then
         echo -e "${GRAY}  ${ARROW}${NC} Generating wildcard certificate for $BASE_DOMAIN"
         certbot certonly \
@@ -1970,7 +1935,7 @@ generate_node_wildcard_certificate() {
             --agree-tos \
             --non-interactive \
             --key-type ecdsa \
-            --elliptic-curve secp384r1
+            --elliptic-curve secp384r1 > /dev/null 2>&1
         
         if [ $? -ne 0 ]; then
             echo -e "${RED}${CROSS}${NC} Failed to generate SSL certificate for $BASE_DOMAIN. Check Cloudflare credentials."
@@ -2231,8 +2196,7 @@ create_node_ssl_certificate_file() {
     touch "$DATA_DIR/ssl_client_cert.pem"
 
     echo -e "${GRAY}  ${ARROW}${NC} Opening nano editor for SSL certificate paste..."
-    echo -e "${CYAN}${INFO}${NC} Please paste the SSL certificate from the panel and save (Ctrl+X)"
-    echo -ne "${YELLOW}  Press \"Enter\" to continue...${NC}"
+    echo -ne "${YELLOW}  Press \"Enter\", paste Node SSL certificate, then save and exit (Ctrl+X)...${NC}"
     read
 
     nano "$DATA_DIR/ssl_client_cert.pem"
@@ -2271,7 +2235,7 @@ start_node_docker_containers() {
     cd "$APP_DIR"
 
     echo -e "${GRAY}  ${ARROW}${NC} Starting services with docker compose"
-    $COMPOSE up -d --remove-orphans
+    $COMPOSE up -d --remove-orphans > /dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo -e "${RED}${CROSS}${NC} Failed to start containers. Check: $COMPOSE logs."
         echo
@@ -2292,7 +2256,7 @@ wait_for_node_services() {
 # Check node container status
 check_node_container_status() {
     echo -e "${GRAY}  ${ARROW}${NC} Checking container status"
-    $COMPOSE ps
+    $COMPOSE ps > /dev/null 2>&1
 }
 
 #================================
@@ -2302,13 +2266,9 @@ check_node_container_status() {
 # Display node completion info
 display_node_completion_info() {
     echo
-    echo -e "${GREEN}──────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Docker containers started successfully!"
-    echo -e "${GREEN}──────────────────────────────────────────${NC}"
-    echo
-    echo -e "${GREEN}=============================================${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Marzban Node setup completed successfully!"
-    echo -e "${GREEN}=============================================${NC}"
+    echo -e "${GREEN}=========================${NC}"
+    echo -e "${GREEN}${CHECK}${NC} Installation complete!"
+    echo -e "${GREEN}=========================${NC}"
     echo
     display_node_useful_commands
     display_node_next_steps
@@ -2379,10 +2339,6 @@ install_node() {
     input_node_port
 
     echo
-    echo -e "${GREEN}────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Environment variables configured!"
-    echo -e "${GREEN}────────────────────────────────────${NC}"
-    echo
     echo -e "${GREEN}Installing packages${NC}"
     echo -e "${GREEN}===================${NC}"
     echo
@@ -2397,11 +2353,6 @@ install_node() {
     echo
     install_node_docker
     setup_node_docker_compose
-
-    echo
-    echo -e "${GREEN}──────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Package installation completed!"
-    echo -e "${GREEN}──────────────────────────────────${NC}"
 
     # Path variables
     INSTALL_DIR="/opt"
@@ -2419,6 +2370,7 @@ install_node() {
     create_node_directory_structure
     echo
     check_node_cloudflare_api
+    echo
     setup_node_cloudflare_credentials
     echo
     extract_node_base_domain
@@ -2427,10 +2379,6 @@ install_node() {
     echo
     configure_node_certificate_renewal
 
-    echo
-    echo -e "${GREEN}──────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Structure and certificates setup completed!"
-    echo -e "${GREEN}──────────────────────────────────────────────${NC}"
     echo
     echo -e "${GREEN}Installing and configuring Nginx${NC}"
     echo -e "${GREEN}================================${NC}"
@@ -2444,10 +2392,6 @@ install_node() {
     configure_node_nginx_sites
 
     echo
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Nginx configured and started successfully!"
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
-    echo
     echo -e "${GREEN}Configuring traffic forwarding and UFW${NC}"
     echo -e "${GREEN}======================================${NC}"
     echo
@@ -2455,10 +2399,6 @@ install_node() {
     # Configure traffic forwarding
     configure_node_traffic_forwarding
 
-    echo
-    echo -e "${GREEN}──────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Traffic forwarding and UFW setup completed!"
-    echo -e "${GREEN}──────────────────────────────────────────────${NC}"
     echo
     echo -e "${GREEN}Creating configuration files${NC}"
     echo -e "${GREEN}============================${NC}"
@@ -2470,10 +2410,6 @@ install_node() {
     echo
     configure_node_log_rotation
 
-    echo
-    echo -e "${GREEN}────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Configuration files created successfully!"
-    echo -e "${GREEN}────────────────────────────────────────────${NC}"
     echo
     echo -e "${GREEN}Starting Docker containers${NC}"
     echo -e "${GREEN}==========================${NC}"
