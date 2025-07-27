@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#=======================
-# MARZBAN BACKUP SCRIPT
-#=======================
+#=========================
+# MARZBAN TELEGRAM BACKUP
+#=========================
 
 # Color constants
 readonly RED='\033[0;31m'
@@ -34,9 +34,9 @@ TG_CHAT_ID=""
 
 configure_backup() {
     echo
-    echo -e "${PURPLE}===============${NC}"
-    echo -e "${NC}MARZBAN BACKUP${NC}"
-    echo -e "${PURPLE}===============${NC}"
+    echo -e "${PURPLE}========================${NC}"
+    echo -e "${NC}MARZBAN TELEGRAM BACKUP${NC}"
+    echo -e "${PURPLE}========================${NC}"
     echo
 
     if [ -z "$MYSQL_USER" ] || [ -z "$MYSQL_PASSWORD" ] || [ -z "$TG_BOT_TOKEN" ] || [ -z "$TG_CHAT_ID" ]; then
