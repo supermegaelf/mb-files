@@ -1451,9 +1451,9 @@ verify_hosts_update() {
 # Display completion info
 display_completion_info() {
     echo
-    echo -e "${PURPLE}================${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Setup complete!"
-    echo -e "${PURPLE}================${NC}"
+    echo -e "${PURPLE}=======================${NC}"
+    echo -e "${GREEN}${CHECK}${NC} Installation complete!"
+    echo -e "${PURPLE}=======================${NC}"
     echo
     display_dashboard_info
     display_admin_credentials
@@ -1507,9 +1507,9 @@ install_panel() {
     
     # Display header
     echo
-    echo -e "${PURPLE}====================${NC}"
-    echo -e "${WHITE}Marzban Panel Setup${NC}"
-    echo -e "${PURPLE}====================${NC}"
+    echo -e "${PURPLE}===========================${NC}"
+    echo -e "${WHITE}Marzban Panel Installation${NC}"
+    echo -e "${PURPLE}===========================${NC}"
     echo
     echo -e "${GREEN}Environment variables${NC}"
     echo -e "${GREEN}=====================${NC}"
@@ -2266,9 +2266,9 @@ check_node_container_status() {
 # Display node completion info
 display_node_completion_info() {
     echo
-    echo -e "${PURPLE}================${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Setup complete!"
-    echo -e "${PURPLE}================${NC}"
+    echo -e "${PURPLE}=======================${NC}"
+    echo -e "${GREEN}${CHECK}${NC} Installation complete!"
+    echo -e "${PURPLE}=======================${NC}"
     echo
     display_node_useful_commands
     display_node_next_steps
@@ -2323,9 +2323,9 @@ install_node() {
     
     # Display header
     echo
-    echo -e "${PURPLE}===================${NC}"
-    echo -e "${WHITE}Marzban Node Setup${NC}"
-    echo -e "${PURPLE}===================${NC}"
+    echo -e "${PURPLE}==========================${NC}"
+    echo -e "${WHITE}Marzban Node Installation${NC}"
+    echo -e "${PURPLE}==========================${NC}"
     echo
     echo -e "${GREEN}Environment variables${NC}"
     echo -e "${GREEN}=====================${NC}"
