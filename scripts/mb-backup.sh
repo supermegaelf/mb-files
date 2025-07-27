@@ -44,7 +44,7 @@ configure_backup() {
         read MYSQL_USER
         MYSQL_USER=${MYSQL_USER:-marzban}
         echo -ne "${CYAN}MySQL password: ${NC}"
-        read -s MYSQL_PASSWORD
+        read MYSQL_PASSWORD
         echo
         echo -ne "${CYAN}Telegram Bot Token: ${NC}"
         read TG_BOT_TOKEN
