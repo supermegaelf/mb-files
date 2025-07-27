@@ -56,6 +56,7 @@ prepare_environment() {
 }
 
 download_backup_script() {
+    echo
     echo -e "${GREEN}Script Download${NC}"
     echo -e "${GREEN}===============${NC}"
     echo
@@ -81,6 +82,7 @@ download_backup_script() {
 }
 
 configure_backup_script() {
+    echo
     echo -e "${GREEN}Script Configuration${NC}"
     echo -e "${GREEN}====================${NC}"
     echo
