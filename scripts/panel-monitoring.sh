@@ -798,16 +798,16 @@ install_monitoring() {
     display_installation_completion
 }
 
-#===========================
-# NODE MANAGEMENT FUNCTIONS
-#===========================
+#=====================
+# ADD NODES FUNCTIONS
+#=====================
 
 # Add nodes to monitoring
 add_nodes() {
     echo
-    echo -e "${PURPLE}================${NC}"
-    echo -e "${NC}Node Management${NC}"
-    echo -e "${PURPLE}================${NC}"
+    echo -e "${PURPLE}==========${NC}"
+    echo -e "${NC}Add Nodes${NC}"
+    echo -e "${PURPLE}==========${NC}"
     echo
 
     echo -e "${CYAN}${INFO}${NC} Checking monitoring system status..."
