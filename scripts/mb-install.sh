@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#=============================
-# MARZBAN INSTALLATION SCRIPT
-#=============================
+#=================
+# MARZBAN MANAGER
+#=================
 
 # Color constants
 readonly RED='\033[0;31m'
@@ -59,9 +59,9 @@ check_command() {
 # Display main menu
 show_main_menu() {
     echo
-    echo -e "${PURPLE}============================${NC}"
-    echo -e "${WHITE}MARZBAN INSTALLATION SCRIPT${NC}"
-    echo -e "${PURPLE}============================${NC}"
+    echo -e "${PURPLE}================${NC}"
+    echo -e "${WHITE}MARZBAN MANAGER${NC}"
+    echo -e "${PURPLE}================${NC}"
     echo
     echo -e "${CYAN}Please select installation type:${NC}"
     echo
