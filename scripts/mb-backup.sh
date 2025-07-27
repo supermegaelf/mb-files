@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#==============================
+#=======================
 # MARZBAN BACKUP SCRIPT
-#==============================
+#=======================
 
 # Color constants
 readonly RED='\033[0;31m'
@@ -28,9 +28,9 @@ MYSQL_PASSWORD=""
 TG_BOT_TOKEN=""
 TG_CHAT_ID=""
 
-#======================
+#=====================
 # CONFIGURATION SETUP
-#======================
+#=====================
 
 configure_backup() {
     echo
@@ -115,9 +115,9 @@ validate_configuration() {
     fi
 }
 
-#======================
+#================
 # MAIN FUNCTIONS
-#======================
+#================
 
 prepare_system() {
     echo -e "${GREEN}System Preparation${NC}"
