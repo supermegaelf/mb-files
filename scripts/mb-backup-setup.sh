@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#==============================
+#=============================
 # MARZBAN BACKUP SETUP SCRIPT
-#==============================
+#=============================
 
 # Color constants
 readonly RED='\033[0;31m'
@@ -27,12 +27,11 @@ SCRIPT_URL="https://raw.githubusercontent.com/supermegaelf/mb-files/main/scripts
 SCRIPT_DIR="/root/scripts"
 SCRIPT_PATH="$SCRIPT_DIR/mb-backup.sh"
 
-#======================
+#================
 # MAIN FUNCTIONS
-#======================
+#================
 
 prepare_environment() {
-    echo
     echo -e "${GREEN}Environment Preparation${NC}"
     echo -e "${GREEN}=======================${NC}"
     echo
@@ -57,7 +56,6 @@ prepare_environment() {
 }
 
 download_backup_script() {
-    echo
     echo -e "${GREEN}Script Download${NC}"
     echo -e "${GREEN}===============${NC}"
     echo
@@ -83,7 +81,6 @@ download_backup_script() {
 }
 
 configure_backup_script() {
-    echo
     echo -e "${GREEN}Script Configuration${NC}"
     echo -e "${GREEN}====================${NC}"
     echo
@@ -103,7 +100,6 @@ configure_backup_script() {
 }
 
 verify_installation() {
-    echo
     echo -e "${GREEN}Installation Verification${NC}"
     echo -e "${GREEN}=========================${NC}"
     echo
