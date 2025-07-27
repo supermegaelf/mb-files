@@ -1,14 +1,37 @@
+#!/bin/bash
+
+#=============================
+# MARZBAN BACKUP SETUP SCRIPT
+#=============================
+
+# Color constants
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly PURPLE='\033[0;35m'
+readonly CYAN='\033[0;36m'
+readonly WHITE='\033[1;37m'
+readonly GRAY='\033[0;90m'
+readonly NC='\033[0m'
+
+# Status symbols
+readonly CHECK="✓"
+readonly CROSS="✗"
+readonly WARNING="!"
+readonly INFO="*"
+readonly ARROW="→"
+
 # Global variables
 SCRIPT_URL="https://raw.githubusercontent.com/supermegaelf/mb-files/main/scripts/mb-backup.sh"
 SCRIPT_DIR="/root/scripts"
 SCRIPT_PATH="$SCRIPT_DIR/mb-backup.sh"
 
-#======================
+#================
 # MAIN FUNCTIONS
-#======================
+#================
 
 prepare_environment() {
-    echo
     echo -e "${GREEN}Environment Preparation${NC}"
     echo -e "${GREEN}=======================${NC}"
     echo
@@ -33,34 +56,6 @@ prepare_environment() {
 }
 
 download_backup_script() {
-    echo
-    echo -e "${GREEN}Script Download${NC}"
-    echo -#!/bin/bash
-
-#==============================
-# MARZBAN BACKUP SETUP SCRIPT
-#==============================
-
-# Color constants
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[1;33m'
-readonly BLUE='\033[0;34m'
-readonly PURPLE='\033[0;35m'
-readonly CYAN='\033[0;36m'
-readonly WHITE='\033[1;37m'
-readonly GRAY='\033[0;90m'
-readonly NC='\033[0m'
-
-# Status symbols
-readonly CHECK="✓"
-readonly CROSS="✗"
-readonly WARNING="!"
-readonly INFO="*"
-readonly ARROW="→"
-
-download_backup_script() {
-    echo
     echo -e "${GREEN}Script Download${NC}"
     echo -e "${GREEN}===============${NC}"
     echo
@@ -86,7 +81,6 @@ download_backup_script() {
 }
 
 configure_backup_script() {
-    echo
     echo -e "${GREEN}Script Configuration${NC}"
     echo -e "${GREEN}====================${NC}"
     echo
@@ -106,7 +100,6 @@ configure_backup_script() {
 }
 
 verify_installation() {
-    echo
     echo -e "${GREEN}Installation Verification${NC}"
     echo -e "${GREEN}=========================${NC}"
     echo
