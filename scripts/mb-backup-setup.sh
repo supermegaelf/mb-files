@@ -82,23 +82,11 @@ download_backup_script() {
 }
 
 configure_backup_script() {
-    echo
-    echo -e "${GREEN}Script Configuration${NC}"
-    echo -e "${GREEN}====================${NC}"
-    echo
-
-    echo -e "${CYAN}${INFO}${NC} Configuring backup parameters..."
-    echo -e "${GRAY}  ${ARROW}${NC} Running initial configuration"
-    echo -e "${GRAY}  ${ARROW}${NC} Setting up credentials"
-    echo -e "${GRAY}  ${ARROW}${NC} Validating configuration"
-
     /bin/bash "$SCRIPT_PATH"
     if [ $? -ne 0 ]; then
         echo -e "${RED}${CROSS}${NC} mb-backup.sh failed to execute"
         exit 1
     fi
-
-    echo -e "${GREEN}${CHECK}${NC} Script configuration completed!"
 }
 
 verify_installation() {
