@@ -282,7 +282,7 @@ check_existing_installation() {
 download_and_install_node_exporter() {
     echo
     echo -e "${GREEN}Node Exporter Installation${NC}"
-    echo -e "${GREEN}===========================${NC}"
+    echo -e "${GREEN}==========================${NC}"
     echo
 
     echo -e "${CYAN}${INFO}${NC} Downloading and installing Node Exporter..."
@@ -406,9 +406,9 @@ verify_installation() {
 display_installation_completion() {
     echo
 
-    echo -e "${PURPLE}=====================================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
     echo -e "${GREEN}${CHECK}${NC} Installation complete!"
-    echo -e "${PURPLE}=====================================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
     echo
 
     echo -e "${CYAN}Configuration Summary:${NC}"
