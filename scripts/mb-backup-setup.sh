@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#=============================
-# MARZBAN BACKUP SETUP SCRIPT
-#=============================
+#=================================
+# MARZBAN TELEGRAM BACKUP MANAGER
+#=================================
 
 # Color constants
 readonly RED='\033[0;31m'
@@ -116,9 +116,9 @@ verify_installation() {
 
 show_completion_summary() {
     echo
-    echo -e "${PURPLE}==================${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Setup complete!"
-    echo -e "${PURPLE}==================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
+    echo -e "${GREEN}${CHECK}${NC} Installation complete!"
+    echo -e "${PURPLE}=========================${NC}"
     echo
     echo -e "${CYAN}Installation Summary:${NC}"
     echo -e "${WHITE}• Backup script location: $SCRIPT_PATH${NC}"
@@ -132,9 +132,9 @@ show_completion_summary() {
 
 main() {
     echo
-    echo -e "${PURPLE}======================${NC}"
-    echo -e "${NC}TELEGRAM BACKUP SETUP${NC}"
-    echo -e "${PURPLE}======================${NC}"
+    echo -e "${PURPLE}================================${NC}"
+    echo -e "${NC}MARZBAN TELEGRAM BACKUP MANAGER${NC}"
+    echo -e "${PURPLE}================================${NC}"
     echo
 
     set -e
