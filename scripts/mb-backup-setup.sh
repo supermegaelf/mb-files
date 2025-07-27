@@ -116,9 +116,9 @@ verify_installation() {
 
 show_completion_summary() {
     echo
-    echo -e "${PURPLE}================================${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Setup completed successfully!"
-    echo -e "${PURPLE}================================${NC}"
+    echo -e "${PURPLE}==================${NC}"
+    echo -e "${GREEN}${CHECK}${NC} Setup complete!"
+    echo -e "${PURPLE}==================${NC}"
     echo
     echo -e "${CYAN}Installation Summary:${NC}"
     echo -e "${WHITE}• Backup script location: $SCRIPT_PATH${NC}"
@@ -132,9 +132,9 @@ show_completion_summary() {
 
 main() {
     echo
-    echo -e "${PURPLE}=======================${NC}"
+    echo -e "${PURPLE}======================${NC}"
     echo -e "${NC}TELEGRAM BACKUP SETUP${NC}"
-    echo -e "${PURPLE}=======================${NC}"
+    echo -e "${PURPLE}======================${NC}"
     echo
 
     set -e
