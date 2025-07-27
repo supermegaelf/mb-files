@@ -1,3 +1,27 @@
+#!/bin/bash
+
+#==============================
+# MARZBAN BACKUP SETUP SCRIPT
+#==============================
+
+# Color constants
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly PURPLE='\033[0;35m'
+readonly CYAN='\033[0;36m'
+readonly WHITE='\033[1;37m'
+readonly GRAY='\033[0;90m'
+readonly NC='\033[0m'
+
+# Status symbols
+readonly CHECK="✓"
+readonly CROSS="✗"
+readonly WARNING="!"
+readonly INFO="*"
+readonly ARROW="→"
+
 # Global variables
 SCRIPT_URL="https://raw.githubusercontent.com/supermegaelf/mb-files/main/scripts/mb-backup.sh"
 SCRIPT_DIR="/root/scripts"
@@ -31,33 +55,6 @@ prepare_environment() {
 
     echo -e "${GREEN}${CHECK}${NC} Environment preparation completed!"
 }
-
-download_backup_script() {
-    echo
-    echo -e "${GREEN}Script Download${NC}"
-    echo -#!/bin/bash
-
-#==============================
-# MARZBAN BACKUP SETUP SCRIPT
-#==============================
-
-# Color constants
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[1;33m'
-readonly BLUE='\033[0;34m'
-readonly PURPLE='\033[0;35m'
-readonly CYAN='\033[0;36m'
-readonly WHITE='\033[1;37m'
-readonly GRAY='\033[0;90m'
-readonly NC='\033[0m'
-
-# Status symbols
-readonly CHECK="✓"
-readonly CROSS="✗"
-readonly WARNING="!"
-readonly INFO="*"
-readonly ARROW="→"
 
 download_backup_script() {
     echo
