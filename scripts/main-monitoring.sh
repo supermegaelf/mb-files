@@ -967,9 +967,9 @@ uninstall_monitoring() {
     fi
 
     echo
-    echo -e "${PURPLE}=============================${NC}"
-    echo -e "${NC}Panel Monitoring Uninstaller${NC}"
-    echo -e "${PURPLE}=============================${NC}"
+    echo -e "${PURPLE}================================${NC}"
+    echo -e "${NC}Panel Monitoring Uninstallation${NC}"
+    echo -e "${PURPLE}================================${NC}"
     echo
 
     echo -e "${CYAN}${INFO}${NC} Checking current installation status..."
