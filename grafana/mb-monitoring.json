@@ -1176,6 +1176,7 @@
           "fieldMinMax": false,
           "mappings": [],
           "min": 0,
+          "unit": "bytes",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1228,7 +1229,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "marzban_nodes_uplink + marzban_nodes_downlink",
+          "expr": "(marzban_nodes_uplink{name!=\"Master\"} + marzban_nodes_downlink{name!=\"Master\"})",
           "instant": false,
           "legendFormat": "{{name}}",
           "range": true,
