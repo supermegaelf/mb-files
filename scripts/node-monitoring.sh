@@ -282,7 +282,7 @@ check_existing_installation() {
 download_and_install_node_exporter() {
     echo
     echo -e "${PURPLE}=============================${NC}"
-    echo -e "${GREEN}Node Monitoring Installation${NC}"
+    echo -e "${WHITE}Node Monitoring Installation${NC}"
     echo -e "${PURPLE}=============================${NC}"
     echo
 
