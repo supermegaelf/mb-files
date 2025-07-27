@@ -215,7 +215,7 @@ display_uninstall_completion() {
     echo -e "${GREEN}${CHECK}${NC} Uninstallation complete!"
     echo -e "${PURPLE}===========================${NC}"
     echo
-    echo -e "${CYAN}Node Exporter has been successfully uninstalled.${NC}"
+    echo -e "${CYAN}Node Exporter has been successfully removed.${NC}"
 }
 
 # Main uninstall function
