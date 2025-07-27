@@ -50,6 +50,7 @@ configure_backup() {
         read TG_BOT_TOKEN
         echo -ne "${CYAN}Telegram Chat ID: ${NC}"
         read TG_CHAT_ID
+        echo
 
         if [ -z "$MYSQL_USER" ]; then
             echo -e "${RED}${CROSS}${NC} MySQL username cannot be empty"
@@ -139,6 +140,7 @@ prepare_system() {
 }
 
 check_containers() {
+    echo
     echo -e "${GREEN}Docker Container Check${NC}"
     echo -e "${GREEN}======================${NC}"
     echo
@@ -166,6 +168,7 @@ check_containers() {
 }
 
 create_database_backup() {
+    echo
     echo -e "${GREEN}Database Backup Creation${NC}"
     echo -e "${GREEN}========================${NC}"
     echo
@@ -216,6 +219,7 @@ create_database_backup() {
 }
 
 create_archive() {
+    echo
     echo -e "${GREEN}Archive Creation${NC}"
     echo -e "${GREEN}================${NC}"
     echo
@@ -245,6 +249,7 @@ create_archive() {
 }
 
 send_to_telegram() {
+    echo
     echo -e "${GREEN}Telegram Upload${NC}"
     echo -e "${GREEN}===============${NC}"
     echo
@@ -267,6 +272,7 @@ send_to_telegram() {
 }
 
 cleanup_files() {
+    echo
     echo -e "${GREEN}Cleanup Process${NC}"
     echo -e "${GREEN}===============${NC}"
     echo
