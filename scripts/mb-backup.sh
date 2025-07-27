@@ -289,9 +289,9 @@ cleanup_files() {
 
 show_completion_summary() {
     echo
-    echo -e "${PURPLE}=========================================${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Backup process completed successfully!"
-    echo -e "${PURPLE}=========================================${NC}"
+    echo -e "${PURPLE}===================${NC}"
+    echo -e "${GREEN}${CHECK}${NC} Backup complete!"
+    echo -e "${PURPLE}===================${NC}"
     echo
     echo -e "${CYAN}Backup Information:${NC}"
     echo -e "${WHITE}• Archive name: backup-marzban.tar.gz${NC}"
