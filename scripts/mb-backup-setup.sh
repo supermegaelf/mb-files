@@ -100,7 +100,7 @@ verify_installation() {
     echo -e "${GRAY}  ${ARROW}${NC} Validating system integration"
 
     if grep -q "$SCRIPT_PATH" /etc/crontab; then
-        echo -e "${CYAN}${INFO}${NC} Cron job successfully configured"
+        :  # Cron job found, continue silently
     else
         echo -e "${RED}${CROSS}${NC} Cron job was not added to /etc/crontab"
         exit 1
