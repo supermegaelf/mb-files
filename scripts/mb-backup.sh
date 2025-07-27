@@ -40,18 +40,14 @@ configure_backup() {
     echo
 
     if [ -z "$MYSQL_USER" ] || [ -z "$MYSQL_PASSWORD" ] || [ -z "$TG_BOT_TOKEN" ] || [ -z "$TG_CHAT_ID" ]; then
-        echo
         echo -ne "${CYAN}MySQL username (default is marzban, press Enter to use default): ${NC}"
         read MYSQL_USER
         MYSQL_USER=${MYSQL_USER:-marzban}
-        echo
         echo -ne "${CYAN}MySQL password: ${NC}"
         read -s MYSQL_PASSWORD
         echo
-        echo
         echo -ne "${CYAN}Telegram Bot Token: ${NC}"
         read TG_BOT_TOKEN
-        echo
         echo -ne "${CYAN}Telegram Chat ID: ${NC}"
         read TG_CHAT_ID
 
@@ -123,7 +119,6 @@ validate_configuration() {
 #======================
 
 prepare_system() {
-    echo
     echo -e "${GREEN}System Preparation${NC}"
     echo -e "${GREEN}==================${NC}"
     echo
@@ -144,7 +139,6 @@ prepare_system() {
 }
 
 check_containers() {
-    echo
     echo -e "${GREEN}Docker Container Check${NC}"
     echo -e "${GREEN}======================${NC}"
     echo
@@ -172,7 +166,6 @@ check_containers() {
 }
 
 create_database_backup() {
-    echo
     echo -e "${GREEN}Database Backup Creation${NC}"
     echo -e "${GREEN}========================${NC}"
     echo
@@ -223,7 +216,6 @@ create_database_backup() {
 }
 
 create_archive() {
-    echo
     echo -e "${GREEN}Archive Creation${NC}"
     echo -e "${GREEN}================${NC}"
     echo
@@ -253,7 +245,6 @@ create_archive() {
 }
 
 send_to_telegram() {
-    echo
     echo -e "${GREEN}Telegram Upload${NC}"
     echo -e "${GREEN}===============${NC}"
     echo
@@ -276,7 +267,6 @@ send_to_telegram() {
 }
 
 cleanup_files() {
-    echo
     echo -e "${GREEN}Cleanup Process${NC}"
     echo -e "${GREEN}===============${NC}"
     echo
