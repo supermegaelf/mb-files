@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#==============================
-# MARZBAN MONITORING MANAGER
-#==============================
+#==================================
+# MARZBAN PANEL MONITORING MANAGER
+#==================================
 
 # Color constants
 readonly RED='\033[0;31m'
@@ -1184,9 +1184,9 @@ main() {
 
     # Display script header
     echo
-    echo -e "${PURPLE}=========================${NC}"
-    echo -e "${NC}MARZBAN PANEL MONITORING${NC}"
-    echo -e "${PURPLE}=========================${NC}"
+    echo -e "${PURPLE}=================================${NC}"
+    echo -e "${NC}MARZBAN PANEL MONITORING MANAGER${NC}"
+    echo -e "${PURPLE}=================================${NC}"
     echo
 
     # Show menu and handle user choice
