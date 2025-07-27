@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#=========================
-# MARZBAN NODE MONITORING
-#=========================
+#=================================
+# MARZBAN NODE MONITORING MANAGER
+#=================================
 
 # Color constants
 readonly RED='\033[0;31m'
@@ -211,9 +211,9 @@ remove_ufw_rules() {
 display_uninstall_completion() {
     echo
 
-    echo -e "${PURPLE}================================${NC}"
+    echo -e "${PURPLE}===========================${NC}"
     echo -e "${GREEN}${CHECK}${NC} Uninstallation complete!"
-    echo -e "${PURPLE}================================${NC}"
+    echo -e "${PURPLE}===========================${NC}"
     echo
     echo -e "${CYAN}Node Exporter has been successfully removed.${NC}"
 }
@@ -232,9 +232,9 @@ uninstall_node_exporter() {
     fi
 
     echo
-    echo -e "${PURPLE}==========================${NC}"
-    echo -e "${NC}Node Exporter Uninstaller${NC}"
-    echo -e "${PURPLE}==========================${NC}"
+    echo -e "${PURPLE}=============================${NC}"
+    echo -e "${NC}Node Exporter Uninstallation${NC}"
+    echo -e "${PURPLE}=============================${NC}"
     echo
 
     echo -e "${CYAN}${INFO}${NC} Checking current installation status..."
@@ -281,8 +281,9 @@ check_existing_installation() {
 # Download and install Node Exporter
 download_and_install_node_exporter() {
     echo
-    echo -e "${GREEN}Node Exporter Installation${NC}"
-    echo -e "${GREEN}==========================${NC}"
+    echo -e "${PURPLE}=============================${NC}"
+    echo -e "${GREEN}Node Monitoring Installation${NC}"
+    echo -e "${PURPLE}=============================${NC}"
     echo
 
     echo -e "${CYAN}${INFO}${NC} Downloading and installing Node Exporter..."
@@ -448,9 +449,9 @@ main() {
 
     # Display script header
     echo
-    echo -e "${PURPLE}========================${NC}"
-    echo -e "${NC}MARZBAN NODE MONITORING${NC}"
-    echo -e "${PURPLE}========================${NC}"
+    echo -e "${PURPLE}================================${NC}"
+    echo -e "${NC}MARZBAN NODE MONITORING MANAGER${NC}"
+    echo -e "${PURPLE}================================${NC}"
     echo
 
     # Process arguments or show menu
