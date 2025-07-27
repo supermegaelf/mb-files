@@ -2266,9 +2266,9 @@ check_node_container_status() {
 # Display node completion info
 display_node_completion_info() {
     echo
-    echo -e "${GREEN}=========================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
     echo -e "${GREEN}${CHECK}${NC} Installation complete!"
-    echo -e "${GREEN}=========================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
     echo
     display_node_useful_commands
     display_node_next_steps
