@@ -64,9 +64,9 @@ check_monitoring_status() {
 # Show current status
 show_status() {
     echo
-    echo -e "${PURPLE}=========================${NC}"
-    echo -e "${NC}Current Monitoring Status${NC}"
-    echo -e "${PURPLE}=========================${NC}"
+    echo -e "${PURPLE}==================${NC}"
+    echo -e "${NC}Monitoring Status${NC}"
+    echo -e "${PURPLE}==================${NC}"
     echo
 
     echo -e "${CYAN}${INFO}${NC} Checking monitoring installation status..."
@@ -163,7 +163,6 @@ show_status() {
             echo -e "${YELLOW}No external nodes configured${NC}"
         fi
     fi
-    echo
 }
 
 #============================
