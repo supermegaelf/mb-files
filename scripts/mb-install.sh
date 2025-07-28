@@ -1451,9 +1451,9 @@ verify_hosts_update() {
 # Display completion info
 display_completion_info() {
     echo
-    echo -e "${PURPLE}=======================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
     echo -e "${GREEN}${CHECK}${NC} Installation complete!"
-    echo -e "${PURPLE}=======================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
     echo
     display_dashboard_info
     display_admin_credentials
@@ -2266,9 +2266,9 @@ check_node_container_status() {
 # Display node completion info
 display_node_completion_info() {
     echo
-    echo -e "${PURPLE}=======================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
     echo -e "${GREEN}${CHECK}${NC} Installation complete!"
-    echo -e "${PURPLE}=======================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
     echo
     display_node_useful_commands
     display_node_next_steps
