@@ -1507,9 +1507,9 @@ install_panel() {
     
     # Display header
     echo
-    echo -e "${PURPLE}===========================${NC}"
-    echo -e "${WHITE}Marzban Panel Installation${NC}"
-    echo -e "${PURPLE}===========================${NC}"
+    echo -e "${PURPLE}===================${NC}"
+    echo -e "${WHITE}Panel Installation${NC}"
+    echo -e "${PURPLE}===================${NC}"
     echo
     echo -e "${GREEN}Environment variables${NC}"
     echo -e "${GREEN}=====================${NC}"
@@ -2323,9 +2323,9 @@ install_node() {
     
     # Display header
     echo
-    echo -e "${PURPLE}==========================${NC}"
-    echo -e "${WHITE}Marzban Node Installation${NC}"
-    echo -e "${PURPLE}==========================${NC}"
+    echo -e "${PURPLE}==================${NC}"
+    echo -e "${WHITE}Node Installation${NC}"
+    echo -e "${PURPLE}==================${NC}"
     echo
     echo -e "${GREEN}Environment variables${NC}"
     echo -e "${GREEN}=====================${NC}"
