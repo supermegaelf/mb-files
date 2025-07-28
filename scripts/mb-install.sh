@@ -559,7 +559,7 @@ server {
     listen       443 ssl;
     http2        on;
 
-    location ~* /(sub|dashboard|api|statics|docs|redoc|openapi.json) {
+    location ~* /(sub|$DASHBOARD_PATH|api|statics|docs|redoc|openapi.json) {
         proxy_redirect          off;
         proxy_http_version      1.1;
         proxy_pass              http://127.0.0.1:8000;
@@ -817,6 +817,11 @@ generate_secure_passwords() {
     ADMIN_PASSWORD=$(tr -dc 'A-Za-z0-9!@#%^&*()' </dev/urandom | head -c 16)
 }
 
+# Generate random dashboard path
+generate_dashboard_path() {
+    DASHBOARD_PATH=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 10)
+}
+
 # Create environment file
 create_env_file() {
     echo -e "${CYAN}${INFO}${NC} Creating .env configuration file..."
@@ -839,7 +844,7 @@ UVICORN_PORT = 8000
 # UVICORN_SSL_KEYFILE = "/var/lib/marzban/certs/example.com/key.pem"
 # UVICORN_SSL_CA_TYPE = "public"
 
-# DASHBOARD_PATH = "/dashboard/"
+DASHBOARD_PATH = "/$DASHBOARD_PATH/"
 
 XRAY_JSON = "/var/lib/marzban/xray_config.json"
 XRAY_SUBSCRIPTION_URL_PREFIX = "https://$SUB_DOMAIN"
@@ -1464,7 +1469,7 @@ display_completion_info() {
 # Display dashboard info
 display_dashboard_info() {
     echo -e "${CYAN}Dashboard URL:${NC}"
-    echo -e "${WHITE}https://dash.$PANEL_DOMAIN/dashboard${NC}"
+    echo -e "${WHITE}https://dash.$PANEL_DOMAIN/$DASHBOARD_PATH${NC}"
     echo
 }
 
@@ -1473,6 +1478,10 @@ display_admin_credentials() {
     echo -e "${CYAN}Admin Credentials (${YELLOW}SAVE THESE${CYAN}):${NC}"
     echo -e "${WHITE}Username: $ADMIN_USERNAME${NC}"
     echo -e "${WHITE}Password: $ADMIN_PASSWORD_DISPLAY${NC}"
+    echo
+    echo -e "${CYAN}Database Credentials:${NC}"
+    echo -e "${WHITE}MySQL ROOT Password: $MYSQL_ROOT_PASSWORD${NC}"
+    echo -e "${WHITE}MySQL Password: $MYSQL_PASSWORD${NC}"
     echo
 }
 
@@ -1522,6 +1531,9 @@ install_panel() {
     input_cloudflare_email
     input_cloudflare_api_key
     input_node_public_ip
+
+    # Generate dashboard path
+    generate_dashboard_path
 
     echo
     echo -e "${GREEN}Installing packages${NC}"
