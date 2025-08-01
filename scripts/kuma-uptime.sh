@@ -257,7 +257,10 @@ create_docker_structure() {
 
     # Create directory
     mkdir -p /root/kuma
-    cd /root/kuma
+    cd /root/kuma || {
+        echo -e "${RED}${CROSS}${NC} Failed to change to /root/kuma directory"
+        return 1
+    }
 
     # Create Docker Compose
     cat > docker-compose.yml << COMPOSE_EOF
