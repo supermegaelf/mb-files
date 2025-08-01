@@ -184,9 +184,11 @@ input_vless_links() {
         if [[ $vless_link =~ ^vless:// ]]; then
             VLESS_LINKS+=("$vless_link")
             echo -e "${GREEN}${CHECK}${NC} Link #$link_count added successfully"
+            echo
             ((link_count++))
         else
             echo -e "${RED}${CROSS}${NC} Invalid VLESS link format!"
+            echo
         fi
     done
 
@@ -403,9 +405,9 @@ verify_installation() {
 display_installation_completion() {
     echo
 
-    echo -e "${PURPLE}========================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
     echo -e "${GREEN}${CHECK}${NC} Installation complete!"
-    echo -e "${PURPLE}========================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
     echo
 
     echo -e "${CYAN}Access URL:${NC}"
