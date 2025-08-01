@@ -116,7 +116,7 @@ show_status() {
         # Extract domain from nginx config
         local configured_domain=$(grep "server_name" /etc/nginx/conf.d/kuma.conf | awk '{print $2}' | sed 's/;//')
         if [ -n "$configured_domain" ]; then
-            echo -e "${CYAN}${CHECK}${NC} Configured domain: ${WHITE}$configured_domain${NC}"
+            echo -e "${GREEN}${CHECK}${NC} Configured domain: ${WHITE}$configured_domain${NC}"
         fi
     else
         echo -e "${YELLOW}${WARNING}${NC} Nginx configuration not found"
