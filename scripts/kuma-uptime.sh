@@ -166,8 +166,7 @@ input_vless_links() {
     echo
 
     echo -e "${CYAN}${INFO}${NC} Collecting VLESS links..."
-    echo -e "${GRAY}  ${ARROW}${NC} Enter your VLESS links one by one"
-    echo -e "${GRAY}  ${ARROW}${NC} Press Enter with empty input to finish"
+    echo -e "${YELLOW}  Enter your VLESS links one by one${NC}"
     echo
 
     VLESS_LINKS=()
