@@ -410,7 +410,7 @@ display_installation_completion() {
     echo
     
     echo -e "${CYAN}Configuration Summary:${NC}"
-    echo -e "${WHITE}• https://$KUMA_DOMAIN${NC}"
+    echo -e "${WHITE}• Monitoring link: https://$KUMA_DOMAIN${NC}"
     echo -e "${WHITE}• VLESS links configured: ${#VLESS_LINKS[@]}${NC}"
     echo -e "${WHITE}• Proxy start port: 19000${NC}"
     echo -e "${WHITE}• Check interval: 40 seconds${NC}"
