@@ -409,21 +409,12 @@ display_installation_completion() {
     echo -e "${GREEN}${CHECK}${NC} Installation complete!"
     echo -e "${PURPLE}=========================${NC}"
     echo
-
-    echo -e "${CYAN}Access URL:${NC}"
-    echo -e "${WHITE}• https://$KUMA_DOMAIN${NC}"
-    echo
     
     echo -e "${CYAN}Configuration Summary:${NC}"
+    echo -e "${WHITE}• https://$KUMA_DOMAIN${NC}"
     echo -e "${WHITE}• VLESS links configured: ${#VLESS_LINKS[@]}${NC}"
     echo -e "${WHITE}• Proxy start port: 19000${NC}"
     echo -e "${WHITE}• Check interval: 40 seconds${NC}"
-    echo
-    
-    echo -e "${CYAN}Next Steps:${NC}"
-    echo -e "${WHITE}• Open https://$KUMA_DOMAIN to access Uptime Kuma${NC}"
-    echo -e "${WHITE}• Configure monitors in the web interface${NC}"
-    echo -e "${WHITE}• Replace MonitorID1, MonitorID2, etc. in config.json with actual Monitor IDs${NC}"
     echo
     
     echo -e "${CYAN}Useful Commands:${NC}"
