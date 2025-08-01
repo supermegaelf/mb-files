@@ -116,7 +116,7 @@ show_status() {
         # Extract domain from nginx config
         local configured_domain=$(grep "server_name" /etc/nginx/conf.d/kuma.conf | awk '{print $2}' | sed 's/;//')
         if [ -n "$configured_domain" ]; then
-            echo -e "${CYAN}${INFO}${NC} Configured domain: ${WHITE}$configured_domain${NC}"
+            echo -e "${CYAN}${CHECK}${NC} Configured domain: ${WHITE}$configured_domain${NC}"
         fi
     else
         echo -e "${YELLOW}${WARNING}${NC} Nginx configuration not found"
@@ -132,12 +132,12 @@ show_status() {
         
         # Show configured links count
         local links_count=$(grep -o '"link":' /root/kuma/config.json | wc -l)
-        echo -e "${CYAN}${INFO}${NC} Configured VLESS links: ${WHITE}$links_count${NC}"
+        echo -e "${WHITE}• Configured VLESS links: $links_count${NC}"
         
         # Show proxy start port
         local proxy_port=$(grep '"proxyStartPort":' /root/kuma/config.json | grep -o '[0-9]*')
         if [ -n "$proxy_port" ]; then
-            echo -e "${CYAN}${INFO}${NC} Proxy start port: ${WHITE}$proxy_port${NC}"
+            echo -e "${WHITE}• Proxy start port: $proxy_port${NC}"
         fi
     fi
 }
