@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#===============================
+#================================
 # UPTIME KUMA MONITORING MANAGER
-#===============================
+#================================
 
 # Color constants
 readonly RED='\033[0;31m'
@@ -522,9 +522,9 @@ uninstall_uptime_kuma() {
     fi
 
     echo
-    echo -e "${PURPLE}=============================${NC}"
+    echo -e "${PURPLE}===========================${NC}"
     echo -e "${NC}Uptime Kuma Uninstallation${NC}"
-    echo -e "${PURPLE}=============================${NC}"
+    echo -e "${PURPLE}===========================${NC}"
     echo
 
     echo -e "${CYAN}${INFO}${NC} Checking current installation status..."
