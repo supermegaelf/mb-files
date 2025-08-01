@@ -57,9 +57,9 @@ check_installation_status() {
 # Show current status
 show_status() {
     echo
-    echo -e "${PURPLE}===============${NC}"
+    echo -e "${PURPLE}===================${NC}"
     echo -e "${NC}Uptime Kuma Status${NC}"
-    echo -e "${PURPLE}===============${NC}"
+    echo -e "${PURPLE}===================${NC}"
     echo
 
     echo -e "${CYAN}${INFO}${NC} Checking Uptime Kuma installation status..."
