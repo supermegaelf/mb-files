@@ -862,9 +862,7 @@
                         <div class="my-block-big h-100">
                             <span class="my-step-counter mb-1"></span>
                             <h5 class="my-text-heading fw-semibold" x-text="$t('guideContent.macos.second.title')"></h5>
-                            <p class="my-text-content" x-html="$t('guideContent.macos.second.text')"></p>
-                            <a class="btn my-btn-primary fw-semibold" id="sub-url-macos" role="button"
-                                rel="noopener noreferrer" target="_blank" x-text="$t('addSubscription')"></a>
+                            <p class="my-text-content mb-0" x-html="$t('guideContent.macos.second.text')"></p>
                         </div>
                     </div>
                     <div class="col">
@@ -872,13 +870,6 @@
                             <span class="my-step-counter mb-1"></span>
                             <h5 class="my-text-heading fw-semibold" x-text="$t('guideContent.macos.third.title')"></h5>
                             <p class="my-text-content mb-0" x-html="$t('guideContent.macos.third.text')"></p>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="my-block-big h-100">
-                            <span class="my-step-counter mb-1"></span>
-                            <h5 class="my-text-heading fw-semibold" x-text="$t('guideContent.macos.fourth.title')"></h5>
-                            <p class="my-text-content mb-0" x-html="$t('guideContent.macos.fourth.text')"></p>
                         </div>
                     </div>
                 </div>
@@ -950,7 +941,7 @@
                         },
                         second: {
                             title: 'Add subscription',
-                            text: `Click the button below to add the subscription to the app. In the pop-up window, select <b>«Open the "Happ, xray GUI client application".»</b>, then click <b>«Skip»</b> in the app.`,
+                            text: `<b>-</b> Click the button below to add the subscription to the app.<br><b>-</b> In the pop-up window, select <b>«Open the "Happ, xray GUI client application".»</b>, then click <b>«Skip»</b> in the app.`,
                         },
                         third: {
                             title: 'Enable VPN',
@@ -972,7 +963,7 @@
                         },
                         fourth: {
                             title: 'Unable to add?',
-                            text: `Click <b>«Get link»</b> at the end of the page and select <b>«Copy link»</b>. Open the installed application and click <b>«Paste»</b>.`,
+                            text: `<b>-</b> Click <b>«Get link»</b> at the end of the page and select <b>«Copy link»</b>.<br><b>-</b> Open the installed application and click <b>«Paste»</b>.`,
                         },
                         fifth: {
                             title: 'Enable VPN',
@@ -1026,13 +1017,9 @@
                         },
                         second: {
                             title: 'Add subscription',
-                            text: `Click the button below to add the subscription to the app.`,
+                            text: `<b>-</b> Click <b>«Get link»</b> at the end of the page and select <b>«Copy link»</b>.<br><b>-</b> Open the installed app, insert the link in the <b>«Subscription or VLESS...»</b> field and click <b>«Get started»</b>.`,
                         },
                         third: {
-                            title: 'Unable to add?',
-                            text: `- Click <b>«Get link»</b> at the end of the page and select <b>«Copy link»</b>.<br>- Open the installed app, insert the link in the <b>«Subscription or VLESS...»</b> field and click <b>«Get started»</b>.`,
-                        },
-                        fourth: {
                             title: 'Enable VPN',
                             text: `Click the big round button to enable VPN.`,
                         },
@@ -1065,7 +1052,7 @@
                         },
                         second: {
                             title: 'Добавьте подписку',
-                            text: `Нажмите кнопку ниже, чтобы добавить подписку в приложение. Во всплывающем окне выберите <b>«Открыть приложение "Happ, xray GUI client".»</b>, затем нажмите <b>«Skip»</b> в приложении.`,
+                            text: `<b>-</b> Нажмите кнопку ниже, чтобы добавить подписку в приложение.<br><b>-</b> Во всплывающем окне выберите <b>«Открыть приложение "Happ, xray GUI client".»</b>, затем нажмите <b>«Skip»</b> в приложении.`,
                         },
                         third: {
                             title: 'Включите VPN',
@@ -1087,7 +1074,7 @@
                         },
                         fourth: {
                             title: 'Не удалось добавить?',
-                            text: `Нажмите <b>«Получить ссылку»</b> в конце страницы и выберите <b>«Скопировать ссылку»</b>. Откройте установленное приложение и нажмите <b>«Вставить»</b>.`,
+                            text: `<b>-</b> Нажмите <b>«Получить ссылку»</b> в конце страницы и выберите <b>«Скопировать ссылку»</b>.<br><b>-</b> Откройте установленное приложение и нажмите <b>«Вставить»</b>.`,
                         },
                         fifth: {
                             title: 'Включите VPN',
@@ -1141,13 +1128,9 @@
                         },
                         second: {
                             title: 'Добавьте подписку',
-                            text: `Нажмите кнопку ниже, чтобы добавить подписку в приложение.`,
+                            text: `<b>-</b> Нажмите <b>«Получить ссылку»</b> в конце страницы и выберите <b>«Скопировать ссылку»</b>.<br><b>-</b> Откройте установленное приложение, вставьте ссылку в поле <b>«Subscription or VLESS...»</b> и нажмите <b>«Get started»</b>.`,
                         },
                         third: {
-                            title: 'Не удалось добавить?',
-                            text: `- Нажмите <b>«Получить ссылку»</b> в конце страницы и выберите <b>«Скопировать ссылку»</b>.<br>- Откройте установленное приложение, вставьте ссылку в поле <b>«Subscription or VLESS...»</b> и нажмите <b>«Get started»</b>.`,
-                        },
-                        fourth: {
                             title: 'Включите VPN',
                             text: `Нажмите большую круглую кнопку, чтобы включить VPN.`,
                         },
