@@ -666,8 +666,7 @@
     <div class="container my-container px-3 pb-3" x-data>
         <h4 class="my-text-heading fw-bold guide-heading" x-text="$t('guide')"></h4>
         <div class="tab-content" role="tablist">
-            <div id="tab-android" class="tab-pane my-tab-pane fade show active" aria-labelledby="btn-guide-android-tab"
-                role="tabpanel">
+            <div id="tab-android" class="tab-pane my-tab-pane fade show active" aria-labelledby="btn-guide-android-tab" role="tabpanel" x-data="androidCopyLink">
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 g-sm-2 g-lg-3">
                     <div class="col">
                         <div class="my-block-big h-100">
@@ -704,7 +703,8 @@
                             <span class="my-step-counter mb-1"></span>
                             <h5 class="my-text-heading fw-semibold" x-text="$t('guideContent.android.third.title')">
                             </h5>
-                            <p class="my-text-content mb-0" x-html="$t('guideContent.android.third.text')"></p>
+                            <p class="my-text-content" x-html="$t('guideContent.android.third.text')"></p>
+                            <button class="btn my-btn-primary fw-semibold" @click="copySubscriptionLink" :disabled="isLinkCopied" x-text="isLinkCopied ? $t('copied') : $t('copyLink')"></button>
                         </div>
                     </div>
                     <div class="col">
@@ -815,8 +815,7 @@
                     </div>                    
                 </div>
             </div>
-            <div id="tab-tv" class="tab-pane my-tab-pane fade" aria-labelledby="btn-guide-tv-tab"
-                role="tabpanel">
+            <div id="tab-tv" class="tab-pane my-tab-pane fade" aria-labelledby="btn-guide-tv-tab" role="tabpanel">
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 g-sm-2 g-lg-3">
                     <div class="col">
                         <div class="my-block-big h-100">
@@ -871,7 +870,7 @@
                     </div>
                 </div>
             </div>
-            <div id="tab-macos" class="tab-pane my-tab-pane fade" aria-labelledby="btn-guide-macos-tab" role="tabpanel">
+            <div id="tab-macos" class="tab-pane my-tab-pane fade" aria-labelledby="btn-guide-macos-tab" role="tabpanel" x-data="androidCopyLink">
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 g-sm-2 g-lg-3">
                     <div class="col">
                         <div class="my-block-big h-100">
@@ -888,7 +887,8 @@
                         <div class="my-block-big h-100">
                             <span class="my-step-counter mb-1"></span>
                             <h5 class="my-text-heading fw-semibold" x-text="$t('guideContent.macos.second.title')"></h5>
-                            <p class="my-text-content mb-0" x-html="$t('guideContent.macos.second.text')"></p>
+                            <p class="my-text-content" x-html="$t('guideContent.macos.second.text')"></p>
+                            <button class="btn my-btn-primary fw-semibold" @click="copySubscriptionLink" :disabled="isLinkCopied" x-text="isLinkCopied ? $t('copied') : $t('copyLink')"></button>
                         </div>
                     </div>
                     <div class="col">
@@ -912,27 +912,9 @@
                 </div>
             </div>
         </div>
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 bottom-controls">
+        <div class="d-flex flex-wrap align-items-center justify-content-center gap-2 bottom-controls">
             <a class="btn my-btn-outline" href="https://t.me/surf_vpn_1" rel="noopener noreferrer"
                 target="_blank" x-text="$t('support')"></a>
-            <button class="btn my-btn-outline" data-bs-toggle="modal" data-bs-target="#get-link-modal"
-                x-text="$t('getLink')"></button>
-            <div class="modal my-modal fade" id="get-link-modal" tabindex="-1">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="btn-close my-btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body text-center" x-data="copyLink">
-                            <div class="mb-4" id="qr-code"></div>
-                            <p class="my-text-content" x-text="$t('getLinkModalSubtitle')"></p>
-                            <button class="btn my-btn-neutral" @click="copyToClipboard" :disabled="isDisabled"
-                                x-text="isDisabled ? $t('copied') : $t('copyLink')"></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"
@@ -957,9 +939,7 @@
                 system: 'System',
                 light: 'Light',
                 dark: 'Dark',
-                getLink: 'Get link',
-                getLinkModalSubtitle: 'Add a subscription to the app by scanning the QR code, or copy the link by clicking the button below and add it to the app',
-                copyLink: 'Copy link',
+                copyLink: 'Copy',
                 copied: 'Copied',
                 guide: 'Follow instructions:',
                 pc: 'Windows',
@@ -1001,7 +981,7 @@
                         },
                         third: {
                             title: 'Add subscription',
-                            text: `<b>-</b> Click <b>«Get link»</b> at the end of the page and select <b>«Copy link»</b>.<br><b>-</b> Open the installed application and click <b>«Paste»</b>.`,
+                            text: `- Click the button below to copy the subscription link.<br>- Open the installed application and click <b>«Paste»</b>.`,
                         },
                         fourth: {
                             title: 'Enable VPN',
@@ -1019,7 +999,7 @@
                         },
                         second: {
                             title: 'Add subscription',
-                            text: `<b>-</b> Click <b>«Get link»</b> at the end of the page and select <b>«Copy link»</b>.<br><b>-</b> Open the installed app, insert the link in the <b>«Subscription or VLESS...»</b> field and click <b>«Get started»</b>.`,
+                            text: `- Click the button below to copy the subscription link.<br>- Open the installed app, insert the link in the <b>«Subscription or VLESS...»</b> field and click <b>«Get started»</b>.`,
                         },
                         third: {
                             title: 'Enable VPN',
@@ -1037,7 +1017,7 @@
                         },
                         second: {
                             title: 'Add subscription',
-                            text: `<b>-</b> Click the button below to add the subscription to the app.<br><b>-</b> In the pop-up window, select <b>«Open the "Happ, xray GUI client application".»</b>, then click <b>«Skip»</b> in the app.`,
+                            text: `- Click the button below to add the subscription to the app.<br>- In the pop-up window, select <b>«Open the "Happ, xray GUI client application".»</b>, then click <b>«Skip»</b> in the app.`,
                         },
                         third: {
                             title: 'Enable VPN',
@@ -1051,7 +1031,7 @@
                     tv: {
                         first: {
                             title: 'Important!',
-                            text: `<b>-</b> Make sure that our VPN is already installed on your phone.<br><b>-</b> The TV and your phone are connected to the same Wi-Fi network.`,
+                            text: `- Make sure that our VPN is already installed on your phone.<br>- The TV and your phone are connected to the same Wi-Fi network.`,
                         },
                         second: {
                             title: 'Install app',
@@ -1081,9 +1061,7 @@
                 system: 'Системная',
                 light: 'Светлая',
                 dark: 'Темная',
-                getLink: 'Получить ссылку',
-                getLinkModalSubtitle: 'Добавьте подписку в приложение, отсканировав QR-код, или скопируйте ссылку, нажав кнопку ниже, и добавьте её в приложение',
-                copyLink: 'Скопировать ссылку',
+                copyLink: 'Скопировать',
                 copied: 'Скопировано',
                 guide: 'Следуйте инструкции:',
                 pc: 'Windows',
@@ -1125,7 +1103,7 @@
                         },
                         third: {
                             title: 'Добавьте подписку',
-                            text: `<b>-</b> Нажмите <b>«Получить ссылку»</b> в конце страницы и выберите <b>«Скопировать ссылку»</b>.<br><b>-</b> Откройте установленное приложение и нажмите <b>«Вставить»</b>.`,
+                            text: `- Нажмите кнопку ниже, чтобы скопировать ссылку на подписку.<br>- Откройте установленное приложение и нажмите <b>«Вставить»</b>.`,
                         },
                         fourth: {
                             title: 'Включите VPN',
@@ -1143,7 +1121,7 @@
                         },
                         second: {
                             title: 'Добавьте подписку',
-                            text: `<b>-</b> Нажмите <b>«Получить ссылку»</b> в конце страницы и выберите <b>«Скопировать ссылку»</b>.<br><b>-</b> Откройте установленное приложение, вставьте ссылку в поле <b>«Subscription or VLESS...»</b> и нажмите <b>«Get started»</b>.`,
+                            text: `- Нажмите кнопку ниже, чтобы скопировать ссылку на подписку.<br>- Откройте установленное приложение, вставьте ссылку в поле <b>«Subscription or VLESS...»</b> и нажмите <b>«Get started»</b>.`,
                         },
                         third: {
                             title: 'Включите VPN',
@@ -1161,7 +1139,7 @@
                         },
                         second: {
                             title: 'Добавьте подписку',
-                            text: `<b>-</b> Нажмите кнопку ниже, чтобы добавить подписку в приложение.<br><b>-</b> Во всплывающем окне выберите <b>«Открыть приложение "Happ, xray GUI client".»</b>, затем нажмите <b>«Skip»</b> в приложении.`,
+                            text: `- Нажмите кнопку ниже, чтобы добавить подписку в приложение.<br>- Во всплывающем окне выберите <b>«Открыть приложение "Happ, xray GUI client".»</b>, затем нажмите <b>«Skip»</b> в приложении.`,
                         },
                         third: {
                             title: 'Включите VPN',
@@ -1175,7 +1153,7 @@
                     tv: {
                         first: {
                             title: 'Важно!',
-                            text: `<b>-</b> Убедитесь, что наш VPN уже установлен на вашем телефоне.<br><b>-</b> Телевизор и телефон подключены к одной сети Wi-Fi.`,
+                            text: `- Убедитесь, что наш VPN уже установлен на вашем телефоне.<br>- Телевизор и телефон подключены к одной сети Wi-Fi.`,
                         },
                         second: {
                             title: 'Установите приложение',
@@ -1283,34 +1261,32 @@
         });
 
         document.addEventListener('alpine:init', () => {
-            Alpine.data('copyLink', () => ({
-                isDisabled: false,
-                async copyToClipboard() {
-                    // Use a pure URL without parameters
+            Alpine.data('androidCopyLink', () => ({
+                isLinkCopied: false,
+                async copySubscriptionLink() {
                     const url = new URL(window.location.href);
                     const cleanUrl = url.origin + url.pathname;
                     
                     try {
                         await navigator.clipboard.writeText(cleanUrl);
-                        this.isDisabled = true;
+                        this.isLinkCopied = true;
                         setTimeout(() => {
-                            this.isDisabled = false;
+                            this.isLinkCopied = false;
                         }, 3000);
                     } catch (err) {
                         console.error('Failed to copy:', err);
-                        // Create a temporary input element for copying
                         const tempInput = document.createElement('input');
-                        tempInput.value = urlToCopy;
+                        tempInput.value = cleanUrl;
                         document.body.appendChild(tempInput);
                         tempInput.select();
                         document.execCommand('copy');
                         document.body.removeChild(tempInput);
-                        this.isDisabled = true;
+                        this.isLinkCopied = true;
                         setTimeout(() => {
-                            this.isDisabled = false;
+                            this.isLinkCopied = false;
                         }, 3000);
                     }
-                },
+                }
             }));
         });
 
