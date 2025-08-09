@@ -903,7 +903,6 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs-i18n@2.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <script src="https://unpkg.com/qr-code-styling@1.9.1/lib/qr-code-styling.js"></script>
     <script>
         const SUB_URL_SCHEMES = {
             pc: "https://redirect.example.com?happ_url=" + encodeURIComponent(happUrl),
@@ -1297,7 +1296,12 @@
             );
 
             for (const [os, url] of Object.entries(SUB_URL_SCHEMES)) {
-                document.getElementById(`sub-url-${os}`).href = url;
+                const element = document.getElementById(`sub-url-${os}`);
+                console.log(`Searching for: sub-url-${os}`, element ? 'FOUND' : 'NOT FOUND', url);
+                if (element) {
+                    element.href = url;
+                    console.log(`Set href for ${os}:`, element.href);
+                }
             }
         });
     </script>
