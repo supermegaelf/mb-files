@@ -117,7 +117,6 @@
             --my-content-color: rgba(0, 0, 0, .65);
             --my-dropdown-bg: #fff;
             --my-dropdown-link-hover-bg: rgba(55, 53, 47, .05);
-            --my-modal-bg: #fff;
         }
 
         [data-bs-theme='dark'] {
@@ -131,7 +130,6 @@
             --my-content-color: rgba(255, 255, 255, .55);
             --my-dropdown-bg: #2c2c2c;
             --my-dropdown-link-hover-bg: rgba(255, 255, 255, .05);
-            --my-modal-bg: #232323;
         }
 
         /* ========== LAYOUT & SPACING ========== */
@@ -378,34 +376,6 @@
             --bs-btn-active-color: var(--my-heading-color);
             --bs-btn-active-bg: var(--my-dark-gray-color);
             --bs-btn-active-border-color: var(--my-alpha-dark-gray-color);
-        }
-
-        /* ========== MODAL WINDOWS ========== */
-        .modal-backdrop {
-            --bs-backdrop-opacity: .75;
-        }
-
-        .my-modal {
-            --bs-modal-margin: 1rem;
-            --bs-modal-bg: var(--my-modal-bg);
-            --bs-modal-border-width: 0;
-            --bs-modal-border-radius: var(--bs-border-radius-xl);
-            --bs-modal-header-padding: 1.5rem 1.5rem 0;
-            --bs-modal-header-border-width: 0;
-        }
-
-        @media (min-width: 576px) {
-            .my-modal {
-                --bs-modal-padding: 2rem;
-            }
-        }
-
-        .my-modal .modal-dialog {
-            max-width: 420px;
-        }
-
-        .my-modal .modal-content {
-            padding-bottom: 1.5rem;
         }
 
         /* ========== ADAPTABILITY ========== */
@@ -925,7 +895,6 @@
                 guide: 'Follow instructions:',
                 pc: 'Windows',
                 macos: 'MacOS',
-                macosintel: 'Intel Series',
                 tv: 'Android TV',
                 downloadApp: 'Download',
                 addSubscription: 'Add subscription',
@@ -1045,7 +1014,6 @@
                 guide: 'Следуйте инструкции:',
                 pc: 'Windows',
                 macos: 'MacOS',
-                macosintel: 'Серия Intel',
                 tv: 'Android TV',
                 downloadApp: 'Скачать',
                 addSubscription: 'Добавить',
@@ -1268,17 +1236,6 @@
         });
 
         document.addEventListener('DOMContentLoaded', () => {
-            const qrCode = new QRCodeStyling({
-                data: cleanUrl,
-                margin: 6,
-                dotsOptions: {
-                    type: 'extra-rounded',
-                },
-                cornersSquareOptions: {
-                    type: 'extra-rounded',
-                },
-            });
-            qrCode.append(document.getElementById('qr-code'));
 
             const btnGuide = document.getElementById('btn-guide');
             document.querySelectorAll('.my-dropdown-item-guide').forEach(item => {
@@ -1297,10 +1254,8 @@
 
             for (const [os, url] of Object.entries(SUB_URL_SCHEMES)) {
                 const element = document.getElementById(`sub-url-${os}`);
-                console.log(`Searching for: sub-url-${os}`, element ? 'FOUND' : 'NOT FOUND', url);
                 if (element) {
                     element.href = url;
-                    console.log(`Set href for ${os}:`, element.href);
                 }
             }
         });
