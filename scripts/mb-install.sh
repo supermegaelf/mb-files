@@ -1022,7 +1022,7 @@ create_xray_config() {
           "geosite:category-ads-all"
         ],
         "outboundTag": "BLOCK"
-      },
+      }
     ]
   },
   "inbounds": [
