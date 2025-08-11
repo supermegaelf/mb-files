@@ -1116,7 +1116,7 @@ download_subscription_template() {
 download_subscription_router() {
     echo -e "${CYAN}${INFO}${NC} Downloading enhanced subscription router..."
     echo -e "${GRAY}  ${ARROW}${NC} Downloading enhanced router script"
-    wget -O /var/lib/marzban/subscription.py "https://raw.githubusercontent.com/hydraponique/roscomvpn-happ-routing/main/Auto-routing%20for%20Non-json%20Marzban/subscription.py" > /dev/null 2>&1
+    wget -O /var/lib/marzban/subscription.py "https://raw.githubusercontent.com/supermegaelf/mb-files/main/subscription.py" > /dev/null 2>&1
     echo -e "${GREEN}${CHECK}${NC} Enhanced subscription router downloaded!"
 }
 
