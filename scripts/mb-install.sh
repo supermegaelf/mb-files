@@ -993,14 +993,18 @@ create_xray_config() {
     "domainStrategy": "IPIfNonMatch",
     "rules": [
       {
-        "ip": ["geoip:private"],
-        "outboundTag": "BLOCK",
-        "type": "field"
+        "type": "field",
+        "ip": [
+          "geoip:private"
+        ],
+        "outboundTag": "BLOCK"
       },
       {
         "type": "field",
-        "outboundTag": "IPv4",
-        "domain": ["geosite:google"]
+        "domain": [
+          "geosite:google"
+        ],
+        "outboundTag": "IPv4"
       },
       {
         "type": "field",
