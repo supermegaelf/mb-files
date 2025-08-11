@@ -993,19 +993,39 @@ create_xray_config() {
     "domainStrategy": "IPIfNonMatch",
     "rules": [
       {
-        "ip": ["geoip:private"],
-        "outboundTag": "BLOCK",
-        "type": "field"
+        "type": "field",
+        "ip": [
+          "geoip:private"
+        ],
+        "outboundTag": "BLOCK"
       },
       {
         "type": "field",
-        "outboundTag": "IPv4",
-        "domain": ["geosite:google"]
+        "domain": [
+          "geosite:google"
+        ],
+        "outboundTag": "IPv4"
       },
       {
-        "protocol": ["bittorrent"],
-        "outboundTag": "BLOCK",
-        "type": "field"
+        "type": "field",
+        "protocol": [
+          "bittorrent"
+        ],
+        "outboundTag": "DIRECT"
+      },
+      {
+        "type": "field",
+        "domain": [
+          "geosite:category-gov-ru"
+        ],
+        "outboundTag": "BLOCK"
+      },
+      {
+        "type": "field",
+        "domain": [
+          "geosite:category-ads-all"
+        ],
+        "outboundTag": "BLOCK"
       }
     ]
   },
