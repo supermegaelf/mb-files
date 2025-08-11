@@ -1003,10 +1003,26 @@ create_xray_config() {
         "domain": ["geosite:google"]
       },
       {
-        "protocol": ["bittorrent"],
-        "outboundTag": "BLOCK",
-        "type": "field"
-      }
+        "type": "field",
+        "protocol": [
+          "bittorrent"
+        ],
+        "outboundTag": "DIRECT"
+      },
+      {
+        "type": "field",
+        "domain": [
+          "geosite:category-gov-ru"
+        ],
+        "outboundTag": "BLOCK"
+      },
+      {
+        "type": "field",
+        "domain": [
+          "geosite:category-ads-all"
+        ],
+        "outboundTag": "BLOCK"
+      },
     ]
   },
   "inbounds": [
