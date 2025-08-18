@@ -867,7 +867,7 @@ CUSTOM_TEMPLATES_DIRECTORY="/var/lib/marzban/templates/"
 SUBSCRIPTION_PAGE_TEMPLATE="subscription/index.html"
 # HOME_PAGE_TEMPLATE="home/index.html"
 
-V2RAY_SUBSCRIPTION_TEMPLATE="v2ray/default.json"
+# V2RAY_SUBSCRIPTION_TEMPLATE="v2ray/custom.json"
 # V2RAY_SETTINGS_TEMPLATE="v2ray/settings.json"
 
 # SINGBOX_SUBSCRIPTION_TEMPLATE="singbox/default.json"
@@ -882,7 +882,7 @@ V2RAY_SUBSCRIPTION_TEMPLATE="v2ray/default.json"
 # USE_CUSTOM_JSON_FOR_V2RAYN=False
 # USE_CUSTOM_JSON_FOR_V2RAYNG=True
 # USE_CUSTOM_JSON_FOR_STREISAND=False
-USE_CUSTOM_JSON_FOR_HAPP=True
+# USE_CUSTOM_JSON_FOR_HAPP=True
 
 ## Set headers for subscription
 # SUB_PROFILE_TITLE = "Susbcription"
@@ -1109,16 +1109,6 @@ download_subscription_template() {
     echo -e "${GRAY}  ${ARROW}${NC} Customizing template with panel domain"
     sed -i "s/example\.com/$PANEL_DOMAIN/g" /var/lib/marzban/templates/subscription/index.html
     echo -e "${GREEN}${CHECK}${NC} Custom subscription template configured!"
-}
-
-# Creating subscription JSON template
-creating_subscription_template() {
-    echo -e "${CYAN}${INFO}${NC} Creating subscription JSON template..."
-    echo -e "${GRAY}  ${ARROW}${NC} Creating a folder"
-    mkdir -p /var/lib/marzban/templates/v2ray/
-    echo -e "${GRAY}  ${ARROW}${NC} Downloading JSON template"
-    wget -O /var/lib/marzban/templates/v2ray/default.json "https://raw.githubusercontent.com/Gozargah/Marzban/master/xray_config.json" > /dev/null 2>&1
-    echo -e "${GREEN}${CHECK}${NC} Subscription JSON template created!"
 }
 
 # Install Marzban script
@@ -1639,8 +1629,6 @@ install_panel() {
     create_xray_config
     echo
     download_subscription_template
-    echo
-    creating_subscription_template
     echo
     install_marzban_script
 
