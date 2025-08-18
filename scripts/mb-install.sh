@@ -2304,7 +2304,6 @@ display_node_completion_info() {
     echo
     display_node_useful_commands
     display_node_next_steps
-    display_node_custom_port_warning
 }
 
 # Display node useful commands
@@ -2322,16 +2321,6 @@ display_node_next_steps() {
     echo -e "${WHITE}2. Fill in the \"Name\" and \"Address\" fields.${NC}"
     echo -e "${WHITE}3. Click \"Update Node\".${NC}"
     echo
-}
-
-# Display custom port warning for node
-display_node_custom_port_warning() {
-    if [ "$NODE_PORT" != "10000" ]; then
-        echo -e "${YELLOW}${WARNING}${NC} You selected a custom port (${WHITE}$NODE_PORT${NC}). On the panel server:"
-        echo -e "${CYAN}${INFO}${NC} 1. Add UFW rule with the new port:"
-        echo -e "${WHITE}ufw allow $NODE_PORT/tcp comment 'VLESS Reality'${NC}"
-        echo -e "${CYAN}${INFO}${NC} 2. Change the port of the new inbound to ${WHITE}$NODE_PORT${NC}."
-    fi
 }
 
 #=================================
