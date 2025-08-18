@@ -876,7 +876,7 @@ V2RAY_SUBSCRIPTION_TEMPLATE="v2ray/default.json"
 # MUX_TEMPLATE="mux/default.json"
 
 ## Enable JSON config for compatible clients to use mux, fragment, etc. Default False.
-USE_CUSTOM_JSON_DEFAULT=True
+# USE_CUSTOM_JSON_DEFAULT=True
 ## Your preferred config type for different clients
 ## If USE_CUSTOM_JSON_DEFAULT is set True, all following programs will use the JSON config
 # USE_CUSTOM_JSON_FOR_V2RAYN=False
