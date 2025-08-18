@@ -760,7 +760,6 @@ services:
     volumes:
       - /var/lib/marzban:/var/lib/marzban
       - /var/lib/marzban/logs:/var/lib/marzban-node
-      - /var/lib/marzban/subscription.py:/code/app/routers/subscription.py
     depends_on:
       mariadb:
         condition: service_healthy
@@ -868,7 +867,7 @@ CUSTOM_TEMPLATES_DIRECTORY="/var/lib/marzban/templates/"
 SUBSCRIPTION_PAGE_TEMPLATE="subscription/index.html"
 # HOME_PAGE_TEMPLATE="home/index.html"
 
-# V2RAY_SUBSCRIPTION_TEMPLATE="v2ray/default.json"
+# V2RAY_SUBSCRIPTION_TEMPLATE="v2ray/custom.json"
 # V2RAY_SETTINGS_TEMPLATE="v2ray/settings.json"
 
 # SINGBOX_SUBSCRIPTION_TEMPLATE="singbox/default.json"
@@ -883,7 +882,7 @@ SUBSCRIPTION_PAGE_TEMPLATE="subscription/index.html"
 # USE_CUSTOM_JSON_FOR_V2RAYN=False
 # USE_CUSTOM_JSON_FOR_V2RAYNG=True
 # USE_CUSTOM_JSON_FOR_STREISAND=False
-# USE_CUSTOM_JSON_FOR_HAPP=False
+# USE_CUSTOM_JSON_FOR_HAPP=True
 
 ## Set headers for subscription
 # SUB_PROFILE_TITLE = "Susbcription"
@@ -1110,14 +1109,6 @@ download_subscription_template() {
     echo -e "${GRAY}  ${ARROW}${NC} Customizing template with panel domain"
     sed -i "s/example\.com/$PANEL_DOMAIN/g" /var/lib/marzban/templates/subscription/index.html
     echo -e "${GREEN}${CHECK}${NC} Custom subscription template configured!"
-}
-
-# Download subscription router
-download_subscription_router() {
-    echo -e "${CYAN}${INFO}${NC} Downloading enhanced subscription router..."
-    echo -e "${GRAY}  ${ARROW}${NC} Downloading enhanced router script"
-    wget -O /var/lib/marzban/subscription.py "https://raw.githubusercontent.com/supermegaelf/mb-files/main/subscription.py" > /dev/null 2>&1
-    echo -e "${GREEN}${CHECK}${NC} Enhanced subscription router downloaded!"
 }
 
 # Install Marzban script
@@ -1638,8 +1629,6 @@ install_panel() {
     create_xray_config
     echo
     download_subscription_template
-    echo
-    download_subscription_router
     echo
     install_marzban_script
 
