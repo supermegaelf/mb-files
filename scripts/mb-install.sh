@@ -1048,7 +1048,7 @@ create_xray_config() {
         "security": "reality",
         "realitySettings": {
           "show": false,
-          "dest": "$SELFSTEAL_DOMAIN:443",
+          "target": "$SELFSTEAL_DOMAIN:443",
           "serverNames": [
             "$PANEL_DOMAIN"
           ],
