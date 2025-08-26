@@ -1047,7 +1047,6 @@ create_xray_config() {
         "network": "raw",
         "security": "reality",
         "realitySettings": {
-          "show": false,
           "target": "$SELFSTEAL_DOMAIN:443",
           "serverNames": [
             "$PANEL_DOMAIN"
@@ -1055,8 +1054,7 @@ create_xray_config() {
           "privateKey": "$PRIVATE_KEY",
           "shortIds": [
             "$SHORT_ID"
-          ],
-          "fingerprint": "chrome"
+          ]
         }
       },
       "sniffing": {
