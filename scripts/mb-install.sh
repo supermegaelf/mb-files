@@ -196,6 +196,7 @@ install_system_packages() {
     configure_timezone
     configure_tcp_bbr
     configure_security_updates
+    configure_dns_resolvers
 }
 
 # Configure locale
@@ -228,6 +229,28 @@ configure_security_updates() {
     echo unattended-upgrades unattended-upgrades/enable_auto_updates boolean true | debconf-set-selections > /dev/null 2>&1
     dpkg-reconfigure -f noninteractive unattended-upgrades > /dev/null 2>&1
     systemctl restart unattended-upgrades > /dev/null 2>&1
+}
+
+# Configure DNS resolvers
+configure_dns_resolvers() {
+    echo -e "${GRAY}  ${ARROW}${NC} Configuring DNS resolvers"
+    
+    # Backup original resolv.conf
+    if [ -f /etc/resolv.conf ] && [ ! -f /etc/resolv.conf.backup ]; then
+        cp /etc/resolv.conf /etc/resolv.conf.backup > /dev/null 2>&1
+    fi
+    
+    # Add reliable DNS servers to the end of the file
+    if ! grep -q "8.8.8.8" /etc/resolv.conf 2>/dev/null; then
+        {
+            echo "nameserver 8.8.8.8"
+            echo "nameserver 8.8.4.4" 
+            echo "nameserver 1.1.1.1"
+        } >> /etc/resolv.conf
+    fi
+    
+    # Protect from being overwritten
+    chattr +i /etc/resolv.conf > /dev/null 2>&1 || true
 }
 
 #==========================
@@ -1762,6 +1785,7 @@ install_node_system_packages() {
     configure_node_timezone
     configure_node_tcp_bbr
     configure_node_security_updates
+    configure_dns_resolvers
 }
 
 # Configure locale for node
@@ -1794,6 +1818,28 @@ configure_node_security_updates() {
     echo unattended-upgrades unattended-upgrades/enable_auto_updates boolean true | debconf-set-selections > /dev/null 2>&1
     dpkg-reconfigure -f noninteractive unattended-upgrades > /dev/null 2>&1
     systemctl restart unattended-upgrades > /dev/null 2>&1
+}
+
+# Configure DNS resolvers for node
+configure_node_dns_resolvers() {
+    echo -e "${GRAY}  ${ARROW}${NC} Configuring DNS resolvers"
+    
+    # Backup original resolv.conf
+    if [ -f /etc/resolv.conf ] && [ ! -f /etc/resolv.conf.backup ]; then
+        cp /etc/resolv.conf /etc/resolv.conf.backup > /dev/null 2>&1
+    fi
+    
+    # Add reliable DNS servers to the end of the file
+    if ! grep -q "8.8.8.8" /etc/resolv.conf 2>/dev/null; then
+        {
+            echo "nameserver 8.8.8.8"
+            echo "nameserver 8.8.4.4" 
+            echo "nameserver 1.1.1.1"
+        } >> /etc/resolv.conf
+    fi
+    
+    # Protect from being overwritten
+    chattr +i /etc/resolv.conf > /dev/null 2>&1 || true
 }
 
 #=========================
