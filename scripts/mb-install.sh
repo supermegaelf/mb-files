@@ -1785,7 +1785,7 @@ install_node_system_packages() {
     configure_node_timezone
     configure_node_tcp_bbr
     configure_node_security_updates
-    configure_dns_resolvers
+    configure_node_dns_resolvers
 }
 
 # Configure locale for node
