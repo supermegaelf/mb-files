@@ -190,7 +190,7 @@ install_system_packages() {
     echo -e "${GRAY}  ${ARROW}${NC} Updating package lists"
     apt-get update > /dev/null 2>&1
     echo -e "${GRAY}  ${ARROW}${NC} Installing essential packages"
-    apt-get -y install jq curl unzip wget python3-certbot-dns-cloudflare nano locales ca-certificates > /dev/null 2>&1
+    apt-get -y install jq curl unzip wget python3-certbot-dns-cloudflare nano locales ca-certificates git > /dev/null 2>&1
 
     configure_locale
     configure_timezone
