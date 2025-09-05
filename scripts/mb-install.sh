@@ -784,6 +784,7 @@ services:
     volumes:
       - /var/lib/marzban:/var/lib/marzban
       - /var/lib/marzban/logs:/var/lib/marzban-node
+      - /var/lib/marzban/subscription.py:/code/app/routers/subscription.py
     depends_on:
       mariadb:
         condition: service_healthy
@@ -1334,6 +1335,21 @@ EOF
     echo -e "${GREEN}${CHECK}${NC} V2Ray custom template created!"
 }
 
+# Download subscription.py script
+download_subscription_script() {
+    echo -e "${CYAN}${INFO}${NC} Downloading subscription.py script..."
+    echo -e "${GRAY}  ${ARROW}${NC} Downloading subscription.py"
+    wget -q https://raw.githubusercontent.com/supermegaelf/mb-files/main/subscription.py -O /var/lib/marzban/subscription.py > /dev/null 2>&1
+    
+    if [ $? -eq 0 ]; then
+        echo -e "${GRAY}  ${ARROW}${NC} Setting executable permissions"
+        chmod +x /var/lib/marzban/subscription.py
+        echo -e "${GREEN}${CHECK}${NC} subscription.py downloaded successfully!"
+    else
+        echo -e "${RED}${CROSS}${NC} Failed to download subscription.py"
+    fi
+}
+
 # Install Marzban script
 install_marzban_script() {
     echo -e "${CYAN}${INFO}${NC} Installing marzban script..."
@@ -1859,6 +1875,8 @@ install_panel() {
     download_subscription_template
     echo
     create_v2ray_template
+    echo
+    download_subscription_script
     echo
     install_marzban_script
 
