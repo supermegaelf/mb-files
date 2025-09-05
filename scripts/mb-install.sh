@@ -190,11 +190,11 @@ install_system_packages() {
     echo -e "${GRAY}  ${ARROW}${NC} Updating package lists"
     apt-get update > /dev/null 2>&1
     echo -e "${GRAY}  ${ARROW}${NC} Installing essential packages"
-    apt-get -y install jq curl unzip wget python3-certbot-dns-cloudflare nano locales ca-certificates git > /dev/null 2>&1
+    apt-get -y install jq curl unzip wget python3-certbot-dns-cloudflare git nano locales ca-certificates cron > /dev/null 2>&1
 
     configure_locale
     configure_timezone
-    configure_tcp_bbr
+    configure_tcp_optimization
     configure_security_updates
     configure_dns_resolvers
 }
@@ -213,11 +213,12 @@ configure_timezone() {
     timedatectl set-timezone Europe/Moscow > /dev/null 2>&1
 }
 
-# Configure TCP BBR
-configure_tcp_bbr() {
-    echo -e "${GRAY}  ${ARROW}${NC} Configuring TCP BBR optimization"
+# Configure TCP optimizations
+configure_tcp_optimization() {
+    echo -e "${GRAY}  ${ARROW}${NC} Configuring TCP optimizations (BBR + Fast Open)"
     echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf 2>/dev/null
     echo "net.ipv4.tcp_congestion_control = bbr" >> /etc/sysctl.conf 2>/dev/null
+    echo "net.ipv4.tcp_fastopen = 3" >> /etc/sysctl.conf 2>/dev/null
     sysctl -p > /dev/null 2>&1
 }
 
@@ -871,7 +872,7 @@ DASHBOARD_PATH = "/$DASHBOARD_PATH/"
 XRAY_JSON = "/var/lib/marzban/xray_config.json"
 XRAY_SUBSCRIPTION_URL_PREFIX = "https://$SUB_DOMAIN"
 # XRAY_SUBSCRIPTION_PATH = "sub"
-XRAY_EXECUTABLE_PATH = "/usr/local/bin/xray"
+XRAY_EXECUTABLE_PATH = "/var/lib/marzban/xray-core/xray"
 # XRAY_ASSETS_PATH = "/usr/local/share/xray"
 # XRAY_EXCLUDE_INBOUND_TAGS = "INBOUND_X INBOUND_Y"
 # XRAY_FALLBACKS_INBOUND_TAG = "INBOUND_X"
@@ -890,7 +891,7 @@ CUSTOM_TEMPLATES_DIRECTORY="/var/lib/marzban/templates/"
 SUBSCRIPTION_PAGE_TEMPLATE="subscription/index.html"
 # HOME_PAGE_TEMPLATE="home/index.html"
 
-# V2RAY_SUBSCRIPTION_TEMPLATE="v2ray/custom.json"
+V2RAY_SUBSCRIPTION_TEMPLATE="v2ray/custom.json"
 # V2RAY_SETTINGS_TEMPLATE="v2ray/settings.json"
 
 # SINGBOX_SUBSCRIPTION_TEMPLATE="singbox/default.json"
@@ -902,10 +903,10 @@ SUBSCRIPTION_PAGE_TEMPLATE="subscription/index.html"
 # USE_CUSTOM_JSON_DEFAULT=True
 ## Your preferred config type for different clients
 ## If USE_CUSTOM_JSON_DEFAULT is set True, all following programs will use the JSON config
-# USE_CUSTOM_JSON_FOR_V2RAYN=False
+# USE_CUSTOM_JSON_FOR_V2RAYN=True
 # USE_CUSTOM_JSON_FOR_V2RAYNG=True
-# USE_CUSTOM_JSON_FOR_STREISAND=False
-# USE_CUSTOM_JSON_FOR_HAPP=True
+# USE_CUSTOM_JSON_FOR_STREISAND=True
+USE_CUSTOM_JSON_FOR_HAPP=True
 
 ## Set headers for subscription
 # SUB_PROFILE_TITLE = "Susbcription"
@@ -991,8 +992,12 @@ secure_configuration_files() {
 
 # Generate VLESS parameters
 generate_vless_parameters() {
-    VLESS_UUID=$(cat /proc/sys/kernel/random/uuid)
-    PRIVATE_KEY=$(openssl genpkey -algorithm X25519 2>/dev/null | openssl pkey -outform DER 2>/dev/null | tail -c +17 | head -c 32 | base64 | tr '/+' '_-' | tr -d '=')
+    local temp_key_file=$(mktemp)
+    openssl genpkey -algorithm X25519 -out "$temp_key_file" 2>/dev/null
+    PRIVATE_KEY=$(openssl pkey -in "$temp_key_file" -outform DER 2>/dev/null | tail -c +17 | head -c 32 | base64 | tr '/+' '_-' | tr -d '=')
+    PUBLIC_KEY=$(openssl pkey -in "$temp_key_file" -pubout -outform DER 2>/dev/null | tail -c 32 | base64 | tr '/+' '_-' | tr -d '=')
+    rm -f "$temp_key_file"
+    
     SHORT_ID=$(openssl rand -hex 4)
 }
 
@@ -1058,16 +1063,11 @@ create_xray_config() {
       "port": 10000,
       "protocol": "vless",
       "settings": {
-        "clients": [
-          {
-            "id": "$VLESS_UUID",
-            "flow": "xtls-rprx-vision"
-          }
-        ],
+        "clients": [],
         "decryption": "none"
       },
       "streamSettings": {
-        "network": "raw",
+        "network": "tcp",
         "security": "reality",
         "realitySettings": {
           "target": "$SELFSTEAL_DOMAIN:443",
@@ -1075,6 +1075,7 @@ create_xray_config() {
             "$PANEL_DOMAIN"
           ],
           "privateKey": "$PRIVATE_KEY",
+          "publicKey": "$PUBLIC_KEY",
           "shortIds": [
             "$SHORT_ID"
           ]
@@ -1132,6 +1133,207 @@ download_subscription_template() {
     echo -e "${GREEN}${CHECK}${NC} Custom subscription template configured!"
 }
 
+# Create V2Ray custom template
+create_v2ray_template() {
+    echo -e "${CYAN}${INFO}${NC} Creating V2Ray custom template..."
+    echo -e "${GRAY}  ${ARROW}${NC} Creating V2Ray template directory"
+    mkdir -p /var/lib/marzban/templates/v2ray
+    
+    echo -e "${GRAY}  ${ARROW}${NC} Creating custom.json template"
+    cat > /var/lib/marzban/templates/v2ray/custom.json << 'EOF'
+{
+    "log": {
+        "access": "",
+        "error": "",
+        "loglevel": "warning",
+        "dnsLog": false,
+        "maskAddress": "half"
+    },
+    "dns": {
+        "servers": [
+            "1.1.1.1",
+            "8.8.8.8",
+            "localhost"
+        ],
+        "queryStrategy": "UseIPv4",
+        "disableCache": true,
+        "tag": "dns"
+    },
+    "api": {
+        "listen": "127.0.0.1:10085",
+        "services": [
+            "HandlerService",
+            "StatsService"
+        ],
+        "tag": "api"
+    },
+    "policy": {
+        "levels": {
+            "0": {
+                "connIdle": 30,
+                "statsUserDownlink": true,
+                "statsUserUplink": true
+            }
+        },
+        "system": {
+            "statsInboundUplink": true,
+            "statsInboundDownlink": true,
+            "statsOutboundUplink": true,
+            "statsOutboundDownlink": true
+        }
+    },
+    "inbounds": [
+        {
+            "tag": "socks",
+            "port": 10808,
+            "listen": "127.0.0.1",
+            "protocol": "socks",
+            "sniffing": {
+                "enabled": true,
+                "destOverride": [
+                  "http",
+                  "tls",
+                  "quic"
+                ],
+                "routeOnly": true
+            },
+            "settings": {
+                "auth": "noauth",
+                "udp": true,
+                "userLevel": 0
+            }
+        },
+        {
+            "tag": "http", 
+            "port": 10809,
+            "listen": "127.0.0.1",
+            "protocol": "http",
+            "sniffing": {
+                "enabled": true,
+                "destOverride": [
+                  "http",
+                  "tls",
+                  "quic"
+                ],
+                "routeOnly": true
+            },
+            "settings": {
+                "userLevel": 0
+            }
+        }
+    ],
+    "outbounds": [
+        {
+            "tag": "direct",
+            "protocol": "freedom",
+            "settings": {}
+        },
+        {
+            "tag": "block",
+            "protocol": "blackhole",
+            "settings": {}
+        }
+    ],
+    "routing": {
+        "domainStrategy": "IPIfNonMatch",
+        "rules": [
+            {
+                "type": "field",
+                "domain": [
+                    "geosite:private"
+                ],
+                "outboundTag": "direct",
+                "ruleTag": "private-direct"
+            },
+            {
+                "type": "field",
+                "ip": [
+                    "91.108.56.0/22",
+                    "91.108.4.0/22",
+                    "91.108.8.0/22",
+                    "91.108.16.0/22",
+                    "91.108.12.0/22",
+                    "149.154.160.0/20",
+                    "91.105.192.0/23",
+                    "91.108.20.0/22",
+                    "185.76.151.0/24"
+                ],
+                "network": "tcp,udp",
+                "port": "1400,596,597,598,599",
+                "outboundTag": "proxy",
+                "ruleTag": "stun-tg"
+            },
+            {
+                "type": "field",
+                "port": "3478,5349",
+                "network": "tcp,udp",
+                "ruleTag": "stun-wp",
+                "outboundTag": "proxy"
+            },
+            {
+                "type": "field",
+                "network": "udp",
+                "port": "443",
+                "outboundTag": "block",
+                "roleTag": "quic-block"
+            },
+            {
+                "type": "field",
+                "domain": [
+                    "domain:2ip.ru",
+                    "domain:anixart-app.com",
+                    "domain:app.nexus.xyz",
+                    "domain:canva.com",
+                    "domain:deepl.com",
+                    "domain:farcaster.xyz",
+                    "domain:grok.com",
+                    "domain:medium.com",
+                    "domain:nexus.xyz",
+                    "domain:seasonvar.ru",
+                    "domain:vsco.co",
+                    "domain:x.ai",
+                    "domain:xnxx.com",
+                    "domain:xv-ru.com",
+                    "domain:xvideos.com",
+                    "geosite:anthropic",
+                    "geosite:discord",
+                    "geosite:google-gemini",
+                    "geosite:meta",
+                    "geosite:netflix",
+                    "geosite:notion",
+                    "geosite:openai",
+                    "geosite:perplexity",
+                    "geosite:pornhub",
+                    "geosite:tiktok",
+                    "geosite:twitch",
+                    "geosite:twitter",
+                    "geosite:youtube"
+                ],
+                "outboundTag": "proxy",
+                "ruleTag": "proxy-sites"
+            },
+            {
+                "type": "field",
+                "network": "udp",
+                "port": "50000-50100",
+                "outboundTag": "proxy",
+                "ruleTag": "udp-discord"
+            },
+            {
+                "type": "field",
+                "network": "tcp,udp",
+                "outboundTag": "direct",
+                "ruleTag": "catch-all-direct"
+            }
+        ]
+    },
+    "stats": {}
+}
+EOF
+    
+    echo -e "${GREEN}${CHECK}${NC} V2Ray custom template created!"
+}
+
 # Install Marzban script
 install_marzban_script() {
     echo -e "${CYAN}${INFO}${NC} Installing marzban script..."
@@ -1165,26 +1367,30 @@ setup_xray_temp_directory() {
 
 # Download Xray-core
 download_xray_core() {
-    echo -e "${GRAY}  ${ARROW}${NC} Fetching latest version information"
-    local LAST_XRAY_CORES=10
-    local latest_releases=$(curl -s "https://api.github.com/repos/XTLS/Xray-core/releases?per_page=$LAST_XRAY_CORES")
-    local latest_version=$(echo "$latest_releases" | grep -oP '"tag_name": "\K(.*?)(?=")' | head -n 1)
-
+    echo -e "${GRAY}  ${ARROW}${NC} Downloading Xray-core version v25.9.5"
+    local latest_version="v25.9.5"
     local xray_filename="Xray-linux-$ARCH.zip"
     local xray_download_url="https://github.com/XTLS/Xray-core/releases/download/${latest_version}/${xray_filename}"
 
-    echo -e "${GRAY}  ${ARROW}${NC} Downloading Xray-core version ${latest_version}"
     wget -q -O "${xray_filename}" "${xray_download_url}"
+    
+    if [ ! -f "${xray_filename}" ] || [ ! -s "${xray_filename}" ]; then
+        echo -e "${RED}${CROSS}${NC} Failed to download Xray-core"
+        exit 1
+    fi
 }
 
 # Extract and install Xray
 extract_and_install_xray() {
+    echo -e "${GRAY}  ${ARROW}${NC} Creating Xray directory"
+    mkdir -p /var/lib/marzban/xray-core
+    
     echo -e "${GRAY}  ${ARROW}${NC} Extracting Xray-core archive"
     unzip -o "Xray-linux-$ARCH.zip" >/dev/null 2>&1
 
-    echo -e "${GRAY}  ${ARROW}${NC} Installing to /usr/local/bin/"
-    cp xray /usr/local/bin/
-    chmod +x /usr/local/bin/xray
+    echo -e "${GRAY}  ${ARROW}${NC} Installing to /var/lib/marzban/xray-core/"
+    cp * /var/lib/marzban/xray-core/
+    chmod +x /var/lib/marzban/xray-core/xray
 }
 
 # Cleanup Xray temporary files
@@ -1388,6 +1594,7 @@ authenticate_with_api() {
 
 # Try localhost authentication
 try_localhost_auth() {
+    sleep 5
     local TOKEN_RESPONSE=$(curl -s -X POST "http://localhost:8000/api/admin/token" \
       -H "Content-Type: application/x-www-form-urlencoded" \
       -d "username=admin&password=$ADMIN_PASSWORD")
@@ -1651,6 +1858,8 @@ install_panel() {
     echo
     download_subscription_template
     echo
+    create_v2ray_template
+    echo
     install_marzban_script
 
     echo
@@ -1779,11 +1988,11 @@ install_node_system_packages() {
     echo -e "${GRAY}  ${ARROW}${NC} Updating package lists"
     apt-get update > /dev/null 2>&1
     echo -e "${GRAY}  ${ARROW}${NC} Installing essential packages"
-    apt-get -y install jq curl unzip wget python3-certbot-dns-cloudflare git nano locales ca-certificates > /dev/null 2>&1
+    apt-get -y install jq curl unzip wget python3-certbot-dns-cloudflare git nano locales ca-certificates cron > /dev/null 2>&1
 
     configure_node_locale
     configure_node_timezone
-    configure_node_tcp_bbr
+    configure_node_tcp_optimization
     configure_node_security_updates
     configure_node_dns_resolvers
 }
@@ -1802,11 +2011,12 @@ configure_node_timezone() {
     timedatectl set-timezone Europe/Moscow > /dev/null 2>&1
 }
 
-# Configure TCP BBR for node
-configure_node_tcp_bbr() {
-    echo -e "${GRAY}  ${ARROW}${NC} Configuring TCP BBR optimization"
+# Configure TCP optimizations for node
+configure_node_tcp_optimization() {
+    echo -e "${GRAY}  ${ARROW}${NC} Configuring TCP optimizations (BBR + Fast Open)"
     echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf 2>/dev/null
     echo "net.ipv4.tcp_congestion_control = bbr" >> /etc/sysctl.conf 2>/dev/null
+    echo "net.ipv4.tcp_fastopen = 3" >> /etc/sysctl.conf 2>/dev/null
     sysctl -p > /dev/null 2>&1
 }
 
@@ -1840,6 +2050,28 @@ configure_node_dns_resolvers() {
     
     # Protect from being overwritten
     chattr +i /etc/resolv.conf > /dev/null 2>&1 || true
+}
+
+#========================================
+# NODE ARCHITECTURE DETECTION FUNCTIONS
+#========================================
+
+# Detect architecture for node
+detect_node_architecture() {
+    case "$(uname -m)" in
+        'amd64' | 'x86_64')
+            ARCH='64'
+            ;;
+        'aarch64')
+            ARCH='arm64-v8a'
+            ;;
+        *)
+            echo -e "${RED}${CROSS}${NC} Unsupported architecture: $(uname -m)."
+            echo
+            echo -e "${RED}${CROSS}${NC} Supported: x86_64, aarch64."
+            exit 1
+            ;;
+    esac
 }
 
 #=========================
@@ -2246,6 +2478,7 @@ services:
     environment:
       SSL_CLIENT_CERT_FILE: "/var/lib/marzban-node/ssl_client_cert.pem"
       SERVICE_PROTOCOL: rest
+      XRAY_EXECUTABLE_PATH: "/var/lib/marzban/xray-core/xray"
 EOF
 
     echo -e "${GREEN}${CHECK}${NC} docker-compose.yml created!"
@@ -2287,6 +2520,62 @@ EOF
     echo -e "${GRAY}  ${ARROW}${NC} Running logrotate"
     logrotate -f /etc/logrotate.conf > /dev/null 2>&1
     echo -e "${GREEN}${CHECK}${NC} Log rotation configured!"
+}
+
+#=======================================
+# NODE XRAY-CORE INSTALLATION FUNCTIONS
+#=======================================
+
+# Install Xray-core for node
+install_node_xray_core() {
+    echo -e "${CYAN}${INFO}${NC} Preparing Xray-core installation..."
+    setup_node_xray_temp_directory
+    download_node_xray_core
+    extract_and_install_node_xray
+    cleanup_node_xray_temp
+    echo -e "${GREEN}${CHECK}${NC} Xray-core installed successfully!"
+}
+
+# Setup Xray temporary directory for node
+setup_node_xray_temp_directory() {
+    echo -e "${GRAY}  ${ARROW}${NC} Creating temporary directory"
+    mkdir -p /tmp/xray-install
+    cd /tmp/xray-install
+}
+
+# Download Xray-core for node
+download_node_xray_core() {
+    echo -e "${GRAY}  ${ARROW}${NC} Downloading Xray-core version v25.9.5"
+    local latest_version="v25.9.5"
+    local xray_filename="Xray-linux-$ARCH.zip"
+    local xray_download_url="https://github.com/XTLS/Xray-core/releases/download/${latest_version}/${xray_filename}"
+
+    wget -q -O "${xray_filename}" "${xray_download_url}"
+    
+    if [ ! -f "${xray_filename}" ] || [ ! -s "${xray_filename}" ]; then
+        echo -e "${RED}${CROSS}${NC} Failed to download Xray-core"
+        exit 1
+    fi
+}
+
+# Extract and install Xray for node
+extract_and_install_node_xray() {
+    echo -e "${GRAY}  ${ARROW}${NC} Creating Xray directory"
+    mkdir -p /var/lib/marzban/xray-core
+    
+    echo -e "${GRAY}  ${ARROW}${NC} Extracting Xray-core archive"
+    unzip -o "Xray-linux-$ARCH.zip" >/dev/null 2>&1
+
+    echo -e "${GRAY}  ${ARROW}${NC} Installing to /var/lib/marzban/xray-core/"
+    cp * /var/lib/marzban/xray-core/
+    chmod +x /var/lib/marzban/xray-core/xray
+}
+
+# Cleanup Xray temporary files for node
+cleanup_node_xray_temp() {
+    echo -e "${GRAY}  ${ARROW}${NC} Cleaning up temporary files"
+    cd /
+    rm -rf /tmp/xray-install
 }
 
 #==================================
@@ -2463,6 +2752,15 @@ install_node() {
     create_node_ssl_certificate_file
     echo
     configure_node_log_rotation
+
+    echo
+    echo -e "${GREEN}Downloading and installing Xray-core${NC}"
+    echo -e "${GREEN}====================================${NC}"
+    echo
+
+    # Install Xray-core
+    detect_node_architecture
+    install_node_xray_core
 
     echo
     echo -e "${GREEN}Starting Docker containers${NC}"
