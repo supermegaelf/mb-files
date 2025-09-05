@@ -784,6 +784,7 @@ services:
     volumes:
       - /var/lib/marzban:/var/lib/marzban
       - /var/lib/marzban/logs:/var/lib/marzban-node
+      - /var/lib/marzban/subscription.py:/code/app/routers/subscription.py
     depends_on:
       mariadb:
         condition: service_healthy
