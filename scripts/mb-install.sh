@@ -1407,6 +1407,7 @@ extract_and_install_xray() {
     echo -e "${GRAY}  ${ARROW}${NC} Installing to /var/lib/marzban/xray-core/"
     cp * /var/lib/marzban/xray-core/
     chmod +x /var/lib/marzban/xray-core/xray
+    rm -f "Xray-linux-$ARCH.zip"
 }
 
 # Cleanup Xray temporary files
@@ -2587,6 +2588,7 @@ extract_and_install_node_xray() {
     echo -e "${GRAY}  ${ARROW}${NC} Installing to /var/lib/marzban/xray-core/"
     cp * /var/lib/marzban/xray-core/
     chmod +x /var/lib/marzban/xray-core/xray
+    rm -f "Xray-linux-$ARCH.zip"
 }
 
 # Cleanup Xray temporary files for node
