@@ -2041,6 +2041,51 @@ input_node_port() {
     done
 }
 
+# Generate node configuration variables
+generate_node_configuration() {
+    echo -e "${CYAN}${INFO}${NC} Generating node configuration variables..."
+    
+    # Base domain extraction
+    echo -e "${GRAY}  ${ARROW}${NC} Processing selfsteal domain"
+    BASE_DOMAIN=$(echo "$SELFSTEAL_DOMAIN" | awk -F'.' '{if (NF > 2) {print $(NF-1)"."$NF} else {print $0}}')
+    
+    # Path generation  
+    echo -e "${GRAY}  ${ARROW}${NC} Generating random path"
+    PATH_SECRET=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 15)
+    
+    echo -e "${GREEN}${CHECK}${NC} Node configuration variables generated!"
+}
+
+# Save node variables to file
+save_node_variables_to_file() {
+    echo -e "${CYAN}${INFO}${NC} Saving node configuration variables..."
+    echo -e "${GRAY}  ${ARROW}${NC} Creating variables file"
+    cat > marzban-node-vars.sh << EOF
+# User provided domains and credentials
+export SELFSTEAL_DOMAIN="$SELFSTEAL_DOMAIN"
+export CLOUDFLARE_API_KEY="$CLOUDFLARE_API_KEY"
+export CLOUDFLARE_EMAIL="$CLOUDFLARE_EMAIL"
+export MAIN_PUBLIC_IP="$MAIN_PUBLIC_IP"
+export NODE_PORT="$NODE_PORT"
+
+# Generated variables
+export BASE_DOMAIN="$BASE_DOMAIN"
+export PATH_SECRET="$PATH_SECRET"
+EOF
+    
+    echo -e "${GRAY}  ${ARROW}${NC} Loading environment variables"
+    source marzban-node-vars.sh
+    echo -e "${GREEN}${CHECK}${NC} Variables saved to marzban-node-vars.sh!"
+}
+
+# Move node variables file
+move_node_variables_file() {
+    echo -e "${CYAN}${INFO}${NC} Moving node configuration files..."
+    echo -e "${GRAY}  ${ARROW}${NC} Moving variables file to project directory"
+    mv /root/marzban-node-vars.sh "$APP_DIR/"
+    echo -e "${GREEN}${CHECK}${NC} Node configuration files moved!"
+}
+
 #====================================
 # NODE SYSTEM INSTALLATION FUNCTIONS
 #====================================
@@ -2741,6 +2786,13 @@ install_node() {
     input_node_cloudflare_api_key
     input_node_main_public_ip
     input_node_port
+    echo
+    echo -e "${GREEN}Environment variables${NC}"
+    echo -e "${GREEN}=====================${NC}"
+    echo
+    generate_node_configuration
+    echo
+    save_node_variables_to_file
 
     echo
     echo -e "${GREEN}Installing packages${NC}"
@@ -2810,6 +2862,7 @@ install_node() {
 
     # Create configuration files
     create_node_docker_compose
+    move_node_variables_file
     create_node_ssl_certificate_file
     echo
     configure_node_log_rotation
