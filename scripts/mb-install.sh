@@ -180,6 +180,95 @@ input_node_public_ip() {
     done
 }
 
+# Generate configuration variables
+generate_configuration() {
+    echo -e "${CYAN}${INFO}${NC} Generating all configuration variables..."
+    
+    # Dashboard path
+    echo -e "${GRAY}  ${ARROW}${NC} Creating dashboard path"
+    DASHBOARD_PATH=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 10)
+    
+    # Secure credentials  
+    echo -e "${GRAY}  ${ARROW}${NC} Creating admin credentials"
+    ADMIN_USERNAME="admin"
+    ADMIN_PASSWORD=$(tr -dc 'A-Za-z0-9!@#%^&*()' </dev/urandom | head -c 16)
+    
+    # Database passwords
+    echo -e "${GRAY}  ${ARROW}${NC} Generating database credentials"
+    MYSQL_ROOT_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
+    MYSQL_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
+    WEBHOOK_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)
+    
+    # Base domains
+    echo -e "${GRAY}  ${ARROW}${NC} Processing domains"
+    PANEL_BASE_DOMAIN=$(echo "$PANEL_DOMAIN" | awk -F'.' '{if (NF > 2) {print $(NF-1)"."$NF} else {print $0}}')
+    SUB_BASE_DOMAIN=$(echo "$SUB_DOMAIN" | awk -F'.' '{if (NF > 2) {print $(NF-1)"."$NF} else {print $0}}')
+    
+    # VLESS Reality keys
+    echo -e "${GRAY}  ${ARROW}${NC} Generating VLESS Reality keys"
+    local temp_key_file=$(mktemp)
+    openssl genpkey -algorithm X25519 -out "$temp_key_file" 2>/dev/null
+    PRIVATE_KEY=$(openssl pkey -in "$temp_key_file" -outform DER 2>/dev/null | tail -c +17 | head -c 32 | base64 | tr '/+' '_-' | tr -d '=')
+    PUBLIC_KEY=$(openssl pkey -in "$temp_key_file" -pubout -outform DER 2>/dev/null | tail -c 32 | base64 | tr '/+' '_-' | tr -d '=')
+    rm -f "$temp_key_file"
+    SHORT_ID=$(openssl rand -hex 4)
+    
+    # Path
+    echo -e "${GRAY}  ${ARROW}${NC} Generating random path"
+    PATH_SECRET=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 15)
+    
+    echo -e "${GREEN}${CHECK}${NC} All configuration variables generated!"
+}
+
+# Save variables to file
+save_variables_to_file() {
+    echo -e "${CYAN}${INFO}${NC} Saving configuration variables..."
+    echo -e "${GRAY}  ${ARROW}${NC} Creating variables file"
+    cat > marzban-vars.sh << EOF
+# User provided domains and credentials
+export PANEL_DOMAIN="$PANEL_DOMAIN"
+export SUB_DOMAIN="$SUB_DOMAIN"
+export SELFSTEAL_DOMAIN="$SELFSTEAL_DOMAIN"
+export CLOUDFLARE_API_KEY="$CLOUDFLARE_API_KEY"
+export CLOUDFLARE_EMAIL="$CLOUDFLARE_EMAIL"
+export NODE_PUBLIC_IP="$NODE_PUBLIC_IP"
+
+# Auto-generated admin credentials
+export ADMIN_USERNAME="$ADMIN_USERNAME"
+export ADMIN_PASSWORD="$ADMIN_PASSWORD"
+export DASHBOARD_PATH="$DASHBOARD_PATH"
+
+# Database credentials
+export MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD"
+export MYSQL_PASSWORD="$MYSQL_PASSWORD"
+export WEBHOOK_SECRET="$WEBHOOK_SECRET"
+
+# VLESS Reality keys
+export PRIVATE_KEY="$PRIVATE_KEY"
+export PUBLIC_KEY="$PUBLIC_KEY"
+export SHORT_ID="$SHORT_ID"
+
+# Path
+export PATH_SECRET="$PATH_SECRET"
+
+# SSL certificate domains
+export PANEL_BASE_DOMAIN="$PANEL_BASE_DOMAIN"
+export SUB_BASE_DOMAIN="$SUB_BASE_DOMAIN"
+EOF
+    
+    echo -e "${GRAY}  ${ARROW}${NC} Loading environment variables"
+    source marzban-vars.sh
+    echo -e "${GREEN}${CHECK}${NC} Variables saved to marzban-vars.sh!"
+}
+
+# Move variables file
+move_variables_file() {
+    echo -e "${CYAN}${INFO}${NC} Moving configuration files..."
+    echo -e "${GRAY}  ${ARROW}${NC} Moving variables file to project directory"
+    mv /root/marzban-vars.sh "$APP_DIR/"
+    echo -e "${GREEN}${CHECK}${NC} Configuration files moved!"
+}
+
 #=====================================
 # PANEL SYSTEM INSTALLATION FUNCTIONS
 #=====================================
@@ -832,26 +921,9 @@ EOF
     echo
 }
 
-# Generate secure passwords
-generate_secure_passwords() {
-    MYSQL_ROOT_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
-    MYSQL_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20)
-    WEBHOOK_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)
-    ADMIN_USERNAME="admin"
-    ADMIN_PASSWORD=$(tr -dc 'A-Za-z0-9!@#%^&*()' </dev/urandom | head -c 16)
-}
-
-# Generate random dashboard path
-generate_dashboard_path() {
-    DASHBOARD_PATH=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 10)
-}
-
 # Create environment file
 create_env_file() {
     echo -e "${CYAN}${INFO}${NC} Creating .env configuration file..."
-    echo -e "${GRAY}  ${ARROW}${NC} Generating secure random values"
-    generate_secure_passwords
-
     echo -e "${GRAY}  ${ARROW}${NC} Creating environment configuration"
     cat > "$APP_DIR/.env" << EOF
 UVICORN_HOST = "0.0.0.0"
@@ -991,23 +1063,9 @@ secure_configuration_files() {
 # PANEL XRAY CONFIGURATION FUNCTIONS
 #====================================
 
-# Generate VLESS parameters
-generate_vless_parameters() {
-    local temp_key_file=$(mktemp)
-    openssl genpkey -algorithm X25519 -out "$temp_key_file" 2>/dev/null
-    PRIVATE_KEY=$(openssl pkey -in "$temp_key_file" -outform DER 2>/dev/null | tail -c +17 | head -c 32 | base64 | tr '/+' '_-' | tr -d '=')
-    PUBLIC_KEY=$(openssl pkey -in "$temp_key_file" -pubout -outform DER 2>/dev/null | tail -c 32 | base64 | tr '/+' '_-' | tr -d '=')
-    rm -f "$temp_key_file"
-    
-    SHORT_ID=$(openssl rand -hex 4)
-}
-
 # Create Xray config
 create_xray_config() {
     echo -e "${CYAN}${INFO}${NC} Creating custom xray config file..."
-    echo -e "${GRAY}  ${ARROW}${NC} Generating VLESS Reality parameters"
-    generate_vless_parameters
-
     echo -e "${GRAY}  ${ARROW}${NC} Creating xray configuration"
     cat > "$DATA_DIR/xray_config.json" << EOF
 {
@@ -1718,7 +1776,6 @@ display_completion_info() {
     echo
     display_dashboard_info
     display_admin_credentials
-    display_useful_commands
     display_next_steps
 }
 
@@ -1735,18 +1792,8 @@ display_admin_credentials() {
     echo -e "${WHITE}Username: $ADMIN_USERNAME${NC}"
     echo -e "${WHITE}Password: $ADMIN_PASSWORD_DISPLAY${NC}"
     echo
-    echo -e "${CYAN}Database Credentials:${NC}"
-    echo -e "${WHITE}MySQL ROOT Password: $MYSQL_ROOT_PASSWORD${NC}"
-    echo -e "${WHITE}MySQL Password: $MYSQL_PASSWORD${NC}"
-    echo
-}
-
-# Display useful commands
-display_useful_commands() {
-    echo -e "${CYAN}Useful Commands:${NC}"
-    echo -e "${WHITE}• Check logs: marzban logs${NC}"
-    echo -e "${WHITE}• Restart service: marzban restart${NC}"
-    echo -e "${WHITE}• Update system: marzban update${NC}"
+    echo -e "${CYAN}Configuration File:${NC}"
+    echo -e "${WHITE}Variables saved to: $APP_DIR/marzban-vars.sh${NC}"
     echo
 }
 
@@ -1776,9 +1823,6 @@ install_panel() {
     echo -e "${WHITE}Panel Installation${NC}"
     echo -e "${PURPLE}===================${NC}"
     echo
-    echo -e "${GREEN}Environment variables${NC}"
-    echo -e "${GREEN}=====================${NC}"
-    echo
 
     # Collect environment variables
     input_panel_domain
@@ -1788,8 +1832,14 @@ install_panel() {
     input_cloudflare_api_key
     input_node_public_ip
 
-    # Generate dashboard path
-    generate_dashboard_path
+    # Generate configuration
+    echo
+    echo -e "${GREEN}Environment variables${NC}"
+    echo -e "${GREEN}=====================${NC}"
+    echo
+    generate_configuration
+    echo
+    save_variables_to_file
 
     echo
     echo -e "${GREEN}Installing packages${NC}"
@@ -1866,6 +1916,7 @@ install_panel() {
 
     # Create configuration files
     create_docker_compose_file
+    move_variables_file
     create_env_file
     echo
     secure_configuration_files
@@ -2689,9 +2740,6 @@ install_node() {
     echo -e "${PURPLE}==================${NC}"
     echo -e "${WHITE}Node Installation${NC}"
     echo -e "${PURPLE}==================${NC}"
-    echo
-    echo -e "${GREEN}Environment variables${NC}"
-    echo -e "${GREEN}=====================${NC}"
     echo
 
     # Collect environment variables
