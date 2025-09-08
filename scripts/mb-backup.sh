@@ -224,28 +224,75 @@ create_archive() {
     echo -e "${GREEN}================${NC}"
     echo
 
-    echo -e "${CYAN}${INFO}${NC} Building backup archive..."
-    echo -e "${GRAY}  ${ARROW}${NC} Compressing configuration files"
+    echo -e "${CYAN}${INFO}${NC} Building selective backup archive..."
+    echo -e "${GRAY}  ${ARROW}${NC} Adding configuration files"
     echo -e "${GRAY}  ${ARROW}${NC} Adding database backups"
-    echo -e "${GRAY}  ${ARROW}${NC} Finalizing archive structure"
+    echo -e "${GRAY}  ${ARROW}${NC} Adding templates directory"
 
-    tar --exclude='/var/lib/marzban/mysql/*' \
-        --exclude='/var/lib/marzban/logs/*' \
-        --exclude='/var/lib/marzban/access.log*' \
-        --exclude='/var/lib/marzban/error.log*' \
-        --exclude='/var/lib/marzban/xray-core/*' \
-        -cf "$TEMP_DIR/backup-marzban.tar" \
-        -C / \
-        /opt/marzban/.env \
-        /opt/marzban/ \
-        /var/lib/marzban/ \
-        $([ -f /root/marzban-shop/.env ] && echo "/root/marzban-shop/.env") > /dev/null 2>&1
+    # Creating a list of files for backup
+    BACKUP_ITEMS=""
+    
+    # Required configuration files
+    if [ -f /opt/marzban/.env ]; then
+        BACKUP_ITEMS="$BACKUP_ITEMS /opt/marzban/.env"
+        echo -e "${GRAY}    ✓ Marzban config found${NC}"
+    else
+        echo -e "${YELLOW}    ! Marzban .env not found${NC}"
+    fi
+    
+    if [ -f /opt/marzban/docker-compose.yml ]; then
+        BACKUP_ITEMS="$BACKUP_ITEMS /opt/marzban/docker-compose.yml"
+        echo -e "${GRAY}    ✓ Docker compose found${NC}"
+    else
+        echo -e "${YELLOW}    ! Docker compose not found${NC}"
+    fi
+    
+    # Shop configuration and data
+    if [ -f /root/marzban-shop/.env ]; then
+        BACKUP_ITEMS="$BACKUP_ITEMS /root/marzban-shop/.env"
+        echo -e "${GRAY}    ✓ Shop config found${NC}"
+    else
+        echo -e "${YELLOW}    ! Shop .env not found${NC}"
+    fi
+    
+    if [ -f /root/marzban-shop/goods.json ]; then
+        BACKUP_ITEMS="$BACKUP_ITEMS /root/marzban-shop/goods.json"
+        echo -e "${GRAY}    ✓ Shop goods found${NC}"
+    else
+        echo -e "${YELLOW}    ! Shop goods.json not found${NC}"
+    fi
+    
+    # Templates
+    if [ -d /var/lib/marzban/templates ]; then
+        BACKUP_ITEMS="$BACKUP_ITEMS /var/lib/marzban/templates"
+        echo -e "${GRAY}    ✓ Templates directory found${NC}"
+    else
+        echo -e "${YELLOW}    ! Templates directory not found${NC}"
+    fi
+    
+    # Database dumps (created earlier in the script)
+    if [ -d /var/lib/marzban/mysql/db-backup ] && [ "$(ls -A /var/lib/marzban/mysql/db-backup 2>/dev/null)" ]; then
+        BACKUP_ITEMS="$BACKUP_ITEMS /var/lib/marzban/mysql/db-backup"
+        echo -e "${GRAY}    ✓ Database backups found${NC}"
+    else
+        echo -e "${YELLOW}    ! Database backups not found${NC}"
+    fi
 
-    tar -rf "$TEMP_DIR/backup-marzban.tar" -C / /var/lib/marzban/mysql/db-backup/* > /dev/null 2>&1
-
-    gzip "$TEMP_DIR/backup-marzban.tar"
-
-    echo -e "${GREEN}${CHECK}${NC} Backup archive created successfully!"
+    # Create an archive containing only the necessary files
+    if [ -n "$BACKUP_ITEMS" ]; then
+        tar -czf "$BACKUP_FILE" -C / $BACKUP_ITEMS > /dev/null 2>&1
+        
+        if [ $? -eq 0 ]; then
+            BACKUP_SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
+            echo -e "${GREEN}${CHECK}${NC} Selective backup created successfully! (Size: $BACKUP_SIZE)"
+        else
+            echo -e "${RED}${CROSS}${NC} Failed to create backup archive"
+            exit 1
+        fi
+    else
+        echo -e "${RED}${CROSS}${NC} No files found for backup"
+        exit 1
+    fi
 }
 
 send_to_telegram() {
