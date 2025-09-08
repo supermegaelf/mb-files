@@ -213,10 +213,6 @@ generate_configuration() {
     rm -f "$temp_key_file"
     SHORT_ID=$(openssl rand -hex 4)
     
-    # Path
-    echo -e "${GRAY}  ${ARROW}${NC} Generating random path"
-    PATH_SECRET=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 15)
-    
     echo -e "${GREEN}${CHECK}${NC} All configuration variables generated!"
 }
 
@@ -247,9 +243,6 @@ export WEBHOOK_SECRET="$WEBHOOK_SECRET"
 export PRIVATE_KEY="$PRIVATE_KEY"
 export PUBLIC_KEY="$PUBLIC_KEY"
 export SHORT_ID="$SHORT_ID"
-
-# Path
-export PATH_SECRET="$PATH_SECRET"
 
 # SSL certificate domains
 export PANEL_BASE_DOMAIN="$PANEL_BASE_DOMAIN"
