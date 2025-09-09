@@ -25,8 +25,6 @@ readonly ARROW="→"
 # Global variables
 MYSQL_USER=""
 MYSQL_PASSWORD=""
-SHOP_BOT_MYSQL_USER=""
-SHOP_BOT_MYSQL_PASSWORD=""
 TG_BOT_TOKEN=""
 TG_CHAT_ID=""
 
@@ -42,17 +40,11 @@ configure_backup() {
     echo
 
     if [ -z "$MYSQL_USER" ] || [ -z "$MYSQL_PASSWORD" ] || [ -z "$TG_BOT_TOKEN" ] || [ -z "$TG_CHAT_ID" ]; then
-        echo -ne "${CYAN}Marzban MySQL username (default is marzban, press Enter to use it): ${NC}"
+        echo -ne "${CYAN}MySQL username (default is marzban, press Enter to use default): ${NC}"
         read MYSQL_USER
         MYSQL_USER=${MYSQL_USER:-marzban}
-        echo -ne "${CYAN}Marzban MySQL password: ${NC}"
+        echo -ne "${CYAN}MySQL password: ${NC}"
         read MYSQL_PASSWORD
-
-        echo -ne "${CYAN}Bot MySQL username (default is marzban, press Enter to use it): ${NC}"
-        read SHOP_BOT_MYSQL_USER
-        SHOP_BOT_MYSQL_USER=${SHOP_BOT_MYSQL_USER:-marzban}
-        echo -ne "${CYAN}Bot MySQL password: ${NC}"
-        read SHOP_BOT_MYSQL_PASSWORD
 
         echo -ne "${CYAN}Telegram Bot Token: ${NC}"
         read TG_BOT_TOKEN
@@ -61,15 +53,11 @@ configure_backup() {
         echo
 
         if [ -z "$MYSQL_USER" ]; then
-            echo -e "${RED}${CROSS}${NC} Marzban MySQL username cannot be empty"
+            echo -e "${RED}${CROSS}${NC} MySQL username cannot be empty"
             exit 1
         fi
         if [ -z "$MYSQL_PASSWORD" ]; then
-            echo -e "${RED}${CROSS}${NC} Marzban MySQL password cannot be empty"
-            exit 1
-        fi
-        if [ -z "$SHOP_BOT_MYSQL_PASSWORD" ]; then
-            echo -e "${RED}${CROSS}${NC} Bot MySQL password cannot be empty"
+            echo -e "${RED}${CROSS}${NC} MySQL password cannot be empty"
             exit 1
         fi
         if [[ ! "$TG_BOT_TOKEN" =~ ^[0-9]+:[A-Za-z0-9_-]+$ ]]; then
@@ -88,12 +76,10 @@ configure_backup() {
 
         sed -i "s/MYSQL_USER=\"\"/MYSQL_USER=\"$MYSQL_USER\"/" "$0"
         sed -i "s/MYSQL_PASSWORD=\"\"/MYSQL_PASSWORD=\"$MYSQL_PASSWORD\"/" "$0"
-        sed -i "s/SHOP_BOT_MYSQL_USER=\"\"/SHOP_BOT_MYSQL_USER=\"$SHOP_BOT_MYSQL_USER\"/" "$0"
-        sed -i "s/SHOP_BOT_MYSQL_PASSWORD=\"\"/SHOP_BOT_MYSQL_PASSWORD=\"$SHOP_BOT_MYSQL_PASSWORD\"/" "$0"
         sed -i "s/TG_BOT_TOKEN=\"\"/TG_BOT_TOKEN=\"$TG_BOT_TOKEN\"/" "$0"
         sed -i "s/TG_CHAT_ID=\"\"/TG_CHAT_ID=\"$TG_CHAT_ID\"/" "$0"
 
-        if ! grep -q "mb-backup.sh" /etc/crontab; then
+        if ! grep -q "/root/scripts/mb-backup.sh" /etc/crontab; then
             echo "0 */1 * * * root /bin/bash /root/scripts/mb-backup.sh >/dev/null 2>&1" | tee -a /etc/crontab > /dev/null 2>&1
         fi
         
@@ -161,7 +147,7 @@ check_containers() {
 
     echo -e "${CYAN}${INFO}${NC} Checking Docker containers status..."
     echo -e "${GRAY}  ${ARROW}${NC} Verifying Marzban MariaDB container"
-    echo -e "${GRAY}  ${ARROW}${NC} Checking for Shop bot containers"
+    echo -e "${GRAY}  ${ARROW}${NC} Checking Shop database container"
     echo -e "${GRAY}  ${ARROW}${NC} Validating container health"
 
     MYSQL_CONTAINER_NAME="marzban-mariadb-1"
@@ -171,20 +157,11 @@ check_containers() {
         exit 1
     fi
 
-    # Check for shop containers (either marzban-shop or shop-bot)
-    SHOP_CONTAINER_NAME=""
-    SHOP_TYPE=""
-    
-    if docker ps -q -f name="marzban-shop-db-1" | grep -q .; then
-        SHOP_CONTAINER_NAME="marzban-shop-db-1"
-        SHOP_TYPE="marzban-shop"
-        echo -e "${CYAN}${INFO}${NC} Marzban-shop container detected and running"
-    elif docker ps -q -f name="shop-bot-db-1" | grep -q .; then
-        SHOP_CONTAINER_NAME="shop-bot-db-1"
-        SHOP_TYPE="shop-bot"
-        echo -e "${CYAN}${INFO}${NC} Shop-bot container detected and running"
+    SHOP_CONTAINER_NAME="marzban-shop-db-1"
+    if docker ps -q -f name="$SHOP_CONTAINER_NAME" | grep -q .; then
+        echo -e "${CYAN}${INFO}${NC} Shop container detected and running"
     else
-        echo -e "${YELLOW}${WARNING}${NC} No shop containers found, skipping shop database"
+        echo -e "${YELLOW}${WARNING}${NC} Shop container not found, skipping shop database"
     fi
 
     echo -e "${GREEN}${CHECK}${NC} Docker containers validated!"
@@ -198,13 +175,9 @@ create_database_backup() {
 
     echo -e "${CYAN}${INFO}${NC} Creating database backups..."
     echo -e "${GRAY}  ${ARROW}${NC} Retrieving Marzban databases"
-    if [ -n "$SHOP_CONTAINER_NAME" ]; then
-        echo -e "${GRAY}  ${ARROW}${NC} Retrieving Shop databases ($SHOP_TYPE)"
-    fi
     echo -e "${GRAY}  ${ARROW}${NC} Setting up backup directory"
     echo -e "${GRAY}  ${ARROW}${NC} Exporting database content"
 
-    # Backup Marzban database
     databases_marzban=$(docker exec $MYSQL_CONTAINER_NAME mariadb -h 127.0.0.1 --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" -e "SHOW DATABASES;" 2>/tmp/marzban_error.log | tr -d "| " | grep -v Database)
     if [ $? -ne 0 ]; then
         echo -e "${RED}${CROSS}${NC} Failed to retrieve marzban databases"
@@ -214,18 +187,11 @@ create_database_backup() {
     fi
     rm -f /tmp/marzban_error.log
 
-    # Backup Shop database (if any shop container exists)
     databases_shop=""
-    if [ -n "$SHOP_CONTAINER_NAME" ]; then
-        # Use different credentials for shop-bot
-        if [ "$SHOP_TYPE" = "shop-bot" ]; then
-            databases_shop=$(docker exec $SHOP_CONTAINER_NAME mariadb -h 127.0.0.1 --user="$SHOP_BOT_MYSQL_USER" --password="$SHOP_BOT_MYSQL_PASSWORD" -e "SHOW DATABASES;" 2>/tmp/shop_error.log | tr -d "| " | grep -v Database)
-        else
-            databases_shop=$(docker exec $SHOP_CONTAINER_NAME mariadb -h 127.0.0.1 --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" -e "SHOW DATABASES;" 2>/tmp/shop_error.log | tr -d "| " | grep -v Database)
-        fi
-        
+    if docker ps -q -f name="$SHOP_CONTAINER_NAME" | grep -q .; then
+        databases_shop=$(docker exec $SHOP_CONTAINER_NAME mariadb -h 127.0.0.1 --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" -e "SHOW DATABASES;" 2>/tmp/shop_error.log | tr -d "| " | grep -v Database)
         if [ $? -ne 0 ]; then
-            echo -e "${RED}${CROSS}${NC} Failed to retrieve shop databases from $SHOP_CONTAINER_NAME"
+            echo -e "${RED}${CROSS}${NC} Failed to retrieve shop databases"
             cat /tmp/shop_error.log
             rm -rf "$TEMP_DIR" /tmp/shop_error.log
             exit 1
@@ -235,24 +201,16 @@ create_database_backup() {
 
     mkdir -p /var/lib/marzban/mysql/db-backup/ > /dev/null 2>&1
 
-    # Export Marzban database
     for db in $databases_marzban; do
         if [[ "$db" == "marzban" ]]; then
             docker exec $MYSQL_CONTAINER_NAME mariadb-dump -h 127.0.0.1 --force --opt --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" --databases $db > /var/lib/marzban/mysql/db-backup/$db.sql
-            echo -e "${GRAY}    ✓ Exported marzban database${NC}"
         fi
     done
 
-    # Export Shop database (from whichever container is running)
     if [ -n "$databases_shop" ]; then
         for db in $databases_shop; do
             if [[ "$db" == "shop" ]]; then
-                if [ "$SHOP_TYPE" = "shop-bot" ]; then
-                    docker exec $SHOP_CONTAINER_NAME mariadb-dump -h 127.0.0.1 --force --opt --user="$SHOP_BOT_MYSQL_USER" --password="$SHOP_BOT_MYSQL_PASSWORD" --databases $db > /var/lib/marzban/mysql/db-backup/shop.sql
-                else
-                    docker exec $SHOP_CONTAINER_NAME mariadb-dump -h 127.0.0.1 --force --opt --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" --databases $db > /var/lib/marzban/mysql/db-backup/shop.sql
-                fi
-                echo -e "${GRAY}    ✓ Exported shop database from $SHOP_TYPE${NC}"
+                docker exec $SHOP_CONTAINER_NAME mariadb-dump -h 127.0.0.1 --force --opt --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" --databases $db > /var/lib/marzban/mysql/db-backup/$db.sql
             fi
         done
     fi
@@ -266,81 +224,28 @@ create_archive() {
     echo -e "${GREEN}================${NC}"
     echo
 
-    echo -e "${CYAN}${INFO}${NC} Building selective backup archive..."
-    echo -e "${GRAY}  ${ARROW}${NC} Adding configuration files"
+    echo -e "${CYAN}${INFO}${NC} Building backup archive..."
+    echo -e "${GRAY}  ${ARROW}${NC} Compressing configuration files"
     echo -e "${GRAY}  ${ARROW}${NC} Adding database backups"
-    echo -e "${GRAY}  ${ARROW}${NC} Adding templates directory"
+    echo -e "${GRAY}  ${ARROW}${NC} Finalizing archive structure"
 
-    # Create list of files for backup
-    BACKUP_ITEMS=""
-    
-    # Essential configuration files
-    if [ -f /opt/marzban/.env ]; then
-        BACKUP_ITEMS="$BACKUP_ITEMS /opt/marzban/.env"
-        echo -e "${GRAY}    ✓ Marzban config found${NC}"
-    else
-        echo -e "${YELLOW}    ! Marzban .env not found${NC}"
-    fi
-    
-    if [ -f /opt/marzban/docker-compose.yml ]; then
-        BACKUP_ITEMS="$BACKUP_ITEMS /opt/marzban/docker-compose.yml"
-        echo -e "${GRAY}    ✓ Docker compose found${NC}"
-    else
-        echo -e "${YELLOW}    ! Docker compose not found${NC}"
-    fi
-    
-    # Shop configuration and data (either marzban-shop or shop-bot)
-    if [ -f /root/marzban-shop/.env ]; then
-        BACKUP_ITEMS="$BACKUP_ITEMS /root/marzban-shop/.env"
-        echo -e "${GRAY}    ✓ Marzban-shop config found${NC}"
-    elif [ -f /root/shop-bot/.env ]; then
-        BACKUP_ITEMS="$BACKUP_ITEMS /root/shop-bot/.env"
-        echo -e "${GRAY}    ✓ Shop-bot config found${NC}"
-    else
-        echo -e "${YELLOW}    ! No shop config found${NC}"
-    fi
-    
-    if [ -f /root/marzban-shop/goods.json ]; then
-        BACKUP_ITEMS="$BACKUP_ITEMS /root/marzban-shop/goods.json"
-        echo -e "${GRAY}    ✓ Marzban-shop goods found${NC}"
-    elif [ -f /root/shop-bot/goods.json ]; then
-        BACKUP_ITEMS="$BACKUP_ITEMS /root/shop-bot/goods.json"
-        echo -e "${GRAY}    ✓ Shop-bot goods found${NC}"
-    else
-        echo -e "${YELLOW}    ! No shop goods found${NC}"
-    fi
-    
-    # Templates directory
-    if [ -d /var/lib/marzban/templates ]; then
-        BACKUP_ITEMS="$BACKUP_ITEMS /var/lib/marzban/templates"
-        echo -e "${GRAY}    ✓ Templates directory found${NC}"
-    else
-        echo -e "${YELLOW}    ! Templates directory not found${NC}"
-    fi
-    
-    # Database dumps (created earlier in the script)
-    if [ -d /var/lib/marzban/mysql/db-backup ] && [ "$(ls -A /var/lib/marzban/mysql/db-backup 2>/dev/null)" ]; then
-        BACKUP_ITEMS="$BACKUP_ITEMS /var/lib/marzban/mysql/db-backup"
-        echo -e "${GRAY}    ✓ Database backups found${NC}"
-    else
-        echo -e "${YELLOW}    ! Database backups not found${NC}"
-    fi
+    tar --exclude='/var/lib/marzban/mysql/*' \
+        --exclude='/var/lib/marzban/logs' \
+        --exclude='/var/lib/marzban/access.log*' \
+        --exclude='/var/lib/marzban/error.log*' \
+        --exclude='/var/lib/marzban/xray-core' \
+        -cf "$TEMP_DIR/backup-marzban.tar" \
+        -C / \
+        /opt/marzban/.env \
+        /opt/marzban/ \
+        /var/lib/marzban/ \
+        $([ -f /root/marzban-shop/.env ] && echo "/root/marzban-shop/.env") > /dev/null 2>&1
 
-    # Create archive with only required files
-    if [ -n "$BACKUP_ITEMS" ]; then
-        tar -czf "$BACKUP_FILE" -C / $BACKUP_ITEMS > /dev/null 2>&1
-        
-        if [ $? -eq 0 ]; then
-            BACKUP_SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
-            echo -e "${GREEN}${CHECK}${NC} Selective backup created successfully! (Size: $BACKUP_SIZE)"
-        else
-            echo -e "${RED}${CROSS}${NC} Failed to create backup archive"
-            exit 1
-        fi
-    else
-        echo -e "${RED}${CROSS}${NC} No files found for backup"
-        exit 1
-    fi
+    tar -rf "$TEMP_DIR/backup-marzban.tar" -C / /var/lib/marzban/mysql/db-backup/* > /dev/null 2>&1
+
+    gzip "$TEMP_DIR/backup-marzban.tar"
+
+    echo -e "${GREEN}${CHECK}${NC} Backup archive created successfully!"
 }
 
 send_to_telegram() {
@@ -390,6 +295,8 @@ show_completion_summary() {
     echo
     echo -e "${CYAN}Backup Information:${NC}"
     echo -e "${WHITE}• Archive name: backup-marzban.tar.gz${NC}"
+    echo -e "${WHITE}• MySQL User: $MYSQL_USER${NC}"
+    echo -e "${WHITE}• Telegram Chat ID: $TG_CHAT_ID${NC}"
 }
 
 #==================
@@ -397,18 +304,6 @@ show_completion_summary() {
 #==================
 
 main() {
-    # Detailed debug logging
-    echo "===========================================" >> /tmp/mb-backup-debug.log
-    echo "$(date): mb-backup.sh STARTED" >> /tmp/mb-backup-debug.log
-    echo "PID: $$" >> /tmp/mb-backup-debug.log
-    echo "PPID: $PPID" >> /tmp/mb-backup-debug.log
-    echo "User: $(whoami)" >> /tmp/mb-backup-debug.log
-    echo "PWD: $(pwd)" >> /tmp/mb-backup-debug.log
-    echo "Command line: $0 $*" >> /tmp/mb-backup-debug.log
-    echo "Process tree:" >> /tmp/mb-backup-debug.log
-    ps -ef | grep $$ >> /tmp/mb-backup-debug.log
-    echo "===========================================" >> /tmp/mb-backup-debug.log
-    
     configure_backup
     validate_configuration
     prepare_system
@@ -418,8 +313,6 @@ main() {
     send_to_telegram
     cleanup_files
     show_completion_summary
-    
-    echo "$(date): mb-backup.sh COMPLETED" >> /tmp/mb-backup-debug.log
     echo
 }
 
