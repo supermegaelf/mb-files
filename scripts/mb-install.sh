@@ -1350,6 +1350,7 @@ create_v2ray_template() {
                     "geosite:anthropic",
                     "geosite:discord",
                     "geosite:google-gemini",
+                    "geosite:linkedin",
                     "geosite:meta",
                     "geosite:netflix",
                     "geosite:notion",
