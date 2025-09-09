@@ -397,6 +397,18 @@ show_completion_summary() {
 #==================
 
 main() {
+    # Detailed debug logging
+    echo "===========================================" >> /tmp/mb-backup-debug.log
+    echo "$(date): mb-backup.sh STARTED" >> /tmp/mb-backup-debug.log
+    echo "PID: $$" >> /tmp/mb-backup-debug.log
+    echo "PPID: $PPID" >> /tmp/mb-backup-debug.log
+    echo "User: $(whoami)" >> /tmp/mb-backup-debug.log
+    echo "PWD: $(pwd)" >> /tmp/mb-backup-debug.log
+    echo "Command line: $0 $*" >> /tmp/mb-backup-debug.log
+    echo "Process tree:" >> /tmp/mb-backup-debug.log
+    ps -ef | grep $$ >> /tmp/mb-backup-debug.log
+    echo "===========================================" >> /tmp/mb-backup-debug.log
+    
     configure_backup
     validate_configuration
     prepare_system
@@ -406,6 +418,8 @@ main() {
     send_to_telegram
     cleanup_files
     show_completion_summary
+    
+    echo "$(date): mb-backup.sh COMPLETED" >> /tmp/mb-backup-debug.log
     echo
 }
 
