@@ -653,8 +653,7 @@
                     <div class="col">
                         <div class="my-block-big h-100">
                             <span class="my-step-counter mb-1"></span>
-                            <h5 class="my-text-heading fw-semibold" x-text="$t('guideContent.android.third.title')">
-                            </h5>
+                            <h5 class="my-text-heading fw-semibold" x-text="$t('guideContent.android.third.title')"></h5>
                             <p class="my-text-content" x-html="$t('guideContent.android.third.text')"></p>
                             <button class="btn my-btn-primary fw-semibold" @click="copySubscriptionLink" :disabled="isLinkCopied" x-text="isLinkCopied ? $t('copied') : $t('copyLink')"></button>
                         </div>
@@ -722,7 +721,7 @@
                     </div>
                 </div>
             </div>
-            <div id="tab-pc" class="tab-pane my-tab-pane fade" aria-labelledby="btn-guide-pc-tab" role="tabpanel">
+            <div id="tab-pc" class="tab-pane my-tab-pane fade" aria-labelledby="btn-guide-pc-tab" role="tabpanel" x-data="androidCopyLink">
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 g-sm-2 g-lg-3">
                     <div class="col">
                         <div class="my-block-big h-100">
@@ -743,8 +742,7 @@
                             <span class="my-step-counter mb-1"></span>
                             <h5 class="my-text-heading fw-semibold" x-text="$t('guideContent.pc.second.title')"></h5>
                             <p class="my-text-content" x-html="$t('guideContent.pc.second.text')"></p>
-                            <a class="btn my-btn-primary fw-semibold" id="sub-url-pc" role="button"
-                                rel="noopener noreferrer" target="_blank" x-text="$t('addSubscription')"></a>
+                            <button class="btn my-btn-primary fw-semibold" @click="copySubscriptionLink" :disabled="isLinkCopied" x-text="isLinkCopied ? $t('copied') : $t('copyLink')"></button>
                         </div>
                     </div>
                     <div class="col">
@@ -764,7 +762,7 @@
                                 <span class="fw-semibold" x-text="$t('fixInstr')"></span>
                             </a>
                         </div>
-                    </div>                    
+                    </div> 
                 </div>
             </div>
             <div id="tab-tv" class="tab-pane my-tab-pane fade" aria-labelledby="btn-guide-tv-tab" role="tabpanel">
@@ -807,17 +805,6 @@
                             <h5 class="my-text-heading fw-semibold" x-text="$t('guideContent.tv.fifth.title')">
                             </h5>
                             <p class="my-text-content mb-0" x-html="$t('guideContent.tv.fifth.text')"></p>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="my-block-big h-100">
-                            <span class="my-step-counter mb-1"></span>
-                            <h5 class="my-text-heading fw-semibold" x-text="$t('guideContent.tv.sixth.title')"></h5>
-                            <p class="my-text-content" x-html="$t('guideContent.tv.sixth.text')"></p>
-                            <a class="btn my-btn-primary" href="https://t.me/surf_vpn_info/196"
-                                role="button" rel="noopener noreferrer" target="_blank">
-                                <span class="fw-semibold" x-text="$t('fixInstr')"></span>
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -875,10 +862,10 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script>
         const SUB_URL_SCHEMES = {
-            pc: "https://redirect.example.com?happ_url=" + encodeURIComponent(happUrl),
+            pc: happUrl,
             android: happUrl,
             ios: happUrl,
-            macos: "https://redirect.example.com?happ_url=" + encodeURIComponent(happUrl),
+            macos: happUrl,
         };
         // Default locale used to display content if
         // the user's locale is not specified.
@@ -947,7 +934,7 @@
                         },
                         second: {
                             title: 'Add subscription',
-                            text: `- Click the button below to copy the subscription link.<br>- Open the installed app, insert the link in the <b>«Subscription or VLESS...»</b> field and click <b>«Get started»</b>.`,
+                            text: `- Click the button below to copy the subscription link.<br>- Open the installed app, click <b>«Skip»</b> (if you are launching the app for the first time), and tap <b>«Clipboard»</b>.`,
                         },
                         third: {
                             title: 'Enable VPN',
@@ -965,7 +952,7 @@
                         },
                         second: {
                             title: 'Add subscription',
-                            text: `- Click the button below to add the subscription to the app.<br>- In the pop-up window, select <b>«Open the "Happ, xray GUI client application".»</b>, then click <b>«Skip»</b> in the app.`,
+                            text: `- Click the button below to copy the subscription link.<br>- Open the installed app, click <b>«Skip»</b> (if you are launching the app for the first time), and tap <b>«Clipboard»</b>.`,
                         },
                         third: {
                             title: 'Enable VPN',
@@ -1066,7 +1053,7 @@
                         },
                         second: {
                             title: 'Добавьте подписку',
-                            text: `- Нажмите кнопку ниже, чтобы скопировать ссылку на подписку.<br>- Откройте установленное приложение, вставьте ссылку в поле <b>«Subscription or VLESS...»</b> и нажмите <b>«Get started»</b>.`,
+                            text: `- Нажмите кнопку ниже, чтобы скопировать ссылку на подписку.<br>- Откройте установленное приложение, кликните <b>«Skip»</b> (если запускаете приложение впервые) и нажмите <b>«Clipboard»<b>.`,
                         },
                         third: {
                             title: 'Включите VPN',
@@ -1084,7 +1071,7 @@
                         },
                         second: {
                             title: 'Добавьте подписку',
-                            text: `- Нажмите кнопку ниже, чтобы добавить подписку в приложение.<br>- Во всплывающем окне выберите <b>«Открыть приложение "Happ, xray GUI client".»</b>, затем нажмите <b>«Skip»</b> в приложении.`,
+                            text: `- Нажмите кнопку ниже, чтобы скопировать ссылку на подписку.<br>- Откройте установленное приложение, кликните <b>«Skip»</b> (если запускаете приложение впервые) и нажмите <b>«Clipboard»<b>.`,
                         },
                         third: {
                             title: 'Включите VPN',
