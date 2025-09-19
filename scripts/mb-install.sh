@@ -1013,20 +1013,6 @@ create_xray_config() {
       {
         "type": "field",
         "domain": [
-          "geosite:google"
-        ],
-        "outboundTag": "IPv4"
-      },
-      {
-        "type": "field",
-        "protocol": [
-          "bittorrent"
-        ],
-        "outboundTag": "DIRECT"
-      },
-      {
-        "type": "field",
-        "domain": [
           "geosite:category-gov-ru"
         ],
         "outboundTag": "BLOCK"
@@ -1037,6 +1023,20 @@ create_xray_config() {
           "geosite:category-ads-all"
         ],
         "outboundTag": "BLOCK"
+      },
+      {
+        "type": "field",
+        "domain": [
+          "geosite:google"
+        ],
+        "outboundTag": "IPv4"
+      },
+      {
+        "type": "field",
+        "protocol": [
+          "bittorrent"
+        ],
+        "outboundTag": "DIRECT"
       }
     ]
   },
