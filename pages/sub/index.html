@@ -741,21 +741,28 @@
                         <div class="my-block-big h-100">
                             <span class="my-step-counter mb-1"></span>
                             <h5 class="my-text-heading fw-semibold" x-text="$t('guideContent.pc.second.title')"></h5>
-                            <p class="my-text-content" x-html="$t('guideContent.pc.second.text')"></p>
-                            <button class="btn my-btn-primary fw-semibold" @click="copySubscriptionLink" :disabled="isLinkCopied" x-text="isLinkCopied ? $t('copied') : $t('copyLink')"></button>
+                            <p class="my-text-content mb-0" x-html="$t('guideContent.pc.second.text')"></p>
                         </div>
                     </div>
                     <div class="col">
                         <div class="my-block-big h-100">
                             <span class="my-step-counter mb-1"></span>
                             <h5 class="my-text-heading fw-semibold" x-text="$t('guideContent.pc.third.title')"></h5>
-                            <p class="my-text-content mb-0" x-html="$t('guideContent.pc.third.text')"></p>
+                            <p class="my-text-content" x-html="$t('guideContent.pc.third.text')"></p>
+                            <button class="btn my-btn-primary fw-semibold" @click="copySubscriptionLink" :disabled="isLinkCopied" x-text="isLinkCopied ? $t('copied') : $t('copyLink')"></button>
                         </div>
                     </div>
                     <div class="col">
                         <div class="my-block-big h-100">
                             <span class="my-step-counter mb-1"></span>
                             <h5 class="my-text-heading fw-semibold" x-text="$t('guideContent.pc.fourth.title')"></h5>
+                            <p class="my-text-content mb-0" x-html="$t('guideContent.pc.fourth.text')"></p>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="my-block-big h-100">
+                            <span class="my-step-counter mb-1"></span>
+                            <h5 class="my-text-heading fw-semibold" x-text="$t('guideContent.pc.fifth.title')"></h5>
                             <p class="my-text-content" x-html="$t('guideContent.ios.fourth.text')"></p>
                             <a class="btn my-btn-primary" href="https://t.me/surf_vpn_info/196"
                                 role="button" rel="noopener noreferrer" target="_blank">
@@ -890,91 +897,95 @@
                     ios: {
                         first: {
                             title: 'Download app',
-                            text: `Click on the button below to download the app.`,
+                            text: `Click on button below to download app.`,
                         },
                         second: {
                             title: 'Add subscription',
-                            text: `Click the button below to add the subscription to the app.`,
+                            text: `Click button below to add subscription to app.`,
                         },
                         third: {
                             title: 'Enable VPN',
-                            text: `Click the big round button to enable VPN.`,
+                            text: `Click big round button to enable VPN.`,
                         },
                         fourth: {
                             title: 'Not working?',
-                            text: `Click the button below to open tips for fixing the connection error.`,
+                            text: `Click button below to open tips for fixing connection error.`,
                         },
                     },
                     android: {
                         first: {
                             title: 'Download app',
-                            text: `Click on the button below to download the app.`,
+                            text: `Click on button below to download app.`,
                         },
                         second: {
                             title: 'Unable to download?',
-                            text: `Click the button below to download the app from another source and install it manually.`,
+                            text: `Click button below to download app from another source and install it manually.`,
                         },
                         third: {
                             title: 'Add subscription',
-                            text: `- Click the button below to copy the subscription link.<br>- Open the installed application and click <b>«Clipboard»</b>.`,
+                            text: `- Click button below to copy subscription link.<br>- Open installed application and click <b>«Clipboard»</b>.`,
                         },
                         fourth: {
                             title: 'Enable VPN',
-                            text: `Click the big round button to enable VPN.`,
+                            text: `Click big round button to enable VPN.`,
                         },
                         fifth: {
                             title: 'Not working?',
-                            text: `Click the button below to open tips for fixing the connection error.`,
+                            text: `Click button below to open tips for fixing connection error.`,
                         },
                     },
                     macos: {
                         first: {
                             title: 'Download app',
-                            text: `Click on the button below to download the app.`,
+                            text: `Click on button below to download app.`,
                         },
                         second: {
                             title: 'Add subscription',
-                            text: `- Click the button below to copy the subscription link.<br>- Open the installed app, click <b>«Skip»</b> (if you are launching the app for the first time), and tap <b>«Clipboard»</b>.`,
+                            text: `- Click button below to copy subscription link.<br>- Open installed app, click <b>«Skip»</b> (if you are launching app for the first time), and tap <b>«Clipboard»</b>.`,
                         },
                         third: {
                             title: 'Enable VPN',
-                            text: `Click the big round button to enable VPN.`,
+                            text: `Click big round button to enable VPN.`,
                         },
                         fourth: {
                             title: 'Not working?',
-                            text: `Click the button below to open tips for fixing the connection error.`,
+                            text: `Click button below to open tips for fixing connection error.`,
                         },
                     },
                     pc: {
                         first: {
                             title: 'Download app',
-                            text: `Click on the button below to download the app. Install and run it.`,
+                            text: `Click on button below to download app.`,
                         },
                         second: {
-                            title: 'Add subscription',
-                            text: `- Click the button below to copy the subscription link.<br>- Open the installed app, click <b>«Skip»</b> (if you are launching the app for the first time), and tap <b>«Clipboard»</b>.`,
+                            title: 'Install app',
+                            text: `Open file, click <b>«More info»</b>, <b>«Run anyway»</b> and follow instructions to complete installation.`,
                         },
                         third: {
-                            title: 'Enable VPN',
-                            text: `Click the big round button to enable VPN.`,
+                            title: 'Add subscription',
+                            text: `- Click button below to copy subscription link.<br>- Open installed app, click <b>«Skip»</b> (if you are launching it for the first time), and tap <b>«Clipboard»</b>.`,
                         },
                         fourth: {
+                            title: 'Enable VPN',
+                            text: `Click big round button to enable VPN.`,
+                        },
+                        fifth: {
                             title: 'Not working?',
-                            text: `Click the button below to open tips for fixing the connection error.`,
+                            text: `Click button below to open tips for fixing connection error.`,
                         },
                     },
                     tv: {
                         first: {
                             title: 'Important!',
-                            text: `- Make sure that our VPN is already installed on your phone.<br>- The TV and your phone are connected to the same Wi-Fi network.`,
+                            text: `- Make sure that our VPN is already installed on your phone.<br>- TV and your phone are connected to the same Wi-Fi network.`,
                         },
                         second: {
                             title: 'Install app',
-                            text: `On your TV, open <b>«Google Play»</b>, install the <b>«Happ»</b> app and launch it.`,
+                            text: `On your TV, open <b>«Google Play»</b>, install <b>«Happ»</b> app and launch it.`,
                         },
                         third: {
                             title: 'Scan QR code',
-                            text: `On your phone, open the <b>«Happ» app</b>, press <b>«+»</b>, select <b>«QR Code»</b> and scan it from TV.`,
+                            text: `On your phone, open <b>«Happ» app</b>, press <b>«+»</b>, select <b>«QR Code»</b> and scan it from TV.`,
                         },
                         fourth: {
                             title: 'Add subscription',
@@ -982,11 +993,11 @@
                         },
                         fifth: {
                             title: 'Enable VPN',
-                            text: `Click the big round button to enable VPN.`,
+                            text: `Click big round button to enable VPN.`,
                         },
                         sixth: {
                             title: 'Not working?',
-                            text: `Click the button below to open tips for fixing the connection error.`,
+                            text: `Click button below to open tips for fixing connection error.`,
                         },
                     },
                 },
@@ -1067,19 +1078,23 @@
                     pc: {
                         first: {
                             title: 'Скачайте приложение',
-                            text: `Нажмите кнопку ниже, чтобы скачать приложение. Установите и запустите его.`,
+                            text: `Нажмите кнопку ниже, чтобы скачать приложение.`,
                         },
                         second: {
-                            title: 'Добавьте подписку',
-                            text: `- Нажмите кнопку ниже, чтобы скопировать ссылку на подписку.<br>- Откройте установленное приложение, кликните <b>«Skip»</b> (если запускаете приложение впервые) и нажмите <b>«Clipboard»<b>.`,
+                            title: 'Установите приложение',
+                            text: `Откройте файл, нажмите <b>«Подробнее»</b>, <b>«Выполнить в любом случае»</b> и следуйте инструкции, чтобы завершить установку.`,
                         },
                         third: {
+                            title: 'Добавьте подписку',
+                            text: `- Нажмите кнопку ниже, чтобы скопировать ссылку на подписку.<br>- Откройте установленное приложение, кликните <b>«Skip»</b> (если запускаете его впервые) и нажмите <b>«Clipboard»<b>.`,
+                        },
+                        fourth: {
                             title: 'Включите VPN',
                             text: `Нажмите большую круглую кнопку, чтобы включить VPN.`,
                         },
-                        fourth: {
+                        fifth: {
                             title: 'Не работает?',
-                            text: `Нажмите кнопку ниже, чтобы открыть рекомендации по устранению ошибки подключения.`,
+                            text: `Нажмите кнопку ниже, чтобы открыть рекомендации по устранению ошибки подключения`,
                         },
                     },
                     tv: {
