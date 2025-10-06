@@ -133,7 +133,7 @@ validate_domain() {
 
 # Input panel domain
 input_panel_domain() {
-    echo -ne "${CYAN}Monitoring domain (e.g., monitoring.example.com): ${NC}"
+    echo -ne "${CYAN}Panel monitoring domain (e.g., monitoring.example.com): ${NC}"
     read PANEL_DOMAIN
     while [[ -z "$PANEL_DOMAIN" ]] || ! validate_domain "$PANEL_DOMAIN"; do
         echo -e "${RED}${CROSS}${NC} Invalid domain! Please enter a valid domain (e.g., monitoring.example.com)."
