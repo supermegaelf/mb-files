@@ -67,15 +67,17 @@ check_beszel_status() {
 # Show current status
 show_status() {
     echo
-    echo -e "${PURPLE}===============${NC}"
+    echo -e "${PURPLE}==============${NC}"
     echo -e "${NC}Beszel Status${NC}"
-    echo -e "${PURPLE}===============${NC}"
+    echo -e "${PURPLE}==============${NC}"
+    echo
+    echo -e "${GREEN}Service Status${NC}"
+    echo -e "${GREEN}==============${NC}"
     echo
 
     echo -e "${CYAN}${INFO}${NC} Checking Beszel installation status..."
     echo -e "${GRAY}  ${ARROW}${NC} Verifying directory structure"
     echo -e "${GRAY}  ${ARROW}${NC} Checking Docker containers"
-    echo -e "${GRAY}  ${ARROW}${NC} Validating service availability"
     
     local status=$(check_beszel_status)
     local hub_installed=$(echo $status | cut -d',' -f1)
@@ -86,23 +88,14 @@ show_status() {
         echo
         return
     fi
-    
-    echo -e "${GREEN}${CHECK}${NC} Status check completed!"
-    echo
-
-    echo -e "${GREEN}Service Status${NC}"
-    echo -e "${GREEN}==============${NC}"
-    echo
 
     # Check Beszel Hub
     if [ "$hub_installed" = "true" ]; then
         if docker ps | grep -q "beszel "; then
             echo -e "${GREEN}${CHECK}${NC} Beszel Hub is running"
         else
-            echo -e "${RED}${CROSS}${NC} Beszel Hub container exists but not running"
+            echo -e "${RED}${CROSS}${NC} Beszel Hub is not running"
         fi
-    else
-        echo -e "${RED}${CROSS}${NC} Beszel Hub is not installed"
     fi
     
     # Check Beszel Agent
@@ -110,46 +103,18 @@ show_status() {
         if docker ps | grep -q "beszel-agent"; then
             echo -e "${GREEN}${CHECK}${NC} Beszel Agent is running"
         else
-            echo -e "${RED}${CROSS}${NC} Beszel Agent container exists but not running"
+            echo -e "${RED}${CROSS}${NC} Beszel Agent is not running"
         fi
-    else
-        echo -e "${RED}${CROSS}${NC} Beszel Agent is not installed"
-    fi
-    
-    # Check ports
-    if ss -tlnp | grep -q 8090; then
-        echo -e "${GREEN}${CHECK}${NC} Port 8090 (Beszel Web UI) is listening"
-    else
-        echo -e "${YELLOW}${WARNING}${NC} Port 8090 (Beszel Web UI) is not listening"
     fi
 
-    if ss -tlnp | grep -q 45876; then
-        echo -e "${GREEN}${CHECK}${NC} Port 45876 (Beszel Hub) is listening"
-    else
-        echo -e "${YELLOW}${WARNING}${NC} Port 45876 (Beszel Hub) is not listening"
-    fi
-
-    if ss -tlnp | grep -q 45877; then
-        echo -e "${GREEN}${CHECK}${NC} Port 45877 (Beszel Agent) is listening"
-    else
-        echo -e "${YELLOW}${WARNING}${NC} Port 45877 (Beszel Agent) is not listening"
-    fi
-
-    # Check Nginx configuration
-    echo
+    # Show access URL
     if [ -f "/etc/nginx/conf.d/beszel-monitoring.conf" ]; then
-        echo -e "${GREEN}${CHECK}${NC} Nginx configuration exists"
+        echo
         local monitor_domain=$(grep "server_name" /etc/nginx/conf.d/beszel-monitoring.conf | awk '{print $2}' | tr -d ';')
         if [ -n "$monitor_domain" ]; then
-            echo
             echo -e "${CYAN}Access URL:${NC}"
             echo -e "${WHITE}https://$monitor_domain${NC}"
         fi
-    else
-        echo -e "${YELLOW}${WARNING}${NC} Nginx configuration not found"
-        echo
-        echo -e "${CYAN}Direct access:${NC}"
-        echo -e "${WHITE}http://$(hostname -I | awk '{print $1}'):8090${NC}"
     fi
 }
 
@@ -524,6 +489,9 @@ uninstall_beszel() {
     echo -e "${PURPLE}=================================${NC}"
     echo -e "${NC}Beszel Monitoring Uninstallation${NC}"
     echo -e "${PURPLE}=================================${NC}"
+    echo
+    echo -e "${GREEN}Status Verification${NC}"
+    echo -e "${GREEN}===================${NC}"
     echo
 
     echo -e "${CYAN}${INFO}${NC} Checking current installation status..."
