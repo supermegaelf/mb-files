@@ -463,8 +463,8 @@ install_beszel() {
     input_panel_domain
 
     echo
-    echo -e "${GREEN}Configuration${NC}"
-    echo -e "${GREEN}=============${NC}"
+    echo -e "${GREEN}Configuration Summary${NC}"
+    echo -e "${GREEN}=====================${NC}"
     echo
 
     extract_base_domain
