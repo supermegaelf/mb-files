@@ -247,7 +247,7 @@ services:
     environment:
       LISTEN: 45877
       KEY: 'PUBLIC_KEY'
-      TOKEN: TOKEN
+      TOKEN: 'TOKEN'
       HUB_URL: https://$MONITOR_DOMAIN
 EOF
 
