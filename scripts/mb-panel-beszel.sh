@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#=============================
-# MARZBAN NODE BESZEL MANAGER
-#=============================
+#==============================
+# MARZBAN PANEL BESZEL MANAGER
+#==============================
 
 # Color constants
 readonly RED='\033[0;31m'
@@ -23,8 +23,9 @@ readonly INFO="*"
 readonly ARROW="→"
 
 # Global variables
-PANEL_IP=""
-HUB_DOMAIN=""
+PANEL_DOMAIN=""
+BASE_DOMAIN=""
+MONITOR_DOMAIN=""
 
 #======================
 # VALIDATION FUNCTIONS
@@ -39,27 +40,16 @@ check_root_privileges() {
     fi
 }
 
-# Validate IP
-validate_ip() {
-    local ip=$1
-    if [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
-        return 0
-    fi
-    return 1
-}
-
-# Validate domain
-validate_domain() {
-    local domain=$1
-    if [[ "$domain" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]] && [[ ! "$domain" =~ [[:space:]] ]]; then
-        return 0
-    fi
-    return 1
-}
-
 # Check Beszel installation status
 check_beszel_status() {
+    local hub_installed=false
     local agent_installed=false
+    
+    if [ -d "/opt/beszel" ] && [ -f "/opt/beszel/docker-compose.yml" ]; then
+        if docker ps -a | grep -q "beszel "; then
+            hub_installed=true
+        fi
+    fi
     
     if [ -d "/opt/beszel-agent" ] && [ -f "/opt/beszel-agent/docker-compose.yml" ]; then
         if docker ps -a | grep -q "beszel-agent"; then
@@ -67,7 +57,7 @@ check_beszel_status() {
         fi
     fi
     
-    echo "$agent_installed"
+    echo "$hub_installed,$agent_installed"
 }
 
 #==================
@@ -89,19 +79,42 @@ show_status() {
     echo -e "${GRAY}  ${ARROW}${NC} Verifying directory structure"
     echo -e "${GRAY}  ${ARROW}${NC} Checking Docker containers"
     
-    local agent_installed=$(check_beszel_status)
+    local status=$(check_beszel_status)
+    local hub_installed=$(echo $status | cut -d',' -f1)
+    local agent_installed=$(echo $status | cut -d',' -f2)
     
-    if [ "$agent_installed" != "true" ]; then
-        echo -e "${RED}${CROSS}${NC} Beszel Agent is not installed"
+    if [ "$hub_installed" != "true" ] && [ "$agent_installed" != "true" ]; then
+        echo -e "${RED}${CROSS}${NC} Beszel is not installed"
         echo
         return
     fi
 
+    # Check Beszel Hub
+    if [ "$hub_installed" = "true" ]; then
+        if docker ps | grep -q "beszel "; then
+            echo -e "${GREEN}${CHECK}${NC} Beszel Hub is running"
+        else
+            echo -e "${RED}${CROSS}${NC} Beszel Hub is not running"
+        fi
+    fi
+    
     # Check Beszel Agent
-    if docker ps | grep -q "beszel-agent"; then
-        echo -e "${GREEN}${CHECK}${NC} Beszel Agent is running"
-    else
-        echo -e "${RED}${CROSS}${NC} Beszel Agent container exists but not running"
+    if [ "$agent_installed" = "true" ]; then
+        if docker ps | grep -q "beszel-agent"; then
+            echo -e "${GREEN}${CHECK}${NC} Beszel Agent is running"
+        else
+            echo -e "${RED}${CROSS}${NC} Beszel Agent is not running"
+        fi
+    fi
+
+    # Show access URL
+    if [ -f "/etc/nginx/conf.d/beszel-monitoring.conf" ]; then
+        echo
+        local monitor_domain=$(grep "server_name" /etc/nginx/conf.d/beszel-monitoring.conf | awk '{print $2}' | tr -d ';')
+        if [ -n "$monitor_domain" ]; then
+            echo -e "${CYAN}Access URL:${NC}"
+            echo -e "${WHITE}https://$monitor_domain${NC}"
+        fi
     fi
 }
 
@@ -109,28 +122,93 @@ show_status() {
 # INPUT VALIDATION FUNCTIONS
 #============================
 
-# Input panel IP
-input_panel_ip() {
-    echo -ne "${CYAN}Panel IP address: ${NC}"
-    read PANEL_IP
-    while [[ -z "$PANEL_IP" ]] || ! validate_ip "$PANEL_IP"; do
-        echo -e "${RED}${CROSS}${NC} Invalid IP! Please enter a valid IPv4 address (e.g., 1.2.3.4)."
+# Validate domain
+validate_domain() {
+    local domain=$1
+    if [[ "$domain" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]] && [[ ! "$domain" =~ [[:space:]] ]]; then
+        return 0
+    fi
+    return 1
+}
+
+# Input panel domain
+input_panel_domain() {
+    echo -ne "${CYAN}Panel monitoring domain (e.g., monitoring.example.com): ${NC}"
+    read PANEL_DOMAIN
+    while [[ -z "$PANEL_DOMAIN" ]] || ! validate_domain "$PANEL_DOMAIN"; do
+        echo -e "${RED}${CROSS}${NC} Invalid domain! Please enter a valid domain (e.g., monitoring.example.com)."
         echo
-        echo -ne "${CYAN}Panel IP address: ${NC}"
-        read PANEL_IP
+        echo -ne "${CYAN}Panel domain: ${NC}"
+        read PANEL_DOMAIN
     done
 }
 
-# Input panel monitoring domain
-input_hub_domain() {
-    echo -ne "${CYAN}Panel monitoring domain (e.g., monitoring.example.com): ${NC}"
-    read HUB_DOMAIN
-    while [[ -z "$HUB_DOMAIN" ]] || ! validate_domain "$HUB_DOMAIN"; do
-        echo -e "${RED}${CROSS}${NC} Invalid domain! Please enter a valid domain (e.g., monitoring.example.com)."
-        echo
-        echo -ne "${CYAN}Panel monitoring domain: ${NC}"
-        read HUB_DOMAIN
-    done
+# Extract base domain
+extract_base_domain() {
+    echo -e "${CYAN}${INFO}${NC} Extracting base domain..."
+    echo -e "${GRAY}  ${ARROW}${NC} Processing panel domain"
+    BASE_DOMAIN=$(echo "$PANEL_DOMAIN" | awk -F'.' '{if (NF > 2) {print $(NF-1)"."$NF} else {print $0}}')
+    MONITOR_DOMAIN="$PANEL_DOMAIN"
+    echo -e "${GREEN}${CHECK}${NC} Base domain extracted: ${WHITE}$BASE_DOMAIN${NC}"
+}
+
+#============================
+# BESZEL HUB SETUP FUNCTIONS
+#============================
+
+# Create Beszel Hub structure
+create_hub_structure() {
+    echo
+    echo -e "${GREEN}Beszel Hub Setup${NC}"
+    echo -e "${GREEN}================${NC}"
+    echo
+
+    echo -e "${CYAN}${INFO}${NC} Creating Beszel Hub directory structure..."
+    echo -e "${GRAY}  ${ARROW}${NC} Creating /opt/beszel directory"
+    mkdir -p /opt/beszel
+    echo -e "${GRAY}  ${ARROW}${NC} Creating data directory"
+    mkdir -p /opt/beszel/data
+    echo -e "${GREEN}${CHECK}${NC} Directory structure created!"
+}
+
+# Create Hub docker-compose
+create_hub_docker_compose() {
+    echo
+    echo -e "${CYAN}${INFO}${NC} Creating Docker Compose configuration..."
+    echo -e "${GRAY}  ${ARROW}${NC} Generating docker-compose.yml"
+    
+    cat > /opt/beszel/docker-compose.yml << 'EOF'
+services:
+  beszel:
+    image: henrygd/beszel:latest
+    container_name: beszel
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+      - "45876:45876"
+    volumes:
+      - ./data:/beszel_data
+EOF
+
+    echo -e "${GREEN}${CHECK}${NC} Docker Compose configuration created!"
+}
+
+# Start Hub container
+start_hub_container() {
+    echo
+    echo -e "${CYAN}${INFO}${NC} Starting Beszel Hub container..."
+    echo -e "${GRAY}  ${ARROW}${NC} Pulling latest image"
+    echo -e "${GRAY}  ${ARROW}${NC} Starting service"
+    
+    cd /opt/beszel
+    docker compose up -d > /dev/null 2>&1
+    
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}${CHECK}${NC} Beszel Hub started successfully!"
+    else
+        echo -e "${RED}${CROSS}${NC} Failed to start Beszel Hub"
+        exit 1
+    fi
 }
 
 #==============================
@@ -147,8 +225,6 @@ create_agent_structure() {
     echo -e "${CYAN}${INFO}${NC} Creating Beszel Agent directory structure..."
     echo -e "${GRAY}  ${ARROW}${NC} Creating /opt/beszel-agent directory"
     mkdir -p /opt/beszel-agent
-    echo -e "${GRAY}  ${ARROW}${NC} Creating data directory"
-    mkdir -p /opt/beszel-agent/beszel_agent_data
     echo -e "${GREEN}${CHECK}${NC} Directory structure created!"
 }
 
@@ -169,10 +245,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./beszel_agent_data:/var/lib/beszel-agent
     environment:
-      LISTEN: 45876
+      LISTEN: 45877
       KEY: 'PUBLIC_KEY'
       TOKEN: 'TOKEN'
-      HUB_URL: https://$HUB_DOMAIN
+      HUB_URL: https://$MONITOR_DOMAIN
 EOF
 
     echo -e "${GREEN}${CHECK}${NC} Agent Docker Compose configuration created!"
@@ -208,9 +284,55 @@ configure_firewall() {
     echo
 
     echo -e "${CYAN}${INFO}${NC} Configuring UFW firewall rules..."
-    echo -e "${GRAY}  ${ARROW}${NC} Adding rule for Beszel Agent (45876)"
-    ufw allow from "$PANEL_IP" to any port 45876 proto tcp comment 'Beszel Agent' > /dev/null 2>&1
+    echo -e "${GRAY}  ${ARROW}${NC} Adding rule for Beszel Web UI (8090)"
+    ufw allow 8090/tcp comment 'Beszel Web UI' > /dev/null 2>&1
+    echo -e "${GRAY}  ${ARROW}${NC} Adding rule for Beszel Agents (45876)"
+    ufw allow 45876/tcp comment 'Beszel Agents' > /dev/null 2>&1
     echo -e "${GREEN}${CHECK}${NC} Firewall rules configured!"
+}
+
+#=====================
+# NGINX CONFIGURATION
+#=====================
+
+# Setup Nginx configuration
+setup_nginx_config() {
+    echo
+    echo -e "${GREEN}Nginx Configuration${NC}"
+    echo -e "${GREEN}===================${NC}"
+    echo
+
+    echo -e "${CYAN}${INFO}${NC} Creating Nginx configuration..."
+    echo -e "${GRAY}  ${ARROW}${NC} Generating configuration for $MONITOR_DOMAIN"
+    
+    cat > /etc/nginx/conf.d/beszel-monitoring.conf << EOF
+server {
+    server_name $MONITOR_DOMAIN;
+    listen 443 ssl;
+    http2 on;
+
+    location / {
+        proxy_pass http://127.0.0.1:8090;
+        proxy_set_header Host \$host;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    include /etc/nginx/snippets/ssl.conf;
+    include /etc/nginx/snippets/ssl-params.conf;
+}
+EOF
+
+    echo -e "${GRAY}  ${ARROW}${NC} Testing Nginx configuration"
+    if nginx -t > /dev/null 2>&1; then
+        echo -e "${GRAY}  ${ARROW}${NC} Reloading Nginx service"
+        systemctl reload nginx > /dev/null 2>&1
+        echo -e "${GREEN}${CHECK}${NC} Nginx configuration applied successfully!"
+    else
+        echo -e "${YELLOW}${WARNING}${NC} Nginx configuration test failed"
+        echo -e "${YELLOW}${WARNING}${NC} You may need to configure SSL certificates first"
+    fi
 }
 
 #========================
@@ -227,13 +349,40 @@ verify_installation() {
     echo -e "${CYAN}${INFO}${NC} Verifying Beszel installation..."
     echo -e "${GRAY}  ${ARROW}${NC} Waiting for services to initialize"
     
-    sleep 15
+    sleep 10
+
+    echo -e "${GRAY}  ${ARROW}${NC} Checking Beszel Hub container"
+    if docker ps | grep -q "beszel "; then
+        echo -e "${GRAY}  ${ARROW}${NC} Beszel Hub: ${GREEN}Running${NC}"
+    else
+        echo -e "${GRAY}  ${ARROW}${NC} Beszel Hub: ${RED}Not running${NC}"
+    fi
 
     echo -e "${GRAY}  ${ARROW}${NC} Checking Beszel Agent container"
     if docker ps | grep -q "beszel-agent"; then
         echo -e "${GRAY}  ${ARROW}${NC} Beszel Agent: ${GREEN}Running${NC}"
     else
         echo -e "${GRAY}  ${ARROW}${NC} Beszel Agent: ${RED}Not running${NC}"
+    fi
+
+    echo -e "${GRAY}  ${ARROW}${NC} Checking port availability"
+    if ss -tlnp | grep -q 8090; then
+        echo -e "${GRAY}  ${ARROW}${NC} Port 8090: ${GREEN}Listening${NC}"
+    else
+        echo -e "${GRAY}  ${ARROW}${NC} Port 8090: ${YELLOW}Not listening${NC}"
+    fi
+
+    if ss -tlnp | grep -q 45876; then
+        echo -e "${GRAY}  ${ARROW}${NC} Port 45876: ${GREEN}Listening${NC}"
+    else
+        echo -e "${GRAY}  ${ARROW}${NC} Port 45876: ${YELLOW}Not listening${NC}"
+    fi
+
+    echo -e "${GRAY}  ${ARROW}${NC} Testing HTTP endpoint"
+    if curl -s http://localhost:8090 > /dev/null 2>&1; then
+        echo -e "${GRAY}  ${ARROW}${NC} HTTP endpoint: ${GREEN}Accessible${NC}"
+    else
+        echo -e "${GRAY}  ${ARROW}${NC} HTTP endpoint: ${YELLOW}Not responding${NC}"
     fi
 
     echo -e "${GREEN}${CHECK}${NC} Installation verification completed!"
@@ -249,12 +398,12 @@ display_installation_completion() {
     echo
     
     echo -e "${CYAN}Next Steps:${NC}"
-    echo -e "${WHITE}1. Follow the link and login your panel account:${NC}"
-    echo -e "${WHITE}https://$HUB_DOMAIN${NC}"
+    echo -e "${WHITE}1. Follow the link and create admin account:${NC}"
+    echo -e "${WHITE}https://$MONITOR_DOMAIN${NC}"
     echo
     echo -e "${WHITE}2. Click \"Add System\" and fill in the fields:${NC}"
-    echo -e "${WHITE}Name: Node${NC}"
-    echo -e "${WHITE}Host/IP: $(hostname -I | awk '{print $1}')${NC}"
+    echo -e "${WHITE}Name: Panel${NC}"
+    echo -e "${WHITE}Host/IP: 127.0.0.1${NC}"
     echo
     echo -e "${WHITE}3. Click \"Copy docker compose\", open \"docker-compose\" and insert \"PUBLIC_KEY\" and \"TOKEN\":${NC}"
     echo -e "${WHITE}nano /opt/beszel-agent/docker-compose.yml${NC}"
@@ -270,27 +419,32 @@ display_installation_completion() {
 # Install Beszel
 install_beszel() {
     echo
-    echo -e "${PURPLE}==========================${NC}"
-    echo -e "${NC}Beszel Agent Installation${NC}"
-    echo -e "${PURPLE}==========================${NC}"
+    echo -e "${PURPLE}===============================${NC}"
+    echo -e "${NC}Beszel Monitoring Installation${NC}"
+    echo -e "${PURPLE}===============================${NC}"
     echo
 
-    # Get panel IP and panel monitoring domain
-    input_panel_ip
-    input_hub_domain
+    # Get panel domain
+    input_panel_domain
 
     echo
     echo -e "${GREEN}Configuration Summary${NC}"
     echo -e "${GREEN}=====================${NC}"
     echo
+
+    extract_base_domain
+
+    echo
     echo -e "${CYAN}${INFO}${NC} Checking installation requirements..."
     echo -e "${GRAY}  ${ARROW}${NC} Verifying existing Beszel installation"
 
     # Check if Beszel is already installed
-    local agent_installed=$(check_beszel_status)
+    local status=$(check_beszel_status)
+    local hub_installed=$(echo $status | cut -d',' -f1)
+    local agent_installed=$(echo $status | cut -d',' -f2)
     
-    if [ "$agent_installed" = "true" ]; then
-        echo -e "${RED}${CROSS}${NC} Beszel Agent is already installed!"
+    if [ "$hub_installed" = "true" ] || [ "$agent_installed" = "true" ]; then
+        echo -e "${RED}${CROSS}${NC} Beszel is already installed!"
         echo -e "${RED}Please uninstall it first if you want to reinstall.${NC}"
         return 1
     fi
@@ -300,10 +454,16 @@ install_beszel() {
     set -e
 
     # Execute installation steps
+    create_hub_structure
+    create_hub_docker_compose
+    start_hub_container
+    
     create_agent_structure
     create_agent_docker_compose
     start_agent_container
+    
     configure_firewall
+    setup_nginx_config
     verify_installation
     display_installation_completion
 }
@@ -316,7 +476,7 @@ install_beszel() {
 uninstall_beszel() {
     echo
     # Confirmation
-    echo -ne "${YELLOW}Are you sure you want to uninstall Beszel Agent? (y/N): ${NC}"
+    echo -ne "${YELLOW}Are you sure you want to uninstall Beszel? (y/N): ${NC}"
     read -r CONFIRM
 
     if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
@@ -326,9 +486,9 @@ uninstall_beszel() {
     fi
 
     echo
-    echo -e "${PURPLE}============================${NC}"
-    echo -e "${NC}Beszel Agent Uninstallation${NC}"
-    echo -e "${PURPLE}============================${NC}"
+    echo -e "${PURPLE}=================================${NC}"
+    echo -e "${NC}Beszel Monitoring Uninstallation${NC}"
+    echo -e "${PURPLE}=================================${NC}"
     echo
     echo -e "${GREEN}Status Verification${NC}"
     echo -e "${GREEN}===================${NC}"
@@ -339,10 +499,12 @@ uninstall_beszel() {
     echo -e "${GRAY}  ${ARROW}${NC} Identifying services to remove"
 
     # Check if Beszel is installed
-    local agent_installed=$(check_beszel_status)
+    local status=$(check_beszel_status)
+    local hub_installed=$(echo $status | cut -d',' -f1)
+    local agent_installed=$(echo $status | cut -d',' -f2)
     
-    if [ "$agent_installed" != "true" ]; then
-        echo -e "${YELLOW}Beszel Agent is not installed on this system.${NC}"
+    if [ "$hub_installed" != "true" ] && [ "$agent_installed" != "true" ]; then
+        echo -e "${YELLOW}Beszel is not installed on this system.${NC}"
         return 0
     fi
 
@@ -355,6 +517,13 @@ uninstall_beszel() {
 
     echo -e "${CYAN}${INFO}${NC} Removing Docker containers..."
     
+    # Stop and remove Beszel Hub
+    if [ -d "/opt/beszel" ]; then
+        echo -e "${GRAY}  ${ARROW}${NC} Stopping Beszel Hub"
+        cd /opt/beszel
+        docker compose down > /dev/null 2>&1 || true
+    fi
+
     # Stop and remove Beszel Agent
     if [ -d "/opt/beszel-agent" ]; then
         echo -e "${GRAY}  ${ARROW}${NC} Stopping Beszel Agent"
@@ -363,6 +532,7 @@ uninstall_beszel() {
     fi
 
     echo -e "${GRAY}  ${ARROW}${NC} Removing container images"
+    docker rmi henrygd/beszel:latest > /dev/null 2>&1 || true
     docker rmi henrygd/beszel-agent:latest > /dev/null 2>&1 || true
 
     echo -e "${GREEN}${CHECK}${NC} Docker services removal completed!"
@@ -374,13 +544,38 @@ uninstall_beszel() {
 
     echo -e "${CYAN}${INFO}${NC} Removing Beszel files and directories..."
     
-    # Remove directory
+    # Remove directories
+    if [ -d "/opt/beszel" ]; then
+        echo -e "${GRAY}  ${ARROW}${NC} Removing /opt/beszel"
+        rm -rf /opt/beszel
+    fi
+
     if [ -d "/opt/beszel-agent" ]; then
         echo -e "${GRAY}  ${ARROW}${NC} Removing /opt/beszel-agent"
         rm -rf /opt/beszel-agent
     fi
 
     echo -e "${GREEN}${CHECK}${NC} File system cleanup completed!"
+    echo
+
+    echo -e "${GREEN}Web Server Configuration${NC}"
+    echo -e "${GREEN}========================${NC}"
+    echo
+
+    echo -e "${CYAN}${INFO}${NC} Removing web server configurations..."
+    
+    # Remove Nginx configuration
+    if [ -f "/etc/nginx/conf.d/beszel-monitoring.conf" ]; then
+        echo -e "${GRAY}  ${ARROW}${NC} Removing Nginx configuration"
+        rm -f /etc/nginx/conf.d/beszel-monitoring.conf
+        
+        echo -e "${GRAY}  ${ARROW}${NC} Reloading Nginx"
+        if nginx -t > /dev/null 2>&1; then
+            systemctl reload nginx > /dev/null 2>&1 || true
+        fi
+    fi
+
+    echo -e "${GREEN}${CHECK}${NC} Web server configuration cleanup completed!"
     echo
 
     echo -e "${GREEN}Firewall Configuration${NC}"
@@ -390,10 +585,9 @@ uninstall_beszel() {
     echo -e "${CYAN}${INFO}${NC} Removing firewall rules..."
     echo -e "${GRAY}  ${ARROW}${NC} Removing UFW rules"
     
-    # Remove UFW rules - need to find and delete by comment
-    ufw status numbered | grep "Beszel Agent" | awk '{print $1}' | sed 's/\[//' | sed 's/\]//' | tac | while read num; do
-        yes | ufw delete $num > /dev/null 2>&1
-    done
+    # Remove UFW rules
+    ufw delete allow 8090/tcp > /dev/null 2>&1 || true
+    ufw delete allow 45876/tcp > /dev/null 2>&1 || true
 
     echo -e "${GREEN}${CHECK}${NC} Firewall configuration cleanup completed!"
     echo
@@ -411,11 +605,18 @@ uninstall_beszel() {
 
 # Show main menu
 show_main_menu() {
-    local agent_installed=$(check_beszel_status)
+    local status=$(check_beszel_status)
+    local hub_installed=$(echo $status | cut -d',' -f1)
+    local agent_installed=$(echo $status | cut -d',' -f2)
+    local beszel_installed=false
+    
+    if [ "$hub_installed" = "true" ] || [ "$agent_installed" = "true" ]; then
+        beszel_installed=true
+    fi
     
     echo -e "${CYAN}Please select an action:${NC}"
     echo
-    if [ "$agent_installed" = "true" ]; then
+    if [ "$beszel_installed" = "true" ]; then
         echo -e "${BLUE}1.${NC} Show Status"
         echo -e "${YELLOW}2.${NC} Uninstall"
         echo -e "${RED}3.${NC} Exit"
@@ -429,10 +630,17 @@ show_main_menu() {
 
 # Handle user choice
 handle_user_choice() {
-    local agent_installed=$(check_beszel_status)
+    local status=$(check_beszel_status)
+    local hub_installed=$(echo $status | cut -d',' -f1)
+    local agent_installed=$(echo $status | cut -d',' -f2)
+    local beszel_installed=false
+    
+    if [ "$hub_installed" = "true" ] || [ "$agent_installed" = "true" ]; then
+        beszel_installed=true
+    fi
     
     while true; do
-        if [ "$agent_installed" = "true" ]; then
+        if [ "$beszel_installed" = "true" ]; then
             echo -ne "${CYAN}Enter your choice (1-3): ${NC}"
             read CHOICE
         else
@@ -442,7 +650,7 @@ handle_user_choice() {
         
         case $CHOICE in
             1)
-                if [ "$agent_installed" = "true" ]; then
+                if [ "$beszel_installed" = "true" ]; then
                     show_status
                 else
                     install_beszel
@@ -475,9 +683,9 @@ main() {
 
     # Display script header
     echo
-    echo -e "${PURPLE}============================${NC}"
-    echo -e "${NC}MARZBAN NODE BESZEL MANAGER${NC}"
-    echo -e "${PURPLE}============================${NC}"
+    echo -e "${PURPLE}=============================${NC}"
+    echo -e "${NC}MARZBAN PANEL BESZEL MANAGER${NC}"
+    echo -e "${PURPLE}=============================${NC}"
     echo
 
     # Show menu and handle user choice
